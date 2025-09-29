@@ -60,7 +60,7 @@
 <svelte:window on:keydown={handleWindowKeydown} />
 
 <svelte:head>
-	<title>Projects - Evan Gans</title>
+	<title>Projects - Evan Gan</title>
 </svelte:head>
 
 	<main>
@@ -168,6 +168,11 @@
 					<button type="button" class="modal-close" on:click={closeProject} aria-label="Close project details">
 						✕
 					</button>
+					{#if activeProject.thumbnail}
+						<div class="project-modal-thumbnail">
+							<img src={activeProject.thumbnail} alt={activeProject.name} />
+						</div>
+					{/if}
 					<div class="project-modal-meta">
 						{#if activeProject.dateDisplay}
 							<span class="project-date">{activeProject.dateDisplay}</span>
@@ -179,9 +184,6 @@
 						</div>
 					</div>
 					<h2 class="project-modal-name">{@html activeProject.nameHtml}</h2>
-					{#if activeProject.taglineHtml}
-						<p class="project-modal-tagline">{@html activeProject.taglineHtml}</p>
-					{/if}
 					<div class="project-modal-description">{@html activeProject.descriptionHtml}</div>
 					{#if activeProject.links.length}
 						<div class="project-links modal">
@@ -474,6 +476,24 @@
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
 		outline: none;
+	}
+
+	.project-modal-thumbnail {
+		width: 100%;
+		height: 250px;
+		overflow: hidden;
+		border-radius: 12px;
+		background: #374151;
+		margin-bottom: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.project-modal-thumbnail img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.project-modal-meta {

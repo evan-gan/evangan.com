@@ -56,7 +56,7 @@
 </script>
 
 <svelte:head>
-	<title>Evan Gans - Developer & Creator</title>
+	<title>Evan Gan - Developer & Creator</title>
 </svelte:head>
 
 <main>

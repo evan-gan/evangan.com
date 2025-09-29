@@ -15,7 +15,7 @@
 <!-- Navigation -->
 <nav class="main-nav">
 	<div class="nav-container">
-		<a href="/" class="nav-brand">Evan Gans</a>
+		<a href="/" class="nav-brand">Evan Gan</a>
 		<div class="nav-links">
 			<a href="/" class="nav-link" class:active={$page.url.pathname === '/'}>Home</a>
 			<a href="/projects" class="nav-link" class:active={$page.url.pathname.startsWith('/projects')}>Projects</a>
