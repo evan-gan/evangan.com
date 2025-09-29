@@ -1,105 +1,198 @@
 <script lang="ts">
 	import type { ProjectCategory, ProjectData } from '$lib/projects';
+	import { onDestroy } from 'svelte';
 
 	export let data: { categories: ProjectCategory[]; projects: ProjectData[] };
 
 	let selectedCategory = 'all';
 	let filteredProjects: ProjectData[] = [];
+	let activeProject: ProjectData | null = null;
 
 	$:{
 		filteredProjects = selectedCategory === 'all'
 			? data.projects
 			: data.projects.filter((project) => project.categorySlugs.includes(selectedCategory));
 	}
+
+	$: {
+		if (typeof document !== 'undefined') {
+			document.body.style.overflow = activeProject ? 'hidden' : '';
+		}
+	}
+
+	function openProject(project: ProjectData) {
+		activeProject = project;
+	}
+
+	function closeProject() {
+		activeProject = null;
+	}
+
+	function handleWindowKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && activeProject) {
+			event.preventDefault();
+			closeProject();
+		}
+	}
+
+	function handleBackdropKeydown(event: KeyboardEvent) {
+		if (event.target !== event.currentTarget) return;
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			closeProject();
+		}
+	}
+
+	onDestroy(() => {
+		if (typeof document !== 'undefined') {
+			document.body.style.overflow = '';
+		}
+	});
 </script>
+
+<svelte:window on:keydown={handleWindowKeydown} />
 
 <svelte:head>
 	<title>Projects - Evan Gans</title>
 </svelte:head>
 
-<main>
-	<div class="container">
-		<header class="page-header">
-			<h1>My Projects</h1>
-			<p>A collection of things I've built and worked on</p>
-		</header>
+	<main>
+		<div class="container">
+			<header class="page-header">
+				<h1>My Projects</h1>
+				<p>A collection of things I've built and worked on</p>
+			</header>
 
-		<!-- Category Filter Slider -->
-		<div class="filter-section">
-			<div class="filter-slider">
-				<button 
-					class="filter-btn" 
-					class:active={selectedCategory === 'all'}
-					on:click={() => selectedCategory = 'all'}
-				>
-					All Projects
-				</button>
-				{#each data.categories as category}
-					<button 
-						class="filter-btn" 
-						class:active={selectedCategory === category.name}
-						on:click={() => selectedCategory = category.name}
+			<!-- Category Filter Slider -->
+			<div class="filter-section">
+				<div class="filter-slider">
+					<button
+						class="filter-btn"
+						class:active={selectedCategory === 'all'}
+						on:click={() => selectedCategory = 'all'}
 					>
-						{category.displayName}
+						All Projects
 					</button>
+					{#each data.categories as category}
+						<button
+							class="filter-btn"
+							class:active={selectedCategory === category.name}
+							on:click={() => selectedCategory = category.name}
+						>
+							{category.displayName}
+						</button>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Projects Grid -->
+			<div class="projects-grid">
+				{#each filteredProjects as project, index}
+					<article class="project-card" style="--card-index: {index}">
+						{#if project.thumbnail}
+							<div class="project-thumbnail">
+								<img src={project.thumbnail} alt={project.name} />
+							</div>
+						{/if}
+						<div class="project-content">
+							<div class="project-meta">
+								{#if project.dateDisplay}
+									<span class="project-date">{project.dateDisplay}</span>
+								{/if}
+								<div class="project-categories">
+									{#each project.categories as categoryName}
+										<span class="project-category">{categoryName}</span>
+									{/each}
+								</div>
+							</div>
+							<h3 class="project-name">{@html project.nameHtml}</h3>
+							{#if project.taglineHtml}
+								<button
+									type="button"
+									class="project-tagline"
+									on:click={() => openProject(project)}
+									aria-haspopup="dialog"
+									aria-controls="project-modal"
+								>
+									<span class="tagline-text">{@html project.taglineHtml}</span>
+									<span class="chevron" aria-hidden="true">→</span>
+								</button>
+							{/if}
+							{#if project.links.length}
+								<div class="project-links">
+									{#each project.links as link}
+										<a
+											href={link.url}
+											target="_blank"
+											rel="noopener"
+											class="project-link"
+										>
+											{link.label}
+											<span class="external-icon">↗</span>
+										</a>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					</article>
 				{/each}
 			</div>
+
+			{#if filteredProjects.length === 0}
+				<div class="empty-state">
+					<h3>No projects found</h3>
+					<p>Try selecting a different category or check back soon!</p>
+				</div>
+			{/if}
 		</div>
 
-		<!-- Projects Grid -->
-		<div class="projects-grid">
-			{#each filteredProjects as project, index}
-				<div class="project-card" style="--card-index: {index}">
-					{#if project.thumbnail}
-						<div class="project-thumbnail">
-							<img src={project.thumbnail} alt={project.name} />
+		{#if activeProject}
+			<div
+				class="project-modal-backdrop"
+				role="button"
+				tabindex="0"
+				aria-label="Close project dialog"
+				on:click|self={closeProject}
+				on:keydown={handleBackdropKeydown}
+			>
+				<div class="project-modal" role="dialog" aria-modal="true" id="project-modal">
+					<button type="button" class="modal-close" on:click={closeProject} aria-label="Close project details">
+						✕
+					</button>
+					<div class="project-modal-meta">
+						{#if activeProject.dateDisplay}
+							<span class="project-date">{activeProject.dateDisplay}</span>
+						{/if}
+						<div class="project-categories">
+							{#each activeProject.categories as categoryName}
+								<span class="project-category">{categoryName}</span>
+							{/each}
+						</div>
+					</div>
+					<h2 class="project-modal-name">{@html activeProject.nameHtml}</h2>
+					{#if activeProject.taglineHtml}
+						<p class="project-modal-tagline">{@html activeProject.taglineHtml}</p>
+					{/if}
+					<div class="project-modal-description">{@html activeProject.descriptionHtml}</div>
+					{#if activeProject.links.length}
+						<div class="project-links modal">
+							{#each activeProject.links as link}
+								<a
+									href={link.url}
+									target="_blank"
+									rel="noopener"
+									class="project-link"
+								>
+									{link.label}
+									<span class="external-icon">↗</span>
+								</a>
+							{/each}
 						</div>
 					{/if}
-					<div class="project-content">
-						<div class="project-meta">
-							{#if project.dateDisplay}
-								<span class="project-date">{project.dateDisplay}</span>
-							{/if}
-							<div class="project-categories">
-								{#each project.categories as categoryName}
-									<span class="project-category">{categoryName}</span>
-								{/each}
-							</div>
-						</div>
-						<h3 class="project-name">{@html project.nameHtml}</h3>
-						{#if project.taglineHtml}
-							<p class="project-tagline">{@html project.taglineHtml}</p>
-						{/if}
-						<div class="project-description">{@html project.descriptionHtml}</div>
-						{#if project.links.length}
-							<div class="project-links">
-								{#each project.links as link}
-									<a
-										href={link.url}
-										target="_blank"
-										rel="noopener"
-										class="project-link"
-										data-type={link.type}
-									>
-										{link.label}
-										<span class="external-icon">↗</span>
-									</a>
-								{/each}
-							</div>
-						{/if}
-					</div>
 				</div>
-			{/each}
-		</div>
-
-		{#if filteredProjects.length === 0}
-			<div class="empty-state">
-				<h3>No projects found</h3>
-				<p>Try selecting a different category or check back soon!</p>
 			</div>
 		{/if}
-	</div>
-</main>
+	</main>
 
 <style>
 	main {
@@ -262,10 +355,30 @@
 	}
 
 	.project-tagline {
-		color: #94a3b8;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 0;
+		margin: 0 0 12px 0;
+		background: transparent;
+		border: none;
+		color: #cbd5e1;
 		font-size: 1rem;
-		font-weight: 500;
-		margin: 0 0 16px 0;
+		font-weight: 600;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.project-tagline:focus-visible {
+		outline: 2px solid #3b82f6;
+		outline-offset: 4px;
+		border-radius: 6px;
+	}
+
+	.tagline-text {
+		flex: 1;
 	}
 
 	.project-tagline :global(strong),
@@ -273,28 +386,20 @@
 		color: inherit;
 	}
 
-	.project-description {
-		color: #cbd5e1;
-		margin-bottom: 20px;
-		line-height: 1.6;
+	.project-tagline:hover .tagline-text {
+		color: #f8fafc;
 	}
 
-	.project-description :global(p) {
-		margin: 0 0 12px 0;
+	.project-tagline .chevron {
+		color: #94a3b8;
+		transition: transform 0.2s ease, color 0.2s ease;
 	}
 
-	.project-description :global(ul),
-	.project-description :global(ol) {
-		margin: 0 0 16px 1.25rem;
-		padding: 0;
-	}
-
-	.project-description :global(li) {
-		margin-bottom: 6px;
+	.project-tagline:hover .chevron {
+		color: #60a5fa;
 	}
 
 	/* Markdown links inside project description and name */
-	.project-description :global(a),
 	.project-name :global(a) {
 		color: #60a5fa; /* link blue */
 		text-decoration: underline;
@@ -302,59 +407,134 @@
 		transition: color 0.2s ease, text-decoration-color 0.2s ease;
 	}
 
-	.project-description :global(a:hover),
 	.project-name :global(a:hover) {
 		color: #3b82f6; /* brighter on hover */
 		text-decoration-thickness: 2px;
 	}
 
-	.project-description :global(a:focus-visible),
 	.project-name :global(a:focus-visible) {
 		outline: 2px solid #3b82f6;
 		outline-offset: 2px;
 		border-radius: 2px;
 	}
 
-	.project-description :global(strong) {
-		color: #f8fafc;
-		font-weight: 600;
-	}
-
-	.project-description :global(em) {
-		color: #60a5fa;
-		font-style: normal;
-		font-weight: 500;
-	}
-
 	.project-links {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
+		gap: 12px;
+		margin-top: 12px;
 	}
 
 	.project-link {
 		display: inline-flex;
 		align-items: center;
-		gap: 8px;
-		padding: 10px 18px;
-		border-radius: 999px;
+		gap: 6px;
 		color: #60a5fa;
-		font-weight: 600;
 		text-decoration: none;
-		background: rgba(37, 99, 235, 0.12);
-		border: 1px solid rgba(37, 99, 235, 0.35);
-		transition: all 0.3s ease;
-	}
-
-	.project-link[data-type="github"] {
-		background: rgba(59, 130, 246, 0.12);
-		border-color: rgba(59, 130, 246, 0.4);
+		font-weight: 500;
+		transition: color 0.3s ease, gap 0.3s ease;
 	}
 
 	.project-link:hover {
 		color: #3b82f6;
-		border-color: rgba(59, 130, 246, 0.8);
-		box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+		gap: 8px;
+	}
+
+	.project-modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(2, 6, 23, 0.85);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 40px 20px;
+		backdrop-filter: blur(6px);
+		z-index: 1000;
+	}
+
+	.project-modal {
+		position: relative;
+		max-width: 760px;
+		width: 100%;
+		max-height: 100%;
+		overflow-y: auto;
+		background: #0f172a;
+		border: 1px solid #1f2937;
+		border-radius: 20px;
+		padding: 40px;
+		box-shadow: 0 30px 80px rgba(15, 23, 42, 0.6);
+	}
+
+	.modal-close {
+		position: absolute;
+		top: 18px;
+		right: 18px;
+		background: rgba(15, 23, 42, 0.9);
+		border: 1px solid #334155;
+		color: #94a3b8;
+		width: 36px;
+		height: 36px;
+		border-radius: 999px;
+		cursor: pointer;
+		font-size: 1.1rem;
+		line-height: 1;
+		transition: all 0.2s ease;
+	}
+
+	.modal-close:hover,
+	.modal-close:focus-visible {
+		color: #f8fafc;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+		outline: none;
+	}
+
+	.project-modal-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin-bottom: 20px;
+	}
+
+	.project-modal-name {
+		font-size: 2.2rem;
+		margin: 0 0 16px 0;
+		color: #f8fafc;
+		line-height: 1.2;
+	}
+
+	.project-modal-tagline {
+		margin: 0 0 20px 0;
+		color: #cbd5e1;
+		font-size: 1.1rem;
+		font-weight: 500;
+	}
+
+	.project-modal-description {
+		color: #cbd5e1;
+		line-height: 1.7;
+		margin-bottom: 24px;
+	}
+
+	.project-modal-description :global(p) {
+		margin: 0 0 16px 0;
+	}
+
+	.project-modal-description :global(ul),
+	.project-modal-description :global(ol) {
+		margin: 0 0 16px 1.25rem;
+		padding: 0;
+	}
+
+	.project-modal-description :global(li) {
+		margin-bottom: 6px;
+	}
+
+	.project-links.modal {
+		margin-top: 20px;
 	}
 
 	.external-icon {

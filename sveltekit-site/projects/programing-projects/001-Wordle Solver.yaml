@@ -1,6 +1,0 @@
-date: "May 2024"
-name: "Wordle Solver"
-description: |
-  A Swift-based solver for Wordle. Created as a playful way to improve results by automating the problem instead of practicing the game by hand.
-link: "https://github.com/evan-gan/wordleSolver"
-thumbnail: "/thumbnails/placeholder.svg"
