@@ -43,6 +43,13 @@
 		}
 	}
 
+	function handleCardKeydown(event: KeyboardEvent, project: ProjectData) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			openProject(project);
+		}
+	}
+
 	onDestroy(() => {
 		if (typeof document !== 'undefined') {
 			document.body.style.overflow = '';
@@ -88,7 +95,16 @@
 			<!-- Projects Grid -->
 			<div class="projects-grid">
 				{#each filteredProjects as project, index}
-					<article class="project-card" style="--card-index: {index}">
+					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+					<article
+						class="project-card"
+						style="--card-index: {index}"
+						on:click={() => openProject(project)}
+						on:keydown={(event) => handleCardKeydown(event, project)}
+						tabindex="0"
+						aria-label={`View details for ${project.name}`}
+					>
 						{#if project.thumbnail}
 							<div class="project-thumbnail">
 								<img src={project.thumbnail} alt={project.name} />
@@ -107,16 +123,7 @@
 							</div>
 							<h3 class="project-name">{@html project.nameHtml}</h3>
 							{#if project.taglineHtml}
-								<button
-									type="button"
-									class="project-tagline"
-									on:click={() => openProject(project)}
-									aria-haspopup="dialog"
-									aria-controls="project-modal"
-								>
-									<span class="tagline-text">{@html project.taglineHtml}</span>
-									<span class="chevron" aria-hidden="true">→</span>
-								</button>
+								<p class="project-tagline">{@html project.taglineHtml}</p>
 							{/if}
 							{#if project.links.length}
 								<div class="project-links">
@@ -126,6 +133,8 @@
 											target="_blank"
 											rel="noopener"
 											class="project-link"
+											on:click|stopPropagation
+											on:keydown|stopPropagation
 										>
 											{link.label}
 											<span class="external-icon">↗</span>
@@ -281,12 +290,19 @@
 		opacity: 0;
 		transform: translateY(30px);
 		animation-delay: calc(var(--card-index) * 0.1s);
+		position: relative;
+		cursor: pointer;
 	}
 
 	.project-card:hover {
 		transform: translateY(-8px);
 		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 		border-color: #475569;
+	}
+
+	.project-card:focus-visible {
+		outline: 2px solid #3b82f6;
+		outline-offset: 4px;
 	}
 
 	.project-thumbnail {
@@ -355,48 +371,16 @@
 	}
 
 	.project-tagline {
-		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-		padding: 0;
 		margin: 0 0 12px 0;
-		background: transparent;
-		border: none;
 		color: #cbd5e1;
 		font-size: 1rem;
-		font-weight: 600;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	.project-tagline:focus-visible {
-		outline: 2px solid #3b82f6;
-		outline-offset: 4px;
-		border-radius: 6px;
-	}
-
-	.tagline-text {
-		flex: 1;
+		font-weight: 500;
+		line-height: 1.5;
 	}
 
 	.project-tagline :global(strong),
 	.project-tagline :global(em) {
 		color: inherit;
-	}
-
-	.project-tagline:hover .tagline-text {
-		color: #f8fafc;
-	}
-
-	.project-tagline .chevron {
-		color: #94a3b8;
-		transition: transform 0.2s ease, color 0.2s ease;
-	}
-
-	.project-tagline:hover .chevron {
-		color: #60a5fa;
 	}
 
 	/* Markdown links inside project description and name */
