@@ -1,0 +1,23 @@
+date: "2024-01-10"
+name: "Portfolio **Website**"
+tagline: "Showcasing my work and projects" # What is shown on the card
+# Description when you click on it
+description: | #What is shown when you click on it (opens the card up into a larger model)
+  Responsive portfolio site with animated elements and smooth scrolling. Built with modern web standards.
+  
+  Features:
+  - *Smooth animations* with GSAP
+  - **Optimized performance** (98+ Lighthouse score)
+  - Mobile-first responsive design
+  - Dark/light theme toggle
+# link: "https://evangan.com"
+thumbnail: "/thumbnails/portfolio-site.svg"
+#OPTIONAL VALUES:
+githubURL: "" #Shows as "Code" with a github icon
+websiteURL: "" #Shows as "Site"
+demoURL: "" #Shows as "Demo"
+# Metadata:
+importance: 1 #INT (for ranking, tied stuff with the same number )
+categories: #Replaces the current folder system, may have multiple categories
+  - Web Development
+  - Programming Projects

@@ -1,0 +1,6 @@
+date: "March 8 2025"
+name: "Hack The Castle"
+description: |
+  Web app built with Next.js to help a foundation track students and search by date/time windows, addressing their challenge of keeping track of students.
+link: "https://github.com/ph4iry/polaris"
+thumbnail: "/thumbnails/placeholder.svg"

@@ -1,0 +1,6 @@
+date: "May 2024"
+name: "Maze Generator"
+description: |
+  Recursive maze generator written in TypeScript for a pen plotter. Built as part of the Hack Club Blot ecosystem, with custom toolpath (that I designed & wrote) optimization for plotting.
+link: "https://github.com/evan-gan/blot"
+thumbnail: "https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg"
