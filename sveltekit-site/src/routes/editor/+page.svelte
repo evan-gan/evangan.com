@@ -10,12 +10,10 @@
 		websiteURL?: string;
 		githubURL?: string;
 		categories: string[];
-		importance: number;
 	}
 	
 	let projects: Project[] = [];
 	let allCategories: string[] = [];
-	let sortBy: 'date' | 'importance' | 'name' = 'importance';
 	let filterCategory = 'all';
 	let editingProject: Project | null = null;
 	let showAddForm = false;
@@ -39,8 +37,7 @@
 				description: "Spent the entire summer working at [Hack Club](https://hackclub.com) full time to organize and run a four-day hackathon at the Cathleen Stone Outward Bound School on Thompson Island in the Boston Harbor.",
 				thumbnail: "/thumbnails/ShipwreckedGroupPhoto.JPG",
 				websiteURL: "https://shipwrecked.hackclub.com",
-				categories: ["Hackathons I Ran"],
-				importance: 1
+				categories: ["Hackathons I Ran"]
 			},
 			{
 				date: "Nov 23, 2024",
@@ -49,8 +46,7 @@
 				description: "Organized and ran a 12-hour hackathon at the Microsoft NERD Center.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				websiteURL: "https://counterspell.hackclub.com/boston",
-				categories: ["Hackathons I Ran"],
-				importance: 2
+				categories: ["Hackathons I Ran"]
 			},
 			{
 				date: "Sep 27, 2025",
@@ -59,8 +55,7 @@
 				description: "Organized and ran a 12-hour hackathon at the Microsoft NERD Center.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				websiteURL: "https://daydream.hackclub.com/boston",
-				categories: ["Hackathons I Ran"],
-				importance: 3
+				categories: ["Hackathons I Ran"]
 			},
 			{
 				date: "Mar 15, 2025",
@@ -69,8 +64,7 @@
 				description: "Organized and ran a 12-hour hackathon at the Microsoft NERD Center.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				websiteURL: "https://scrapyard.hackclub.com/boston",
-				categories: ["Hackathons I Ran"],
-				importance: 4
+				categories: ["Hackathons I Ran"]
 			},
 			{
 				date: "Mar 8, 2025",
@@ -79,8 +73,7 @@
 				description: "Web app built with Next.js to help a foundation track students and search by date/time windows, addressing their challenge of keeping track of students.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				githubURL: "https://github.com/ph4iry/polaris",
-				categories: ["Programming Projects"],
-				importance: 101
+				categories: ["Programming Projects"]
 			},
 			{
 				date: "Mar 1–2, 2024",
@@ -89,8 +82,7 @@
 				description: "We were prompted to make a useless project. What better than an anti-productivity app to fulfill this objective.",
 				thumbnail: "/thumbnails/scrapyardFlagship.jpg",
 				githubURL: "https://github.com/evan-gan/distractatime",
-				categories: ["Programming Projects"],
-				importance: 102
+				categories: ["Programming Projects"]
 			},
 			{
 				date: "May 2024",
@@ -99,8 +91,7 @@
 				description: "Recursive maze generator written in TypeScript for a pen plotter. Built as part of the Hack Club Blot ecosystem, with custom toolpath (that I designed & wrote) optimization for plotting.",
 				thumbnail: "https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg",
 				githubURL: "https://github.com/evan-gan/blot",
-				categories: ["Programming Projects"],
-				importance: 103
+				categories: ["Programming Projects"]
 			},
 			{
 				date: "May 2024",
@@ -109,8 +100,7 @@
 				description: "A Swift-based solver for Wordle. Created as a playful way to improve results by automating the problem instead of practicing the game by hand.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				githubURL: "https://github.com/evan-gan/wordleSolver",
-				categories: ["Programming Projects"],
-				importance: 104
+				categories: ["Programming Projects"]
 			},
 			{
 				date: "Jul 12–19, 2024",
@@ -119,8 +109,7 @@
 				description: "Circuit board and firmware project to build trail equipment with friends. Learned how to design a circuit board for the first time, designed it, and got it manufactured.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				githubURL: "https://github.com/evan-gan/trail-PCB-communication-network",
-				categories: ["Hardware Projects"],
-				importance: 201
+				categories: ["Hardware Projects"]
 			},
 			{
 				date: "May 17–19, 2024",
@@ -129,8 +118,7 @@
 				description: "Peer-to-peer communication device built for an apocalypse-themed hackathon.",
 				thumbnail: "/thumbnails/placeholder.svg",
 				githubURL: "https://github.com/EerierGosling/Informedead",
-				categories: ["Hardware Projects"],
-				importance: 202
+				categories: ["Hardware Projects"]
 			}
 		];
 		
@@ -148,37 +136,27 @@
 	
 	function sortProjects(projectsList: Project[]): Project[] {
 		return [...projectsList].sort((a, b) => {
-			switch (sortBy) {
-				case 'date':
-					// Extract year from date string for sorting since dates have ranges
-					const getYear = (dateStr: string) => {
-						const yearMatch = dateStr.match(/\b(20\d{2})\b/);
-						return yearMatch ? parseInt(yearMatch[1]) : 0;
-					};
-					const getMonth = (dateStr: string) => {
-						const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-										'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-						for (let i = 0; i < months.length; i++) {
-							if (dateStr.includes(months[i])) return i;
-						}
-						return 0;
-					};
-					
-					const aYear = getYear(a.date);
-					const bYear = getYear(b.date);
-					if (aYear !== bYear) return bYear - aYear; // Recent first
-					
-					const aMonth = getMonth(a.date);
-					const bMonth = getMonth(b.date);
-					return bMonth - aMonth; // Recent first
-					
-				case 'importance':
-					return a.importance - b.importance;
-				case 'name':
-					return a.name.localeCompare(b.name);
-				default:
-					return 0;
-			}
+			// Extract year from date string for sorting since dates have ranges
+			const getYear = (dateStr: string) => {
+				const yearMatch = dateStr.match(/\b(20\d{2})\b/);
+				return yearMatch ? parseInt(yearMatch[1]) : 0;
+			};
+			const getMonth = (dateStr: string) => {
+				const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+								'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+				for (let i = 0; i < months.length; i++) {
+					if (dateStr.includes(months[i])) return i;
+				}
+				return 0;
+			};
+			
+			const aYear = getYear(a.date);
+			const bYear = getYear(b.date);
+			if (aYear !== bYear) return bYear - aYear; // Recent first
+			
+			const aMonth = getMonth(a.date);
+			const bMonth = getMonth(b.date);
+			return bMonth - aMonth; // Recent first
 		});
 	}
 	
@@ -191,18 +169,16 @@
 	
 	// Reactive statement to update filtered and sorted projects
 	$: filteredAndSortedProjects = (() => {
-		// Explicitly depend on these variables
-		const currentSortBy = sortBy;
 		const currentFilterCategory = filterCategory;
 		const currentProjects = projects;
 		
-		console.log('Filtering/Sorting:', { sortBy: currentSortBy, filterCategory: currentFilterCategory, projectCount: currentProjects.length });
+		console.log('Filtering:', { filterCategory: currentFilterCategory, projectCount: currentProjects.length });
 		
 		const filtered = filterProjects(currentProjects);
 		console.log('After filtering:', filtered.length, 'projects');
 		
 		const sorted = sortProjects(filtered);
-		console.log('After sorting:', sorted.length, 'projects');
+		console.log('After sorting by date:', sorted.length, 'projects');
 		
 		return sorted;
 	})();
@@ -214,8 +190,7 @@
 			tagline: "",
 			description: "",
 			thumbnail: "",
-			categories: [],
-			importance: Math.max(...projects.map(p => p.importance), 0) + 1
+			categories: []
 		};
 		projects = [...projects, newProject];
 		editingProject = newProject;
@@ -286,7 +261,6 @@
 			project.categories.forEach(cat => {
 				yamlLines.push(`    - ${cat}`);
 			});
-			yamlLines.push(`  importance: ${project.importance}`);
 			yamlLines.push('');
 		});
 		
@@ -308,12 +282,6 @@
 		<!-- Controls -->
 		<div class="controls">
 			<div class="filters">
-				<select bind:value={sortBy}>
-					<option value="importance">Sort by Importance</option>
-					<option value="date">Sort by Date</option>
-					<option value="name">Sort by Name</option>
-				</select>
-				
 				<select bind:value={filterCategory}>
 					<option value="all">All Categories</option>
 					{#each allCategories as category}
@@ -347,7 +315,6 @@
 							<p class="tagline">{project.tagline}</p>
 							<div class="metadata">
 								<span class="date">{project.date}</span>
-								<span class="importance">#{project.importance}</span>
 								<div class="categories">
 									{#each project.categories as category}
 										<span class="category-tag">{category}</span>
@@ -375,10 +342,6 @@
 								<label>
 									Date:
 									<input type="text" bind:value={editingProject.date} />
-								</label>
-								<label>
-									Importance:
-									<input type="number" bind:value={editingProject.importance} />
 								</label>
 							</div>
 							
@@ -606,7 +569,7 @@
 		flex-wrap: wrap;
 	}
 
-	.date, .importance {
+	.date {
 		color: #94a3b8;
 		font-size: 0.9rem;
 	}
