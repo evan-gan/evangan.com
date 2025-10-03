@@ -7,7 +7,6 @@
   websiteURL: "https://shipwrecked.hackclub.com"
   categories:
     - Hackathons I Ran
-  importance: 1
 
 - date: "Nov 23, 2024"
   name: "Counterspell Hackathon"
@@ -18,7 +17,6 @@
   websiteURL: "https://counterspell.hackclub.com/boston"
   categories:
     - Hackathons I Ran
-  importance: 2
 
 - date: "Sep 27, 2025"
   name: "Daydream Hackathon"
@@ -29,7 +27,6 @@
   websiteURL: "https://daydream.hackclub.com/boston"
   categories:
     - Hackathons I Ran
-  importance: 3
 
 - date: "Mar 15, 2025"
   name: "Scrapyard Hackathon"
@@ -40,7 +37,6 @@
   websiteURL: "https://scrapyard.hackclub.com/boston"
   categories:
     - Hackathons I Ran
-  importance: 4
 
 - date: "Mar 8, 2025"
   name: "Hack The Castle"
@@ -51,18 +47,16 @@
   githubURL: "https://github.com/ph4iry/polaris"
   categories:
     - Programming Projects
-  importance: 101
 
 - date: "Mar 1–2, 2024"
   name: "Scrapyard Flagship Hackathon"
-  tagline: "Built an anti-productivity Mac app for the “useless project” prompt at a 12-hour hackathon."
+  tagline: "Built an anti-productivity Mac app for the “useless project“ prompt at a 12-hour hackathon."
   description: |
     We were prompted to make a useless project. What better than an anti-productivity app to fulfill this objective.
   thumbnail: "/thumbnails/scrapyardFlagship.jpg"
   githubURL: "https://github.com/evan-gan/distractatime"
   categories:
     - Programming Projects
-  importance: 102
 
 - date: "May 2024"
   name: "Maze Generator"
@@ -73,7 +67,6 @@
   githubURL: "https://github.com/evan-gan/blot"
   categories:
     - Programming Projects
-  importance: 103
 
 - date: "May 2024"
   name: "Wordle Solver"
@@ -84,7 +77,6 @@
   githubURL: "https://github.com/evan-gan/wordleSolver"
   categories:
     - Programming Projects
-  importance: 104
 
 - date: "Jul 12–19, 2024"
   name: "The Trail"
@@ -95,7 +87,6 @@
   githubURL: "https://github.com/evan-gan/trail-PCB-communication-network"
   categories:
     - Hardware Projects
-  importance: 201
 
 - date: "May 17–19, 2024"
   name: "Apocalypse Hackathon Device"
@@ -106,4 +97,3 @@
   githubURL: "https://github.com/EerierGosling/Informedead"
   categories:
     - Hardware Projects
-  importance: 202
