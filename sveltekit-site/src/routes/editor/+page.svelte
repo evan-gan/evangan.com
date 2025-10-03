@@ -11,7 +11,6 @@
 		websiteURL?: string;
 		githubURL?: string;
 		categories: string[];
-		importance?: number;
 	}
 	
 	let projects: Project[] = [];
@@ -348,16 +347,6 @@
 							on:input={markDirty}
 						/>
 					</div>
-				</div>
-
-				<div class="form-group">
-					<label for="importance">Importance (optional)</label>
-					<input
-						id="importance"
-						type="number"
-						bind:value={editedProject.importance}
-						on:input={markDirty}
-					/>
 				</div>
 
 				<div class="form-group">
