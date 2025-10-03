@@ -23,6 +23,11 @@
 	let isDragOver = false;
 	let isUploading = false;
 	let newCategory = '';
+	let showCategoryDropdown = false;
+	let filteredCategories: string[] = [];
+	
+	// Get all unique categories from all projects
+	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
 	
 	onMount(() => {
 		loadProjects();
@@ -233,6 +238,42 @@
 			markDirty();
 		}
 		newCategory = '';
+		showCategoryDropdown = false;
+	}
+	
+	function selectCategory(category: string) {
+		newCategory = category;
+		addCategory();
+	}
+	
+	function handleCategoryInput() {
+		const value = newCategory.trim().toLowerCase();
+		if (value) {
+			filteredCategories = allCategories.filter(cat => 
+				cat.toLowerCase().includes(value) && 
+				(!editedProject || !editedProject.categories.includes(cat))
+			);
+			showCategoryDropdown = filteredCategories.length > 0;
+		} else {
+			filteredCategories = allCategories.filter(cat => 
+				!editedProject || !editedProject.categories.includes(cat)
+			);
+			showCategoryDropdown = filteredCategories.length > 0;
+		}
+	}
+	
+	function handleCategoryFocus() {
+		filteredCategories = allCategories.filter(cat => 
+			!editedProject || !editedProject.categories.includes(cat)
+		);
+		showCategoryDropdown = filteredCategories.length > 0;
+	}
+	
+	function handleCategoryBlur() {
+		// Delay to allow click on dropdown items
+		setTimeout(() => {
+			showCategoryDropdown = false;
+		}, 200);
 	}
 	
 	function removeCategory(index: number) {
@@ -371,14 +412,31 @@
 
 				<div class="form-group">
 					<label>Categories</label>
-					<div class="categories-input">
-						<input
-							type="text"
-							bind:value={newCategory}
-							on:keydown={(e) => e.key === 'Enter' && addCategory()}
-							placeholder="Add category..."
-						/>
-						<button class="btn-add-category" on:click={addCategory}>Add</button>
+					<div class="categories-input-wrapper">
+						<div class="categories-input">
+							<input
+								type="text"
+								bind:value={newCategory}
+								on:input={handleCategoryInput}
+								on:focus={handleCategoryFocus}
+								on:blur={handleCategoryBlur}
+								on:keydown={(e) => e.key === 'Enter' && addCategory()}
+								placeholder="Add category..."
+							/>
+							<button class="btn-add-category" on:click={addCategory}>Add</button>
+						</div>
+						{#if showCategoryDropdown && filteredCategories.length > 0}
+							<div class="category-dropdown">
+								{#each filteredCategories as category}
+									<button
+										class="category-dropdown-item"
+										on:click={() => selectCategory(category)}
+									>
+										{category}
+									</button>
+								{/each}
+							</div>
+						{/if}
 					</div>
 					<div class="categories-list">
 						{#each editedProject.categories as category, index}
@@ -662,6 +720,52 @@
 	.upload-status {
 		color: #6b7280;
 		font-weight: 600;
+	}
+
+	.categories-input-wrapper {
+		position: relative;
+	}
+
+	.categories-input {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.category-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: #ffffff;
+		border: 2px solid #000000;
+		border-radius: 6px;
+		box-shadow: 4px 4px 0px #000000;
+		max-height: 200px;
+		overflow-y: auto;
+		z-index: 10;
+		margin-top: -8px;
+	}
+
+	.category-dropdown-item {
+		width: 100%;
+		padding: 10px 12px;
+		background: #ffffff;
+		border: none;
+		border-bottom: 1px solid #e5e7eb;
+		text-align: left;
+		cursor: pointer;
+		transition: background 0.2s ease;
+		font-size: 14px;
+		color: #000000;
+	}
+
+	.category-dropdown-item:last-child {
+		border-bottom: none;
+	}
+
+	.category-dropdown-item:hover {
+		background: rgba(23, 241, 209, 0.2);
 	}
 
 	.categories-input {
