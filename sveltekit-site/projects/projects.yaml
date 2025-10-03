@@ -1,3 +1,25 @@
+- date: Oct 3, 2025
+  name: evangan.com
+  tagline: This site! I developed the site from scratch built in svelte kit.
+  description: >-
+    I built this site in Svelte kit to compile statically to be deployed. My
+    project list _(all of the projects you see in this gallery)_ are stored in a
+    "Yet Another Markup Language" (yaml) file. I built an editor around this
+    file so in development mode I can edit projects from an intuitive and easy
+    to use editor. You can take a look at the editor by going to the linked
+    github repo, cloning it, and running:
+
+    1. `pnpm install`
+
+    2. `pnpm build`
+
+    3. `pnpm dev` (you can see this editor by going to
+    [http://localhost:5173/editor](http://localhost:5173/editor) now!)
+  thumbnail: /thumbnails/placeholder.svg
+  categories:
+    - Programming Projects
+  websiteURL: https://evangan.com
+  githubURL: https://github.com/evan-gan/evangan.com
 - date: Sep 27, 2025
   name: Daydream Hackathon
   tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.

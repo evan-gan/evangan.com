@@ -848,7 +848,7 @@
 		outline: none;
 		border-color: rgba(23, 241, 209, 1);
 		transform: translate(-1px, -1px);
-		box-shadow: 3px 3px 0px #000000;
+		box-shadow: 3px 3px 0px rgba(23, 241, 209, 1);
 	}
 
 	textarea {
