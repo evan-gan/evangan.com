@@ -28,6 +28,9 @@
 	let showSaveSuccess = false;
 	let showDeleteConfirm = false;
 	let showChangesWarning = false;
+	let showThumbnailGallery = false;
+	let availableThumbnails: string[] = [];
+	let hoveredThumbnail: string | null = null;
 	
 	// Get all unique categories from all projects
 	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
@@ -296,6 +299,50 @@
 		editedProject.categories = editedProject.categories.filter((_, i) => i !== index);
 		markDirty();
 	}
+	
+	async function openThumbnailGallery() {
+		try {
+			const response = await fetch('/api/thumbnails');
+			const { thumbnails } = await response.json();
+			availableThumbnails = thumbnails;
+			showThumbnailGallery = true;
+			
+			// Add escape key listener
+			window.addEventListener('keydown', handleGalleryEscape);
+		} catch (err) {
+			console.error('Failed to load thumbnails:', err);
+		}
+	}
+	
+	function closeThumbnailGallery() {
+		showThumbnailGallery = false;
+		hoveredThumbnail = null;
+		
+		// Remove escape key listener
+		window.removeEventListener('keydown', handleGalleryEscape);
+	}
+	
+	function handleGalleryEscape(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			closeThumbnailGallery();
+		}
+	}
+	
+	function handleThumbnailHover(thumbnail: string) {
+		hoveredThumbnail = thumbnail;
+	}
+	
+	function handleThumbnailLeave() {
+		hoveredThumbnail = null;
+	}
+	
+	function selectThumbnail(thumbnail: string) {
+		if (editedProject) {
+			editedProject.thumbnail = thumbnail;
+			markDirty();
+			closeThumbnailGallery();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -418,14 +465,15 @@
 							on:dragover={handleDragOver}
 							on:dragleave={handleDragLeave}
 							on:drop={handleDrop}
+							on:click={openThumbnailGallery}
 						>
 							{#if isUploading}
 								<div class="upload-status">Uploading...</div>
 							{:else if editedProject.thumbnail}
-								<img src={editedProject.thumbnail} alt="Thumbnail preview" />
-								<div class="dropzone-hint">Drag & drop to replace</div>
+								<img src={editedProject.thumbnail} alt="Thumbnail preview" class="thumbnail-preview" />
+								<div class="dropzone-hint">Click to browse or drag & drop to replace</div>
 							{:else}
-								<div class="dropzone-hint">Drag & drop image here</div>
+								<div class="dropzone-hint">Click to browse or drag & drop image here</div>
 							{/if}
 						</div>
 					</div>
@@ -526,6 +574,42 @@
 				<button class="btn-secondary" on:click={() => showChangesWarning = false}>
 					OK
 				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Thumbnail gallery modal -->
+{#if showThumbnailGallery}
+	<div class="modal-overlay gallery-overlay" on:click={closeThumbnailGallery}>
+		<div class="gallery-modal" on:click|stopPropagation>
+			<div class="gallery-header">
+				<h2>Select Thumbnail</h2>
+				<button class="gallery-close" on:click={closeThumbnailGallery}>×</button>
+			</div>
+			<div class="gallery-content">
+				<div class="gallery-grid">
+					{#each availableThumbnails as thumbnail}
+						<div 
+							class="gallery-item"
+							class:current={editedProject?.thumbnail === thumbnail}
+							class:hovered={hoveredThumbnail === thumbnail}
+							on:mouseenter={() => handleThumbnailHover(thumbnail)}
+							on:mouseleave={handleThumbnailLeave}
+							on:click={() => selectThumbnail(thumbnail)}
+						>
+							<img src={thumbnail} alt="Thumbnail option" />
+							<div class="gallery-item-name">{thumbnail.split('/').pop()}</div>
+						</div>
+					{/each}
+				</div>
+				<div class="gallery-preview">
+					{#if hoveredThumbnail}
+						<img src={hoveredThumbnail} alt="Preview" />
+					{:else if editedProject?.thumbnail}
+						<img src={editedProject.thumbnail} alt="Current thumbnail" />
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -770,6 +854,12 @@
 		background: #ffffff;
 		transition: all 0.2s ease;
 		position: relative;
+		cursor: pointer;
+	}
+
+	.thumbnail-dropzone:hover {
+		border-color: rgba(23, 241, 209, 1);
+		background: rgba(23, 241, 209, 0.05);
 	}
 
 	.thumbnail-dropzone.drag-over {
@@ -777,11 +867,12 @@
 		background: rgba(23, 241, 209, 0.1);
 	}
 
-	.thumbnail-dropzone img {
+	.thumbnail-dropzone img.thumbnail-preview {
 		max-width: 100%;
 		max-height: 150px;
 		object-fit: contain;
 		border-radius: 4px;
+		pointer-events: none;
 	}
 
 	.dropzone-hint {
@@ -994,5 +1085,143 @@
 		background: #dc2626;
 		transform: translate(-1px, -1px);
 		box-shadow: 3px 3px 0px #000000;
+	}
+
+	/* Thumbnail Gallery Styles */
+	.gallery-overlay {
+		z-index: 2000;
+	}
+
+	.gallery-modal {
+		background: #ffffff;
+		border: 2px solid #000000;
+		border-radius: 12px;
+		width: 90vw;
+		height: 90vh;
+		box-shadow: 8px 8px 0px #000000;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.gallery-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 24px;
+		border-bottom: 2px solid #000000;
+	}
+
+	.gallery-header h2 {
+		margin: 0;
+		color: #000000;
+	}
+
+	.gallery-close {
+		background: none;
+		border: none;
+		font-size: 2rem;
+		line-height: 1;
+		cursor: pointer;
+		color: #000000;
+		width: 40px;
+		height: 40px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		transition: all 0.2s ease;
+	}
+
+	.gallery-close:hover {
+		background: #f3f4f6;
+	}
+
+	.gallery-content {
+		display: flex;
+		flex: 1;
+		overflow: hidden;
+	}
+
+	.gallery-grid {
+		flex: 1;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+		gap: 16px;
+		padding: 24px;
+		overflow-y: auto;
+		align-content: start;
+	}
+
+	.gallery-item {
+		border: 2px solid #000000;
+		border-radius: 8px;
+		overflow: hidden;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		box-shadow: 2px 2px 0px #000000;
+		background: #ffffff;
+	}
+
+	.gallery-item:hover {
+		transform: translate(-2px, -2px);
+		box-shadow: 4px 4px 0px #000000;
+	}
+
+	.gallery-item.current {
+		border-color: rgba(176, 135, 255, 1);
+		border-width: 3px;
+		box-shadow: 3px 3px 0px rgba(176, 135, 255, 1);
+	}
+
+	.gallery-item.current:hover {
+		box-shadow: 5px 5px 0px rgba(176, 135, 255, 1);
+	}
+
+	.gallery-item.hovered {
+		border-color: rgba(255, 208, 116, 1);
+		border-width: 3px;
+		box-shadow: 3px 3px 0px rgba(255, 208, 116, 1);
+	}
+
+	.gallery-item.hovered:hover {
+		box-shadow: 5px 5px 0px rgba(255, 208, 116, 1);
+	}
+
+	.gallery-item img {
+		width: 100%;
+		height: 120px;
+		object-fit: cover;
+		display: block;
+	}
+
+	.gallery-item-name {
+		padding: 8px;
+		font-size: 0.75rem;
+		color: #6b7280;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		border-top: 2px solid #000000;
+	}
+
+	.gallery-preview {
+		width: 40%;
+		border-left: 2px solid #000000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+		background: #f8f9fa;
+		flex-shrink: 0;
+	}
+
+	.gallery-preview img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		border-radius: 8px;
+		box-shadow: 4px 4px 0px #000000;
+		border: 2px solid #000000;
 	}
 </style>
