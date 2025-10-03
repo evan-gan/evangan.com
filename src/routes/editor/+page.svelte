@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { load as parseYaml, dump as stringifyYaml } from 'js-yaml';
+	import { formatDate } from '$lib/date';
 	
 	interface Project {
 		date: string;
@@ -34,6 +35,9 @@
 	
 	// Get all unique categories from all projects
 	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
+	
+	// Check if the current date parses correctly
+	$: isDateValid = editedProject ? formatDate(editedProject.date) !== editedProject.date : true;
 	
 	onMount(() => {
 		loadProjects();
@@ -403,13 +407,14 @@
 					</div>
 
 					<div class="form-group">
-						<label for="date">Date</label>
+						<label for="date">Date {#if !isDateValid}⚠️{/if}</label>
 						<input
 							id="date"
 							type="text"
 							bind:value={editedProject.date}
 							on:input={markDirty}
 							placeholder="e.g. Aug 8–11, 2025"
+							class:invalid={!isDateValid}
 						/>
 					</div>
 				</div>
@@ -849,6 +854,16 @@
 		border-color: rgba(23, 241, 209, 1);
 		transform: translate(-1px, -1px);
 		box-shadow: 3px 3px 0px rgba(23, 241, 209, 1);
+	}
+
+	input.invalid {
+		border-color: #ef4444;
+		box-shadow: 2px 2px 0px #ef4444;
+	}
+
+	input.invalid:focus {
+		border-color: #ef4444;
+		box-shadow: 3px 3px 0px #ef4444;
 	}
 
 	textarea {
