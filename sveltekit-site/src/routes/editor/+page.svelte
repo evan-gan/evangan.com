@@ -25,6 +25,7 @@
 	let newCategory = '';
 	let showCategoryDropdown = false;
 	let filteredCategories: string[] = [];
+	let showSaveSuccess = false;
 	
 	// Get all unique categories from all projects
 	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
@@ -126,7 +127,12 @@
 			
 			isDirty = false;
 			selectedProject = JSON.parse(JSON.stringify(editedProject));
-			alert('Project saved successfully!');
+			
+			// Show success notification
+			showSaveSuccess = true;
+			setTimeout(() => {
+				showSaveSuccess = false;
+			}, 2000);
 		} catch (err) {
 			console.error('Failed to save project:', err);
 			alert('Failed to save project');
@@ -314,7 +320,9 @@
 			<div class="editor-header">
 				<h1>Edit Project</h1>
 				<div class="editor-actions">
-					{#if isDirty}
+					{#if showSaveSuccess}
+						<span class="save-success">✓ Saved</span>
+					{:else if isDirty}
 						<span class="unsaved-indicator">● Unsaved changes</span>
 					{/if}
 					<button class="btn-save" on:click={saveProject} disabled={!isDirty}>
@@ -392,63 +400,65 @@
 					</div>
 				</div>
 
-				<div class="form-group">
-					<label>Thumbnail</label>
-					<div
-						class="thumbnail-dropzone"
-						class:drag-over={isDragOver}
-						on:dragover={handleDragOver}
-						on:dragleave={handleDragLeave}
-						on:drop={handleDrop}
-					>
-						{#if isUploading}
-							<div class="upload-status">Uploading...</div>
-						{:else if editedProject.thumbnail}
-							<img src={editedProject.thumbnail} alt="Thumbnail preview" />
-							<div class="dropzone-hint">Drag & drop to replace</div>
-						{:else}
-							<div class="dropzone-hint">Drag & drop image here</div>
-						{/if}
-					</div>
-				</div>
-
-				<div class="form-group">
-					<label>Categories</label>
-					<div class="categories-input-wrapper">
-						<div class="categories-input">
-							<input
-								type="text"
-								bind:value={newCategory}
-								on:input={handleCategoryInput}
-								on:focus={handleCategoryFocus}
-								on:blur={handleCategoryBlur}
-								on:keydown={(e) => e.key === 'Enter' && addCategory()}
-								placeholder="Add category..."
-							/>
-							<button class="btn-add-category" on:click={addCategory}>Add</button>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Thumbnail</label>
+						<div
+							class="thumbnail-dropzone"
+							class:drag-over={isDragOver}
+							on:dragover={handleDragOver}
+							on:dragleave={handleDragLeave}
+							on:drop={handleDrop}
+						>
+							{#if isUploading}
+								<div class="upload-status">Uploading...</div>
+							{:else if editedProject.thumbnail}
+								<img src={editedProject.thumbnail} alt="Thumbnail preview" />
+								<div class="dropzone-hint">Drag & drop to replace</div>
+							{:else}
+								<div class="dropzone-hint">Drag & drop image here</div>
+							{/if}
 						</div>
-						{#if showCategoryDropdown && filteredCategories.length > 0}
-							<div class="category-dropdown">
-								{#each filteredCategories as category}
-									<button
-										class="category-dropdown-item"
-										on:click={() => selectCategory(category)}
-									>
-										{category}
-									</button>
-								{/each}
-							</div>
-						{/if}
 					</div>
-					<div class="categories-list">
-						{#each editedProject.categories as category, index}
-							<div class="category-tag">
-								{category}
-								<button class="remove-category" on:click={() => removeCategory(index)}>
-									×
-								</button>
+
+					<div class="form-group">
+						<label>Categories</label>
+						<div class="categories-input-wrapper">
+							<div class="categories-input">
+								<input
+									type="text"
+									bind:value={newCategory}
+									on:input={handleCategoryInput}
+									on:focus={handleCategoryFocus}
+									on:blur={handleCategoryBlur}
+									on:keydown={(e) => e.key === 'Enter' && addCategory()}
+									placeholder="Add category..."
+								/>
+								<button class="btn-add-category" on:click={addCategory}>Add</button>
 							</div>
-						{/each}
+							{#if showCategoryDropdown && filteredCategories.length > 0}
+								<div class="category-dropdown">
+									{#each filteredCategories as category}
+										<button
+											class="category-dropdown-item"
+											on:click={() => selectCategory(category)}
+										>
+											{category}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+						<div class="categories-list">
+							{#each editedProject.categories as category, index}
+								<div class="category-tag">
+									{category}
+									<button class="remove-category" on:click={() => removeCategory(index)}>
+										×
+									</button>
+								</div>
+							{/each}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -596,6 +606,24 @@
 		color: #ef4444;
 		font-weight: 600;
 		font-size: 0.9rem;
+	}
+
+	.save-success {
+		color: #10b981;
+		font-weight: 600;
+		font-size: 0.9rem;
+		animation: fadeIn 0.3s ease-in;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	.btn-save {
