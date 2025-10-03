@@ -62,6 +62,24 @@ function slugify(value: string): string {
     .replace(/-+$/, '') || 'uncategorized';
 }
 
+function normalizeURL(url: string | undefined): string | undefined {
+  if (!url || url.trim() === '') return undefined;
+  
+  const trimmedUrl = url.trim();
+  
+  // If it starts with a slash, it's a local path - leave it as is
+  if (trimmedUrl.startsWith('/')) return trimmedUrl;
+  
+  // If it already has a protocol (http://, https://, etc.), leave it as is
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmedUrl)) return trimmedUrl;
+  
+  // If it contains a dot (domain.ext), add https://
+  if (trimmedUrl.includes('.')) return `https://${trimmedUrl}`;
+  
+  // Otherwise, leave it as is
+  return trimmedUrl;
+}
+
 interface NormalizedProjectsResult {
   projects: ProjectData[];
   categories: ProjectCategory[];
@@ -133,18 +151,26 @@ function normalizeProjects(): NormalizedProjectsResult {
       ? data.thumbnail.trim()
       : FALLBACK_THUMBNAIL;
 
-    const websiteURL = typeof data.websiteURL === 'string' && data.websiteURL.trim()
-      ? data.websiteURL.trim()
-      : undefined;
-    const githubURL = typeof data.githubURL === 'string' && data.githubURL.trim()
-      ? data.githubURL.trim()
-      : undefined;
-    const demoURL = typeof data.demoURL === 'string' && data.demoURL.trim()
-      ? data.demoURL.trim()
-      : undefined;
-    const legacyLink = typeof data.link === 'string' && data.link.trim()
-      ? data.link.trim()
-      : undefined;
+    const websiteURL = normalizeURL(
+      typeof data.websiteURL === 'string' && data.websiteURL.trim()
+        ? data.websiteURL.trim()
+        : undefined
+    );
+    const githubURL = normalizeURL(
+      typeof data.githubURL === 'string' && data.githubURL.trim()
+        ? data.githubURL.trim()
+        : undefined
+    );
+    const demoURL = normalizeURL(
+      typeof data.demoURL === 'string' && data.demoURL.trim()
+        ? data.demoURL.trim()
+        : undefined
+    );
+    const legacyLink = normalizeURL(
+      typeof data.link === 'string' && data.link.trim()
+        ? data.link.trim()
+        : undefined
+    );
 
     const links: ProjectLink[] = [];
     if (websiteURL) {

@@ -18,8 +18,8 @@
   thumbnail: /thumbnails/placeholder.svg
   categories:
     - Programming Projects
-  websiteURL: https://evangan.com
-  githubURL: https://github.com/evan-gan/evangan.com
+  websiteURL: evangan.com
+  githubURL: github.com/evan-gan/evangan.com
 - date: Sep 27, 2025
   name: Daydream Hackathon
   tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
