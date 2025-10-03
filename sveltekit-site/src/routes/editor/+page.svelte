@@ -26,6 +26,8 @@
 	let showCategoryDropdown = false;
 	let filteredCategories: string[] = [];
 	let showSaveSuccess = false;
+	let showDeleteConfirm = false;
+	let showChangesWarning = false;
 	
 	// Get all unique categories from all projects
 	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
@@ -44,7 +46,7 @@
 			projects = sortProjects(projects);
 		} catch (err) {
 			console.error('Failed to load projects:', err);
-			alert('Failed to load projects');
+			showChangesWarning = true; // Use modal instead of alert
 		}
 	}
 	
@@ -141,7 +143,7 @@
 	
 	function createNewProject() {
 		if (isDirty) {
-			alert('Please save or discard your current changes first');
+			showChangesWarning = true;
 			return;
 		}
 		
@@ -162,13 +164,16 @@
 	}
 	
 	function deleteProject() {
-		if (!confirm('Are you sure you want to delete this project?')) return;
-		
+		showDeleteConfirm = true;
+	}
+	
+	function confirmDelete() {
 		projects = projects.filter((_, i) => i !== selectedIndex);
 		selectedIndex = -1;
 		selectedProject = null;
 		editedProject = null;
 		isDirty = false;
+		showDeleteConfirm = false;
 		
 		// Save immediately after delete
 		const yamlContent = stringifyYaml(projects);
@@ -177,6 +182,10 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ content: yamlContent })
 		});
+	}
+	
+	function cancelDelete() {
+		showDeleteConfirm = false;
 	}
 	
 	// Drag and drop handlers
@@ -483,6 +492,39 @@
 				</button>
 				<button class="btn-danger" on:click={handleContinueWithoutSaving}>
 					Discard Changes
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Delete confirmation modal -->
+{#if showDeleteConfirm}
+	<div class="modal-overlay" on:click={cancelDelete}>
+		<div class="modal" on:click|stopPropagation>
+			<h2>Delete Project</h2>
+			<p>Are you sure you want to delete this project? This action cannot be undone. <br>(well it can, in git but it's a pain)</p>
+			<div class="modal-actions">
+				<button class="btn-secondary" on:click={cancelDelete}>
+					Cancel
+				</button>
+				<button class="btn-danger" on:click={confirmDelete}>
+					Delete
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<!-- Changes warning modal -->
+{#if showChangesWarning}
+	<div class="modal-overlay" on:click={() => showChangesWarning = false}>
+		<div class="modal" on:click|stopPropagation>
+			<h2>Save Changes First</h2>
+			<p>Please save or discard your current changes before proceeding.</p>
+			<div class="modal-actions">
+				<button class="btn-secondary" on:click={() => showChangesWarning = false}>
+					OK
 				</button>
 			</div>
 		</div>
