@@ -408,10 +408,8 @@
 <style>
 	main {
 		min-height: 100vh;
-		padding: 160px 0 100px 0;
-		background: 
-			radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-			radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+		padding: 60px 0 100px 0;
+		background: #f8f9fa;
 	}
 
 	.container {
@@ -429,15 +427,12 @@
 		font-size: 3rem;
 		font-weight: 700;
 		margin: 0 0 16px 0;
-		background: linear-gradient(135deg, #f1f5f9 0%, #a855f7 50%, #06b6d4 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+		color: #000000;
 	}
 
 	.page-header p {
-		font-size: 1.2rem;
-		color: #e2e8f0;
+		font-size: 1.1rem;
+		color: #6b7280;
 		margin: 0;
 	}
 
@@ -461,60 +456,89 @@
 	}
 
 	select {
-		padding: 8px 12px;
+		padding: 10px 16px;
 		border-radius: 8px;
-		border: 1px solid rgba(139, 92, 246, 0.3);
-		background: rgba(30, 27, 61, 0.6);
-		color: #f1f5f9;
+		border: 2px solid #000000;
+		background: #ffffff;
+		color: #000000;
 		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		box-shadow: 2px 2px 0px #000000;
+		transition: all 0.2s ease;
+	}
+
+	select:hover {
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
+	}
+
+	select:focus {
+		outline: 2px solid rgba(23, 241, 209, 1);
+		outline-offset: 2px;
 	}
 
 	.btn-primary, .btn-secondary, .btn-small, .btn-tiny, .btn-danger {
-		padding: 8px 16px;
+		padding: 10px 20px;
 		border-radius: 8px;
-		border: none;
-		font-weight: 500;
+		border: 2px solid #000000;
+		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.3s ease;
+		transition: all 0.2s ease;
 		font-size: 14px;
+		box-shadow: 2px 2px 0px #000000;
 	}
 
 	.btn-primary {
-		background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-		color: white;
+		background: rgba(23, 241, 209, 1);
+		color: #000000;
 	}
 
 	.btn-primary:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
 	}
 
 	.btn-secondary {
-		background: rgba(139, 92, 246, 0.2);
-		color: #a855f7;
-		border: 1px solid rgba(139, 92, 246, 0.3);
+		background: #ffffff;
+		color: #000000;
 	}
 
 	.btn-secondary:hover {
-		background: rgba(139, 92, 246, 0.3);
+		background: rgba(255, 208, 116, 1);
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
 	}
 
 	.btn-small {
-		padding: 6px 12px;
-		font-size: 12px;
+		padding: 8px 16px;
+		font-size: 13px;
 	}
 
 	.btn-tiny {
-		padding: 4px 8px;
+		padding: 4px 10px;
 		font-size: 12px;
-		background: rgba(239, 68, 68, 0.2);
-		color: #ef4444;
+		background: #ffffff;
+		color: #000000;
+	}
+
+	.btn-tiny:hover {
+		background: #ef4444;
+		color: #ffffff;
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
 	}
 
 	.btn-danger {
-		background: rgba(239, 68, 68, 0.2);
-		color: #ef4444;
-		border: 1px solid rgba(239, 68, 68, 0.3);
+		background: #ef4444;
+		color: #ffffff;
+		border-color: #000000;
+	}
+
+	.btn-danger:hover {
+		background: #dc2626;
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
 	}
 
 	.projects-list {
@@ -524,15 +548,22 @@
 	}
 
 	.project-item {
-		background: rgba(30, 27, 61, 0.4);
-		border-radius: 16px;
-		border: 1px solid rgba(139, 92, 246, 0.2);
+		background: #ffffff;
+		border-radius: 12px;
+		border: 2px solid #000000;
 		overflow: hidden;
-		backdrop-filter: blur(10px);
+		box-shadow: 4px 4px 0px #000000;
+		transition: all 0.2s ease;
+	}
+
+	.project-item:hover {
+		transform: translate(-1px, -1px);
+		box-shadow: 5px 5px 0px #000000;
 	}
 
 	.project-item.editing {
-		border-color: rgba(139, 92, 246, 0.5);
+		border-color: rgba(23, 241, 209, 1);
+		box-shadow: 4px 4px 0px rgba(23, 241, 209, 1);
 	}
 
 	.project-summary {
@@ -545,7 +576,7 @@
 
 	.project-info h3 {
 		margin: 0 0 8px 0;
-		color: #f1f5f9;
+		color: #000000;
 		font-size: 1.3rem;
 		display: flex;
 		align-items: center;
@@ -557,7 +588,7 @@
 	}
 
 	.tagline {
-		color: #cbd5e1;
+		color: #6b7280;
 		margin: 0 0 12px 0;
 		line-height: 1.4;
 	}
@@ -570,8 +601,9 @@
 	}
 
 	.date {
-		color: #94a3b8;
+		color: #6b7280;
 		font-size: 0.9rem;
+		font-weight: 500;
 	}
 
 	.categories {
@@ -581,11 +613,13 @@
 	}
 
 	.category-tag {
-		background: rgba(139, 92, 246, 0.2);
-		color: #a855f7;
-		padding: 2px 8px;
+		background: #ffffff;
+		color: rgba(176, 135, 255, 1);
+		padding: 4px 12px;
 		border-radius: 12px;
 		font-size: 0.8rem;
+		font-weight: 500;
+		border: 1px solid rgba(176, 135, 255, 1);
 	}
 
 	.project-actions {
@@ -596,8 +630,8 @@
 
 	.project-form {
 		padding: 20px;
-		border-top: 1px solid rgba(139, 92, 246, 0.2);
-		background: rgba(10, 15, 28, 0.3);
+		border-top: 2px solid #000000;
+		background: #f8f9fa;
 	}
 
 	.form-row {
@@ -611,24 +645,27 @@
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
-		color: #cbd5e1;
+		color: #000000;
 		font-size: 0.9rem;
-		font-weight: 500;
+		font-weight: 600;
 	}
 
 	input, textarea {
-		padding: 8px 12px;
+		padding: 10px 12px;
 		border-radius: 6px;
-		border: 1px solid rgba(139, 92, 246, 0.3);
-		background: rgba(30, 27, 61, 0.6);
-		color: #f1f5f9;
+		border: 2px solid #000000;
+		background: #ffffff;
+		color: #000000;
 		font-size: 14px;
+		box-shadow: 2px 2px 0px #000000;
+		transition: all 0.2s ease;
 	}
 
 	input:focus, textarea:focus {
 		outline: none;
-		border-color: #8b5cf6;
-		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+		border-color: rgba(23, 241, 209, 1);
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
 	}
 
 	.categories-editor {
@@ -647,11 +684,13 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		background: rgba(139, 92, 246, 0.2);
-		color: #a855f7;
-		padding: 4px 8px;
+		background: #ffffff;
+		color: rgba(176, 135, 255, 1);
+		padding: 6px 12px;
 		border-radius: 12px;
 		font-size: 0.8rem;
+		border: 1px solid rgba(176, 135, 255, 1);
+		font-weight: 500;
 	}
 
 	.form-actions {
@@ -663,14 +702,15 @@
 	.yaml-output {
 		margin-top: 40px;
 		padding: 20px;
-		background: rgba(30, 27, 61, 0.4);
-		border-radius: 16px;
-		border: 1px solid rgba(139, 92, 246, 0.2);
+		background: #ffffff;
+		border-radius: 12px;
+		border: 2px solid #000000;
+		box-shadow: 4px 4px 0px #000000;
 	}
 
 	.yaml-output h3 {
 		margin: 0 0 16px 0;
-		color: #f1f5f9;
+		color: #000000;
 	}
 
 	.yaml-output textarea {
@@ -678,6 +718,17 @@
 		font-family: 'JetBrains Mono', monospace;
 		font-size: 12px;
 		resize: vertical;
+		background: #ffffff;
+		border: 2px solid #000000;
+		border-radius: 8px;
+		padding: 12px;
+		color: #000000;
+	}
+
+	.yaml-output textarea:focus {
+		outline: none;
+		border-color: rgba(23, 241, 209, 1);
+		box-shadow: 4px 4px 0px #000000;
 	}
 
 	@media (max-width: 768px) {
