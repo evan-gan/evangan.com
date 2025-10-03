@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
+	
 	function splitText(text: string): string[] {
 		return text.split('');
 	}
@@ -62,6 +64,25 @@
 					</span>
 				</a>
 			</li>
+			{#if dev}
+				<li class="nav-li">
+					<a href="/editor" class="nav-a">
+						<span class="nav-a-letters">
+							{#each splitText('editor') as letter}
+								<span class="nav-a-letter">{letter}</span>
+							{/each}
+						</span>
+						<span class="nav-a-stripe nav-a-stripe--yellow"></span>
+						<span class="nav-a-stripe nav-a-stripe--turquoise"></span>
+						<span class="nav-a-stripe nav-a-stripe--purple"></span>
+						<span class="nav-a-letters-top">
+							{#each splitText('editor') as letter}
+								<span class="nav-a-letter">{letter}</span>
+							{/each}
+						</span>
+					</a>
+				</li>
+			{/if}
 		</ul>
 	</nav>
 </main>
