@@ -1,99 +1,108 @@
-- date: "Aug 8–11, 2025"
-  name: "Shipwrecked"
-  tagline: "Organized and ran a four-day hackathon at the Cathleen Stone Outward Bound School on Thompson Island in the Boston Harbor."
-  description: |
-    Spent the entire summer working at [Hack Club](https://hackclub.com) full time to organize and run a four-day hackathon at the Cathleen Stone Outward Bound School on Thompson Island in the Boston Harbor.
-  thumbnail: "/thumbnails/ShipwreckedGroupPhoto.JPG"
-  websiteURL: "https://shipwrecked.hackclub.com"
-  categories:
-    - Hackathons I Ran
-
-- date: "Nov 23, 2024"
-  name: "Counterspell Hackathon"
-  tagline: "Organized and ran a 12-hour hackathon at the Microsoft NERD Center."
+- date: Sep 27, 2025
+  name: Daydream Hackathon
+  tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
   description: |
     Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-  thumbnail: "/thumbnails/placeholder.svg"
-  websiteURL: "https://counterspell.hackclub.com/boston"
+  thumbnail: /thumbnails/1759492393466.jpg
+  websiteURL: https://daydream.hackclub.com/boston
   categories:
     - Hackathons I Ran
-
-- date: "Sep 27, 2025"
-  name: "Daydream Hackathon"
-  tagline: "Organized and ran a 12-hour hackathon at the Microsoft NERD Center."
+- date: Aug 8–11, 2025
+  name: Shipwrecked
+  tagline: >-
+    Organized and ran a four-day hackathon at the Cathleen Stone Outward Bound
+    School on Thompson Island in the Boston Harbor.
+  description: >
+    Spent the entire summer working at [Hack Club](https://hackclub.com) full
+    time to organize and run a four-day hackathon at the Cathleen Stone Outward
+    Bound School on Thompson Island in the Boston Harbor.
+  thumbnail: /thumbnails/ShipwreckedGroupPhoto.JPG
+  websiteURL: https://shipwrecked.hackclub.com
+  categories:
+    - Hackathons I Ran
+- date: Mar 15, 2025
+  name: Scrapyard Hackathon
+  tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
   description: |
     Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-  thumbnail: "/thumbnails/placeholder.svg"
-  websiteURL: "https://daydream.hackclub.com/boston"
+  thumbnail: /thumbnails/placeholder.svg
+  websiteURL: https://scrapyard.hackclub.com/boston
   categories:
     - Hackathons I Ran
-
-- date: "Mar 15, 2025"
-  name: "Scrapyard Hackathon"
-  tagline: "Organized and ran a 12-hour hackathon at the Microsoft NERD Center."
+- date: Mar 8, 2025
+  name: Hack The Castle
+  tagline: >-
+    Web app built with Next.js to help a foundation track students and search by
+    date/time windows.
+  description: >
+    Web app built with Next.js to help a foundation track students and search by
+    date/time windows, addressing their challenge of keeping track of students.
+  thumbnail: /thumbnails/placeholder.svg
+  githubURL: https://github.com/ph4iry/polaris
+  categories:
+    - Programming Projects
+- date: Nov 23, 2024
+  name: Counterspell Hackathon
+  tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
   description: |
     Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-  thumbnail: "/thumbnails/placeholder.svg"
-  websiteURL: "https://scrapyard.hackclub.com/boston"
+  thumbnail: /thumbnails/placeholder.svg
+  websiteURL: https://counterspell.hackclub.com/boston
   categories:
     - Hackathons I Ran
-
-- date: "Mar 8, 2025"
-  name: "Hack The Castle"
-  tagline: "Web app built with Next.js to help a foundation track students and search by date/time windows."
-  description: |
-    Web app built with Next.js to help a foundation track students and search by date/time windows, addressing their challenge of keeping track of students.
-  thumbnail: "/thumbnails/placeholder.svg"
-  githubURL: "https://github.com/ph4iry/polaris"
-  categories:
-    - Programming Projects
-
-- date: "Mar 1–2, 2024"
-  name: "Scrapyard Flagship Hackathon"
-  tagline: "Built an anti-productivity Mac app for the “useless project“ prompt at a 12-hour hackathon."
-  description: |
-    We were prompted to make a useless project. What better than an anti-productivity app to fulfill this objective.
-  thumbnail: "/thumbnails/scrapyardFlagship.jpg"
-  githubURL: "https://github.com/evan-gan/distractatime"
-  categories:
-    - Programming Projects
-
-- date: "May 2024"
-  name: "Maze Generator"
-  tagline: "Recursive TypeScript maze generator for a pen plotter in the Hack Club Blot ecosystem."
-  description: |
-    Recursive maze generator written in TypeScript for a pen plotter. Built as part of the Hack Club Blot ecosystem, with custom toolpath (that I designed & wrote) optimization for plotting.
-  thumbnail: "https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg"
-  githubURL: "https://github.com/evan-gan/blot"
-  categories:
-    - Programming Projects
-
-- date: "May 2024"
-  name: "Wordle Solver"
-  tagline: "Swift-based solver that automates the Wordle process as a playful challenge."
-  description: |
-    A Swift-based solver for Wordle. Created as a playful way to improve results by automating the problem instead of practicing the game by hand.
-  thumbnail: "/thumbnails/placeholder.svg"
-  githubURL: "https://github.com/evan-gan/wordleSolver"
-  categories:
-    - Programming Projects
-
-- date: "Jul 12–19, 2024"
-  name: "The Trail"
-  tagline: "Circuit board and firmware project to build trail equipment with friends."
-  description: |
-    Circuit board and firmware project to build trail equipment with friends. Learned how to design a circuit board for the first time, designed it, and got it manufactured.
-  thumbnail: "/thumbnails/placeholder.svg"
-  githubURL: "https://github.com/evan-gan/trail-PCB-communication-network"
+- date: Jul 12–19, 2024
+  name: The Trail
+  tagline: Circuit board and firmware project to build trail equipment with friends.
+  description: >
+    Circuit board and firmware project to build trail equipment with friends.
+    Learned how to design a circuit board for the first time, designed it, and
+    got it manufactured.
+  thumbnail: /thumbnails/placeholder.svg
+  githubURL: https://github.com/evan-gan/trail-PCB-communication-network
   categories:
     - Hardware Projects
-
-- date: "May 17–19, 2024"
-  name: "Apocalypse Hackathon Device"
-  tagline: "Peer-to-peer communication device built for an apocalypse-themed hackathon."
+- date: May 2024
+  name: Maze Generator
+  tagline: >-
+    Recursive TypeScript maze generator for a pen plotter in the Hack Club Blot
+    ecosystem.
+  description: >
+    Recursive maze generator written in TypeScript for a pen plotter. Built as
+    part of the Hack Club Blot ecosystem, with custom toolpath (that I designed
+    & wrote) optimization for plotting.
+  thumbnail: >-
+    https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg
+  githubURL: https://github.com/evan-gan/blot
+  categories:
+    - Programming Projects
+- date: May 2024
+  name: Wordle Solver
+  tagline: Swift-based solver that automates the Wordle process as a playful challenge.
+  description: >
+    A Swift-based solver for Wordle. Created as a playful way to improve results
+    by automating the problem instead of practicing the game by hand.
+  thumbnail: /thumbnails/placeholder.svg
+  githubURL: https://github.com/evan-gan/wordleSolver
+  categories:
+    - Programming Projects
+- date: May 17–19, 2024
+  name: Apocalypse Hackathon Device
+  tagline: Peer-to-peer communication device built for an apocalypse-themed hackathon.
   description: |
     Peer-to-peer communication device built for an apocalypse-themed hackathon.
-  thumbnail: "/thumbnails/placeholder.svg"
-  githubURL: "https://github.com/EerierGosling/Informedead"
+  thumbnail: /thumbnails/placeholder.svg
+  githubURL: https://github.com/EerierGosling/Informedead
   categories:
     - Hardware Projects
+- date: Mar 1–2, 2024
+  name: Scrapyard Flagship Hackathon
+  tagline: >-
+    Built an anti-productivity Mac app for the “useless project“ prompt at a
+    12-hour hackathon.
+  description: >
+    We were prompted to make a useless project. What better than an
+    anti-productivity app to fulfill this objective.
+  thumbnail: /thumbnails/scrapyardFlagship.jpg
+  githubURL: https://github.com/evan-gan/distractatime
+  categories:
+    - Programming Projects
