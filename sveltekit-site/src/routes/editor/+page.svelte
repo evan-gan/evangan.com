@@ -327,25 +327,27 @@
 			</div>
 
 			<div class="editor-form">
-				<div class="form-group">
-					<label for="name">Project Name</label>
-					<input
-						id="name"
-						type="text"
-						bind:value={editedProject.name}
-						on:input={markDirty}
-					/>
-				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label for="name">Project Name</label>
+						<input
+							id="name"
+							type="text"
+							bind:value={editedProject.name}
+							on:input={markDirty}
+						/>
+					</div>
 
-				<div class="form-group">
-					<label for="date">Date</label>
-					<input
-						id="date"
-						type="text"
-						bind:value={editedProject.date}
-						on:input={markDirty}
-						placeholder="e.g. Aug 8–11, 2025"
-					/>
+					<div class="form-group">
+						<label for="date">Date</label>
+						<input
+							id="date"
+							type="text"
+							bind:value={editedProject.date}
+							on:input={markDirty}
+							placeholder="e.g. Aug 8–11, 2025"
+						/>
+					</div>
 				</div>
 
 				<div class="form-group">
@@ -637,7 +639,7 @@
 	}
 
 	.editor-form {
-		max-width: 800px;
+		/* Full width, no max-width constraint */
 	}
 
 	.form-group {
