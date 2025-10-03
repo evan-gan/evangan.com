@@ -458,14 +458,18 @@
 
 				<div class="form-row">
 					<div class="form-group">
-						<label>Thumbnail</label>
+						<label for="thumbnail-dropzone">Thumbnail</label>
 						<div
+							id="thumbnail-dropzone"
 							class="thumbnail-dropzone"
 							class:drag-over={isDragOver}
+							role="button"
+							tabindex="0"
 							on:dragover={handleDragOver}
 							on:dragleave={handleDragLeave}
 							on:drop={handleDrop}
 							on:click={openThumbnailGallery}
+							on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? openThumbnailGallery() : null}
 						>
 							{#if isUploading}
 								<div class="upload-status">Uploading...</div>
@@ -479,10 +483,11 @@
 					</div>
 
 					<div class="form-group">
-						<label>Categories</label>
+						<label for="category-input">Categories</label>
 						<div class="categories-input-wrapper">
 							<div class="categories-input">
 								<input
+									id="category-input"
 									type="text"
 									bind:value={newCategory}
 									on:input={handleCategoryInput}
@@ -530,8 +535,8 @@
 
 <!-- Unsaved changes warning modal -->
 {#if showUnsavedWarning}
-	<div class="modal-overlay" on:click={handleReturnToEdit}>
-		<div class="modal" on:click|stopPropagation>
+	<div class="modal-overlay" role="button" tabindex="0" on:click={handleReturnToEdit} on:keydown={(e) => e.key === 'Escape' && handleReturnToEdit()}>
+		<div class="modal" role="dialog" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
 			<h2>Unsaved Changes</h2>
 			<p>You have unsaved changes. Do you want to continue without saving?</p>
 			<div class="modal-actions">
@@ -548,8 +553,8 @@
 
 <!-- Delete confirmation modal -->
 {#if showDeleteConfirm}
-	<div class="modal-overlay" on:click={cancelDelete}>
-		<div class="modal" on:click|stopPropagation>
+	<div class="modal-overlay" role="button" tabindex="0" on:click={cancelDelete} on:keydown={(e) => e.key === 'Escape' && cancelDelete()}>
+		<div class="modal" role="dialog" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
 			<h2>Delete Project</h2>
 			<p>Are you sure you want to delete this project? This action cannot be undone. <br>(well it can, in git but it's a pain)</p>
 			<div class="modal-actions">
@@ -566,8 +571,8 @@
 
 <!-- Changes warning modal -->
 {#if showChangesWarning}
-	<div class="modal-overlay" on:click={() => showChangesWarning = false}>
-		<div class="modal" on:click|stopPropagation>
+	<div class="modal-overlay" role="button" tabindex="0" on:click={() => showChangesWarning = false} on:keydown={(e) => e.key === 'Escape' && (showChangesWarning = false)}>
+		<div class="modal" role="dialog" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
 			<h2>Save Changes First</h2>
 			<p>Please save or discard your current changes before proceeding.</p>
 			<div class="modal-actions">
@@ -581,8 +586,20 @@
 
 <!-- Thumbnail gallery modal -->
 {#if showThumbnailGallery}
-	<div class="modal-overlay gallery-overlay" on:click={closeThumbnailGallery}>
-		<div class="gallery-modal" on:click|stopPropagation>
+	<div 
+		class="modal-overlay gallery-overlay" 
+		role="button" 
+		tabindex="0"
+		on:click={closeThumbnailGallery}
+		on:keydown={(e) => e.key === 'Escape' && closeThumbnailGallery()}
+	>
+		<div 
+			class="gallery-modal" 
+			role="dialog"
+			tabindex="-1"
+			on:click|stopPropagation
+			on:keydown|stopPropagation
+		>
 			<div class="gallery-header">
 				<h2>Select Thumbnail</h2>
 				<button class="gallery-close" on:click={closeThumbnailGallery}>×</button>
@@ -594,9 +611,12 @@
 							class="gallery-item"
 							class:current={editedProject?.thumbnail === thumbnail}
 							class:hovered={hoveredThumbnail === thumbnail}
+							role="button"
+							tabindex="0"
 							on:mouseenter={() => handleThumbnailHover(thumbnail)}
 							on:mouseleave={handleThumbnailLeave}
 							on:click={() => selectThumbnail(thumbnail)}
+							on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectThumbnail(thumbnail)}
 						>
 							<img src={thumbnail} alt="Thumbnail option" />
 							<div class="gallery-item-name">{thumbnail.split('/').pop()}</div>
@@ -792,9 +812,6 @@
 		box-shadow: 3px 3px 0px #000000;
 	}
 
-	.editor-form {
-		/* Full width, no max-width constraint */
-	}
 
 	.form-group {
 		margin-bottom: 24px;
@@ -814,7 +831,6 @@
 	}
 
 	input[type="text"],
-	input[type="number"],
 	textarea {
 		width: 100%;
 		padding: 10px 12px;
