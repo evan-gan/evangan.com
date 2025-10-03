@@ -1,38 +1,34 @@
-# sv
+# evangan.com
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Hey there! This is my personal portfolio website built with SvelteKit and deployed as a static site.
 
-## Creating a project
+## Quick Start
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+> _Tip: Use pnpm. It's nice and more preformat than npm. To install, run `npm install -g pnpm`_
 
 ```sh
-npm run dev
+# Install dependencies
+pnpm install
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# Start development server (includes /editor route)
+pnpm dev
+
+# Build for production (excludes /editor)
+pnpm build
+
+# Preview production build
+pnpm preview
 ```
 
-## Building
+## Development Notes
 
-To create a production version of your app:
+- **Editor Route**: The `/editor` route is only available in development mode and is automatically excluded from production builds.
+- **Static Build**: This site uses `@sveltejs/adapter-static` to generate a fully static site.
+- **Preview**: Always use `pnpm install && pnpm build && pnpm preview` to see the actual production output, as the dev server includes development-only features. (the project editor)
 
-```sh
-npm run build
-```
+## Project Structure
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- `/src/routes` - SvelteKit routes
+- `/projects` - YAML project data
+- `/static` - Static assets (images, thumbnails, etc.)
+- `/editor` - Development-only project editor (excluded from build)
