@@ -206,11 +206,43 @@ function normalizeProjects(): NormalizedProjectsResult {
     projectEntries.push({ project, sortOrder: index });
   });
 
+  // Sort by date (newest first), then by original order as tiebreaker
   projectEntries.sort((a, b) => {
-    if (a.project.importance === b.project.importance) {
-      return a.sortOrder - b.sortOrder;
-    }
-    return a.project.importance - b.project.importance;
+    const parseDate = (dateStr: string) => {
+      const yearMatch = dateStr.match(/\b(20\d{2})\b/);
+      const year = yearMatch ? parseInt(yearMatch[1]) : 0;
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      let month = 0;
+      for (let i = 0; i < months.length; i++) {
+        if (dateStr.includes(months[i])) {
+          month = i;
+          break;
+        }
+      }
+      
+      // Try to extract day number (handles ranges by taking the first day)
+      const dayMatch = dateStr.match(/\b(\d{1,2})(?:[-–]\d{1,2})?\b/);
+      const day = dayMatch ? parseInt(dayMatch[1]) : 0;
+      
+      return { year, month, day };
+    };
+    
+    const dateA = parseDate(a.project.date);
+    const dateB = parseDate(b.project.date);
+    
+    // Sort by year (newest first)
+    if (dateA.year !== dateB.year) return dateB.year - dateA.year;
+    
+    // Then by month (newest first)
+    if (dateA.month !== dateB.month) return dateB.month - dateA.month;
+    
+    // Then by day (newest first)
+    if (dateA.day !== dateB.day) return dateB.day - dateA.day;
+    
+    // Finally by original order as tiebreaker
+    return a.sortOrder - b.sortOrder;
   });
 
   const projects = projectEntries.map((entry) => entry.project);

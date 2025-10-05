@@ -59,26 +59,38 @@
 	
 	function sortProjects(projectsList: Project[]): Project[] {
 		return [...projectsList].sort((a, b) => {
-			const getYear = (dateStr: string) => {
+			const parseDate = (dateStr: string) => {
 				const yearMatch = dateStr.match(/\b(20\d{2})\b/);
-				return yearMatch ? parseInt(yearMatch[1]) : 0;
-			};
-			const getMonth = (dateStr: string) => {
+				const year = yearMatch ? parseInt(yearMatch[1]) : 0;
+				
 				const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
 								'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+				let month = 0;
 				for (let i = 0; i < months.length; i++) {
-					if (dateStr.includes(months[i])) return i;
+					if (dateStr.includes(months[i])) {
+						month = i;
+						break;
+					}
 				}
-				return 0;
+				
+				// Try to extract day number (handles ranges by taking the first day)
+				const dayMatch = dateStr.match(/\b(\d{1,2})(?:[-–]\d{1,2})?\b/);
+				const day = dayMatch ? parseInt(dayMatch[1]) : 0;
+				
+				return { year, month, day };
 			};
 			
-			const yearA = getYear(a.date);
-			const yearB = getYear(b.date);
-			if (yearA !== yearB) return yearB - yearA;
+			const dateA = parseDate(a.date);
+			const dateB = parseDate(b.date);
 			
-			const monthA = getMonth(a.date);
-			const monthB = getMonth(b.date);
-			return monthB - monthA;
+			// Sort by year (newest first)
+			if (dateA.year !== dateB.year) return dateB.year - dateA.year;
+			
+			// Then by month (newest first)
+			if (dateA.month !== dateB.month) return dateB.month - dateA.month;
+			
+			// Then by day (newest first)
+			return dateB.day - dateA.day;
 		});
 	}
 	
