@@ -62,6 +62,7 @@
 		max-width: 600px;
 		margin-left: auto;
 		margin-right: auto;
+		text-align: left;
 	}
 
 	.contact-links {
