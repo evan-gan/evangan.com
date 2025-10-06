@@ -72,6 +72,14 @@
   websiteURL: https://counterspell.hackclub.com/boston
   categories:
     - Hackathons I Ran
+- date: Sep-Nov, 2024
+  name: Pumpkin Smash
+  tagline: >-
+    Built & designed an 8 foot tall guillotine to smash pumpkins at my city's
+    annual pumpkin composting event 
+  description: ''
+  thumbnail: /thumbnails/placeholder.svg
+  categories: []
 - date: Jul 12–19, 2024
   name: The Trail
   tagline: Circuit board and firmware project to build trail equipment with friends.
@@ -128,3 +136,20 @@
   githubURL: https://github.com/evan-gan/distractatime
   categories:
     - Programming Projects
+- date: Oct 5, 2021
+  name: Little Free Library
+  tagline: Designed and built a Little Free Library from scratch in Tinker CAD
+  description: >-
+    I designed a Little Free Library from scratch using TinkerCAD, the first CAD
+    software I learned. After completing the design, I gathered materials and
+    taught myself to use power tools such as a table saw, drill, and pneumatic
+    nail gun to build it. Wanting to do the job right, I reached out to people
+    in my community and found some who had recently re-roofed their houses and
+    were willing to share leftover shingles. I purchased tar mat and drip edge
+    from Home Depot and constructed the roof just like a real house. For the
+    front, I wanted a full-sized window, so I built a custom frame with slots
+    and repurposed an acrylic face shield to create a large, clear window.
+    Several years later, it still stands strong, having endured many wind and
+    snow storms.
+  thumbnail: /thumbnails/1759675385330.jpeg
+  categories: []

@@ -132,8 +132,11 @@
 			// Update the project in the array
 			projects[selectedIndex] = JSON.parse(JSON.stringify(editedProject));
 			
+			// Sort projects by date (newest first) before saving
+			const sortedProjects = sortProjects(projects);
+			
 			// Convert back to YAML
-			const yamlContent = stringifyYaml(projects);
+			const yamlContent = stringifyYaml(sortedProjects);
 			
 			// Save to file
 			const response = await fetch('/api/projects', {
@@ -146,8 +149,13 @@
 				throw new Error('Failed to save');
 			}
 			
+			// Update local state with sorted projects and find new selected index
+			const savedProjectId = editedProject.name;
+			projects = sortedProjects;
+			selectedIndex = projects.findIndex(p => p.name === savedProjectId);
+			selectedProject = projects[selectedIndex];
+			
 			isDirty = false;
-			selectedProject = JSON.parse(JSON.stringify(editedProject));
 			
 			// Show success notification
 			showSaveSuccess = true;
@@ -188,6 +196,10 @@
 	
 	function confirmDelete() {
 		projects = projects.filter((_, i) => i !== selectedIndex);
+		
+		// Sort projects by date (newest first) before saving
+		projects = sortProjects(projects);
+		
 		selectedIndex = -1;
 		selectedProject = null;
 		editedProject = null;
