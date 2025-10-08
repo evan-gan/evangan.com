@@ -518,7 +518,8 @@
 
 	.project-modal-thumbnail {
 		width: 100%;
-		height: 280px;
+		height: clamp(320px, 60vh, 520px);
+		max-height: 65vh;
 		overflow: hidden;
 		border-radius: 12px;
 		background: #f3f4f6;
@@ -633,6 +634,11 @@
 		
 		.project-card {
 			margin: 0 4px;
+		}
+		
+		.project-modal-thumbnail {
+			height: clamp(240px, 50vh, 380px);
+			max-height: 55vh;
 		}
 		
 		.project-modal {
