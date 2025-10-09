@@ -223,7 +223,7 @@
 								src={activeProject.thumbnail} 
 								alt={activeProject.name}
 								class:loaded={loadedImages.has(activeProject.thumbnail)}
-								on:load={() => handleImageLoad(activeProject.thumbnail)}
+								on:load={() => activeProject && handleImageLoad(activeProject.thumbnail)}
 							/>
 						</div>
 					{/if}
