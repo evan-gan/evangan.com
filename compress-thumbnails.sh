@@ -9,6 +9,7 @@ set -e  # Exit on error
 
 THUMBNAILS_DIR="static/thumbnails"
 ARCHIVE_DIR="oldNonCompressedAssets"
+PROJECTS_YAML="projects/projects.yaml"
 
 # Check if ImageMagick is installed
 if ! command -v magick &> /dev/null; then
@@ -34,6 +35,24 @@ echo ""
 # Track statistics
 COMPRESSED_COUNT=0
 SKIPPED_COUNT=0
+YAML_UPDATED=0
+
+# Function to update YAML file
+update_yaml() {
+    local old_filename=$1
+    local new_filename=$2
+    
+    if [ -f "$PROJECTS_YAML" ]; then
+        # Use sed to replace the filename in projects.yaml
+        # This handles both /thumbnails/filename.jpg and thumbnails/filename.jpg
+        if grep -q "$old_filename" "$PROJECTS_YAML"; then
+            sed -i.bak "s|$old_filename|$new_filename|g" "$PROJECTS_YAML"
+            rm -f "${PROJECTS_YAML}.bak"  # Remove backup file
+            echo "   📝 Updated in projects.yaml"
+            ((YAML_UPDATED++))
+        fi
+    fi
+}
 
 # Process JPG files
 for f in "$THUMBNAILS_DIR"/*.jpg "$THUMBNAILS_DIR"/*.jpeg; do
@@ -65,6 +84,9 @@ for f in "$THUMBNAILS_DIR"/*.jpg "$THUMBNAILS_DIR"/*.jpeg; do
     
     # Move original to archive
     mv "$f" "$ARCHIVE_DIR/$filename"
+    
+    # Update projects.yaml
+    update_yaml "$filename" "$compressed_name"
     
     echo "   ✅ Created: $compressed_name"
     echo "   📁 Archived: $filename"
@@ -102,6 +124,9 @@ for f in "$THUMBNAILS_DIR"/*.png; do
     # Move original to archive
     mv "$f" "$ARCHIVE_DIR/$filename"
     
+    # Update projects.yaml
+    update_yaml "$filename" "$compressed_name"
+    
     echo "   ✅ Created: $compressed_name"
     echo "   📁 Archived: $filename"
     ((COMPRESSED_COUNT++))
@@ -112,5 +137,6 @@ echo "============================================"
 echo "Compression complete!"
 echo "  Compressed: $COMPRESSED_COUNT files"
 echo "  Skipped: $SKIPPED_COUNT files"
+echo "  Updated in YAML: $YAML_UPDATED references"
 echo "  Originals archived in: $ARCHIVE_DIR"
 echo "============================================"
