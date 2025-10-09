@@ -33,6 +33,11 @@
 	let showThumbnailGallery = false;
 	let availableThumbnails: string[] = [];
 	let hoveredThumbnail: string | null = null;
+	let showTagOrderEditor = false;
+	let tagOrder: string[] = [];
+	let editedTagOrder: string[] = [];
+	let draggedTagIndex: number | null = null;
+	let dragOverIndex: number | null = null;
 	
 	// Get all unique categories from all projects
 	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
@@ -48,7 +53,20 @@
 		try {
 			const response = await fetch('/api/projects');
 			const { content } = await response.json();
-			projects = parseYaml(content) as Project[];
+			const parsed = parseYaml(content);
+			
+			// Handle both array and object formats
+			if (Array.isArray(parsed)) {
+				projects = parsed as Project[];
+				tagOrder = [];
+			} else if (parsed && typeof parsed === 'object') {
+				const data = parsed as { projects?: Project[]; tagOrder?: string[] };
+				projects = data.projects || [];
+				tagOrder = data.tagOrder || [];
+			} else {
+				projects = [];
+				tagOrder = [];
+			}
 			
 			// Sort by date (newest first)
 			projects = sortProjects(projects);
@@ -136,8 +154,13 @@
 			// Sort projects by date (newest first) before saving
 			const sortedProjects = sortProjects(projects);
 			
+			// Build YAML structure with tagOrder
+			const yamlData = tagOrder.length > 0 
+				? { tagOrder, projects: sortedProjects }
+				: sortedProjects;
+			
 			// Convert back to YAML
-			const yamlContent = stringifyYaml(sortedProjects);
+			const yamlContent = stringifyYaml(yamlData);
 			
 			// Save to file
 			const response = await fetch('/api/projects', {
@@ -207,8 +230,13 @@
 		isDirty = false;
 		showDeleteConfirm = false;
 		
+		// Build YAML structure with tagOrder
+		const yamlData = tagOrder.length > 0 
+			? { tagOrder, projects }
+			: projects;
+		
 		// Save immediately after delete
-		const yamlContent = stringifyYaml(projects);
+		const yamlContent = stringifyYaml(yamlData);
 		fetch('/api/projects', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -372,6 +400,77 @@
 			closeThumbnailGallery();
 		}
 	}
+	
+	// Tag order editor functions
+	function openTagOrderEditor() {
+		// Build current tag order with all categories
+		const currentTags = ['All Projects', ...allCategories];
+		
+		if (tagOrder.length > 0) {
+			// Start with existing order
+			const ordered = [...tagOrder];
+			// Add any new categories not in the order
+			for (const tag of currentTags) {
+				if (!ordered.includes(tag)) {
+					ordered.push(tag);
+				}
+			}
+			editedTagOrder = ordered;
+		} else {
+			// No existing order, use current list
+			editedTagOrder = currentTags;
+		}
+		
+		showTagOrderEditor = true;
+	}
+	
+	function closeTagOrderEditor() {
+		showTagOrderEditor = false;
+		draggedTagIndex = null;
+	}
+	
+	function saveTagOrder() {
+		tagOrder = [...editedTagOrder];
+		
+		// Build YAML structure with tagOrder
+		const yamlData = { tagOrder, projects };
+		const yamlContent = stringifyYaml(yamlData);
+		
+		fetch('/api/projects', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ content: yamlContent })
+		}).then(() => {
+			showTagOrderEditor = false;
+			showSaveSuccess = true;
+			setTimeout(() => {
+				showSaveSuccess = false;
+			}, 2000);
+		}).catch(err => {
+			console.error('Failed to save tag order:', err);
+			alert('Failed to save tag order');
+		});
+	}
+	
+	function handleTagDragStart(index: number) {
+		draggedTagIndex = index;
+	}
+	
+	function handleTagDragOver(e: DragEvent, index: number) {
+		e.preventDefault();
+		dragOverIndex = index;
+	}
+
+	function handleTagDragEnd() {
+		if (draggedTagIndex !== null && dragOverIndex !== null && draggedTagIndex !== dragOverIndex) {
+			const newOrder = [...editedTagOrder];
+			const [draggedItem] = newOrder.splice(draggedTagIndex, 1);
+			newOrder.splice(dragOverIndex, 0, draggedItem);
+			editedTagOrder = newOrder;
+		}
+		draggedTagIndex = null;
+		dragOverIndex = null;
+	}
 </script>
 
 <svelte:head>
@@ -383,7 +482,10 @@
 	<aside class="project-list">
 		<div class="sidebar-header">
 			<h2>Projects</h2>
-			<button class="btn-new" on:click={createNewProject}>+ New</button>
+			<div class="sidebar-buttons">
+				<button class="btn-new" on:click={createNewProject}>+ New</button>
+				<button class="btn-tag-order" on:click={openTagOrderEditor}>Tag Order</button>
+			</div>
 		</div>
 		<div class="project-items">
 			{#each projects as project, index}
@@ -675,6 +777,49 @@
 	</div>
 {/if}
 
+<!-- Tag Order Editor Modal -->
+{#if showTagOrderEditor}
+	<div
+		class="modal-backdrop"
+		role="button"
+		tabindex="0"
+		on:click={closeTagOrderEditor}
+		on:keydown={(e) => e.key === 'Escape' && closeTagOrderEditor()}
+	>
+		<div class="modal tag-order-modal" on:click|stopPropagation on:keydown|stopPropagation role="dialog" tabindex="-1">
+			<div class="modal-header">
+				<h3>Tag Order</h3>
+				<button class="gallery-close" on:click={closeTagOrderEditor}>×</button>
+			</div>
+			<div class="modal-body">
+				<p class="tag-order-help">Drag to reorder tags. This controls the order of filter buttons on the projects page.</p>
+				<div class="tag-list">
+					{#each editedTagOrder as tag, index}
+						<div
+							class="tag-item"
+							class:dragging={draggedTagIndex === index}
+							class:drag-over={dragOverIndex === index && draggedTagIndex !== null && draggedTagIndex !== index}
+							draggable="true"
+							on:dragstart={() => handleTagDragStart(index)}
+							on:dragover={(e) => handleTagDragOver(e, index)}
+							on:dragend={handleTagDragEnd}
+							role="button"
+							tabindex="0"
+						>
+							<span class="drag-handle">⋮⋮</span>
+							<span class="tag-name">{tag}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn-cancel" on:click={closeTagOrderEditor}>Cancel</button>
+				<button class="btn-save" on:click={saveTagOrder}>Save Order</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
 	.editor-container {
 		display: flex;
@@ -708,7 +853,13 @@
 		color: #000000;
 	}
 
-	.btn-new {
+	.sidebar-buttons {
+		display: flex;
+		gap: 8px;
+	}
+
+	.btn-new,
+	.btn-tag-order {
 		padding: 8px 16px;
 		background: rgba(23, 241, 209, 1);
 		color: #000000;
@@ -718,9 +869,15 @@
 		cursor: pointer;
 		box-shadow: 2px 2px 0px #000000;
 		transition: all 0.2s ease;
+		font-size: 0.9rem;
 	}
 
-	.btn-new:hover {
+	.btn-tag-order {
+		background: rgba(176, 135, 255, 1);
+	}
+
+	.btn-new:hover,
+	.btn-tag-order:hover {
 		transform: translate(-1px, -1px);
 		box-shadow: 3px 3px 0px #000000;
 	}
@@ -1290,4 +1447,153 @@
 		box-shadow: 4px 4px 0px #000000;
 		border: 2px solid #000000;
 	}
+
+	/* Modals */
+	.modal-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.7);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 2000;
+		backdrop-filter: blur(4px);
+	}
+
+	.modal {
+		background: #ffffff;
+		border: 3px solid #000000;
+		border-radius: 16px;
+		box-shadow: 8px 8px 0px #000000;
+		padding: 32px;
+		position: relative;
+		max-width: 600px;
+		width: 90vw;
+		max-height: 80vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 24px;
+	}
+
+	.modal-header h3 {
+		margin: 0;
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: #000000;
+	}
+
+	.modal-body {
+		margin-bottom: 24px;
+		overflow-y: auto;
+		flex: 1;
+		min-height: 0;
+	}
+
+	/* Tag Order Modal */
+	.tag-order-modal {
+		max-width: 600px;
+		max-height: 80vh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.tag-order-help {
+		color: #6b7280;
+		font-size: 0.9rem;
+		margin: 0 0 16px 0;
+	}
+
+	.tag-list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		max-height: 400px;
+		overflow-y: auto;
+	}
+
+	.tag-item {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px 16px;
+		background: #ffffff;
+		border: 2px solid #000000;
+		border-radius: 8px;
+		cursor: grab;
+		transition: all 0.2s ease;
+		user-select: none;
+	}
+
+	.tag-item:active {
+		cursor: grabbing;
+	}
+
+	.tag-item.dragging {
+		opacity: 0.5;
+		cursor: grabbing;
+	}
+
+	.tag-item.drag-over {
+		transform: translateY(4px);
+		background: rgba(23, 241, 209, 0.1);
+		border-color: rgba(23, 241, 209, 1);
+	}
+
+	.drag-handle {
+		color: #9ca3af;
+		font-size: 1.2rem;
+		line-height: 1;
+		user-select: none;
+	}
+
+	.tag-name {
+		flex: 1;
+		font-weight: 600;
+		color: #000000;
+	}
+
+	.modal-footer {
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+		padding-top: 16px;
+		border-top: 2px solid #e5e7eb;
+	}
+
+	.btn-cancel,
+	.btn-save {
+		padding: 10px 20px;
+		border: 2px solid #000000;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		box-shadow: 2px 2px 0px #000000;
+		transition: all 0.2s ease;
+	}
+
+	.btn-cancel {
+		background: #ffffff;
+		color: #000000;
+	}
+
+	.btn-save {
+		background: rgba(23, 241, 209, 1);
+		color: #000000;
+	}
+
+	.btn-cancel:hover,
+	.btn-save:hover {
+		transform: translate(-1px, -1px);
+		box-shadow: 3px 3px 0px #000000;
+	}
 </style>
+

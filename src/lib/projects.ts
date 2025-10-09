@@ -83,12 +83,13 @@ function normalizeURL(url: string | undefined): string | undefined {
 interface NormalizedProjectsResult {
   projects: ProjectData[];
   categories: ProjectCategory[];
+  tagOrder: string[];
 }
 
 function normalizeProjects(): NormalizedProjectsResult {
   if (!fs.existsSync(PROJECTS_FILE)) {
     console.warn(`Projects file not found at ${PROJECTS_FILE}`);
-    return { projects: [], categories: [] };
+    return { projects: [], categories: [], tagOrder: [] };
   }
 
   let parsedYaml: unknown;
@@ -97,17 +98,31 @@ function normalizeProjects(): NormalizedProjectsResult {
     parsedYaml = yaml.load(fileContent);
   } catch (error) {
     console.error('Error reading projects.yaml:', error);
-    return { projects: [], categories: [] };
+    return { projects: [], categories: [], tagOrder: [] };
   }
 
-  if (!Array.isArray(parsedYaml)) {
-    console.warn('projects.yaml must export an array of project entries');
-    return { projects: [], categories: [] };
+  // Support both array format (legacy) and object format (with tagOrder)
+  let projectsData: unknown[];
+  let tagOrder: string[] = [];
+  
+  if (Array.isArray(parsedYaml)) {
+    // Legacy format: just an array of projects
+    projectsData = parsedYaml;
+  } else if (parsedYaml && typeof parsedYaml === 'object') {
+    // New format: object with projects and tagOrder
+    const data = parsedYaml as Record<string, unknown>;
+    projectsData = Array.isArray(data.projects) ? data.projects : [];
+    tagOrder = Array.isArray(data.tagOrder) 
+      ? data.tagOrder.filter((t): t is string => typeof t === 'string')
+      : [];
+  } else {
+    console.warn('projects.yaml must export an array or object with projects');
+    return { projects: [], categories: [], tagOrder: [] };
   }
 
   const projectEntries: Array<{ project: ProjectData; sortOrder: number }> = [];
 
-  parsedYaml.forEach((item, index) => {
+  projectsData.forEach((item, index) => {
     if (!item || typeof item !== 'object') {
       console.warn(`Skipping invalid project entry at index ${index}`);
       return;
@@ -280,8 +295,29 @@ function normalizeProjects(): NormalizedProjectsResult {
       displayName: value.displayName,
       projects: value.projects,
       order: value.minImportance
-    }))
-    .sort((a, b) => a.order - b.order);
+    }));
+
+  // Apply tag order if available
+  if (tagOrder.length > 0) {
+    categoryEntries.sort((a, b) => {
+      const indexA = tagOrder.indexOf(a.displayName);
+      const indexB = tagOrder.indexOf(b.displayName);
+      
+      // If both are in tagOrder, sort by their position
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // If only A is in tagOrder, it comes first
+      if (indexA !== -1) return -1;
+      // If only B is in tagOrder, it comes first
+      if (indexB !== -1) return 1;
+      // If neither is in tagOrder, maintain original order
+      return a.order - b.order;
+    });
+  } else {
+    // No tag order, use default importance-based sorting
+    categoryEntries.sort((a, b) => a.order - b.order);
+  }
 
   const categories = categoryEntries.map(({ name, displayName, projects }) => ({
     name,
@@ -289,7 +325,7 @@ function normalizeProjects(): NormalizedProjectsResult {
     projects
   }));
 
-  return { projects, categories };
+  return { projects, categories, tagOrder };
 }
 
 export function loadAllProjects(): ProjectCategory[] {
@@ -298,4 +334,8 @@ export function loadAllProjects(): ProjectCategory[] {
 
 export function getAllProjectsFlat(): ProjectData[] {
   return normalizeProjects().projects;
+}
+
+export function getTagOrder(): string[] {
+  return normalizeProjects().tagOrder;
 }

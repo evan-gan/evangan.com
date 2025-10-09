@@ -2,9 +2,43 @@
 	import type { ProjectCategory, ProjectData } from '$lib/projects';
 	import { onDestroy } from 'svelte';
 
-	export let data: { categories: ProjectCategory[]; projects: ProjectData[] };
+	export let data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
 
-	let selectedCategory = 'all';
+	// Create filter items respecting tagOrder
+	$: filterItems = (() => {
+		const allProjectsItem = { name: 'all', displayName: 'All Projects' };
+		const categoryItems = data.categories.map(cat => ({ name: cat.name, displayName: cat.displayName }));
+		
+		if (data.tagOrder.length === 0) {
+			// No tag order, show All Projects first
+			return [allProjectsItem, ...categoryItems];
+		}
+		
+		// Build ordered list based on tagOrder
+		const ordered: Array<{ name: string; displayName: string }> = [];
+		const remaining = new Set([allProjectsItem, ...categoryItems]);
+		
+		for (const tagName of data.tagOrder) {
+			if (tagName === 'All Projects') {
+				ordered.push(allProjectsItem);
+				remaining.delete(allProjectsItem);
+			} else {
+				const category = categoryItems.find(c => c.displayName === tagName);
+				if (category) {
+					ordered.push(category);
+					remaining.delete(category);
+				}
+			}
+		}
+		
+		// Add any remaining items not in tagOrder
+		ordered.push(...remaining);
+		
+		return ordered;
+	})();
+
+	// Set default to first item in the ordered list
+	$: selectedCategory = filterItems.length > 0 ? filterItems[0].name : 'all';
 	let filteredProjects: ProjectData[] = [];
 	let activeProject: ProjectData | null = null;
 
@@ -73,20 +107,13 @@
 			<!-- Category Filter Slider -->
 			<div class="filter-section">
 				<div class="filter-slider">
-					<button
-						class="filter-btn"
-						class:active={selectedCategory === 'all'}
-						on:click={() => selectedCategory = 'all'}
-					>
-						All Projects
-					</button>
-					{#each data.categories as category}
+					{#each filterItems as item}
 						<button
 							class="filter-btn"
-							class:active={selectedCategory === category.name}
-							on:click={() => selectedCategory = category.name}
+							class:active={selectedCategory === item.name}
+							on:click={() => selectedCategory = item.name}
 						>
-							{category.displayName}
+							{item.displayName}
 						</button>
 					{/each}
 				</div>
