@@ -5,8 +5,6 @@
 # Creates compressed versions with "-compressed" suffix
 # Moves originals to oldNonCompressedAssets folder
 
-set -e  # Exit on error
-
 THUMBNAILS_DIR="static/thumbnails"
 ARCHIVE_DIR="oldNonCompressedAssets"
 PROJECTS_YAML="projects/projects.yaml"
@@ -55,10 +53,8 @@ update_yaml() {
 }
 
 # Process JPG files
+shopt -s nullglob  # Make patterns that don't match return empty instead of literal
 for f in "$THUMBNAILS_DIR"/*.jpg "$THUMBNAILS_DIR"/*.jpeg; do
-    # Skip if no files match the pattern
-    [ -e "$f" ] || continue
-    
     # Get filename without path
     filename=$(basename "$f")
     
@@ -79,25 +75,24 @@ for f in "$THUMBNAILS_DIR"/*.jpg "$THUMBNAILS_DIR"/*.jpeg; do
     
     echo "🗜️  Compressing: $filename"
     
-    # Compress the image
-    magick "$f" -quality 50 -sampling-factor 4:2:0 -strip -interlace JPEG "$compressed_path"
-    
-    # Move original to archive
-    mv "$f" "$ARCHIVE_DIR/$filename"
-    
-    # Update projects.yaml
-    update_yaml "$filename" "$compressed_name"
-    
-    echo "   ✅ Created: $compressed_name"
-    echo "   📁 Archived: $filename"
-    ((COMPRESSED_COUNT++))
+    # Compress the image (auto-orient before stripping metadata)
+    if magick "$f" -auto-orient -quality 50 -sampling-factor 4:2:0 -strip -interlace JPEG "$compressed_path"; then
+        # Move original to archive
+        mv "$f" "$ARCHIVE_DIR/$filename"
+        
+        # Update projects.yaml
+        update_yaml "$filename" "$compressed_name"
+        
+        echo "   ✅ Created: $compressed_name"
+        echo "   📁 Archived: $filename"
+        ((COMPRESSED_COUNT++))
+    else
+        echo "   ❌ Error compressing $filename"
+    fi
 done
 
 # Process PNG files
 for f in "$THUMBNAILS_DIR"/*.png; do
-    # Skip if no files match the pattern
-    [ -e "$f" ] || continue
-    
     # Get filename without path
     filename=$(basename "$f")
     
@@ -118,18 +113,20 @@ for f in "$THUMBNAILS_DIR"/*.png; do
     
     echo "🗜️  Compressing: $filename"
     
-    # Compress PNG (convert to high-quality JPEG for better compression)
-    magick "$f" -quality 50 -sampling-factor 4:2:0 -strip -interlace JPEG "$compressed_path"
-    
-    # Move original to archive
-    mv "$f" "$ARCHIVE_DIR/$filename"
-    
-    # Update projects.yaml
-    update_yaml "$filename" "$compressed_name"
-    
-    echo "   ✅ Created: $compressed_name"
-    echo "   📁 Archived: $filename"
-    ((COMPRESSED_COUNT++))
+    # Compress PNG (auto-orient before stripping metadata)
+    if magick "$f" -auto-orient -quality 50 -sampling-factor 4:2:0 -strip -interlace JPEG "$compressed_path"; then
+        # Move original to archive
+        mv "$f" "$ARCHIVE_DIR/$filename"
+        
+        # Update projects.yaml
+        update_yaml "$filename" "$compressed_name"
+        
+        echo "   ✅ Created: $compressed_name"
+        echo "   📁 Archived: $filename"
+        ((COMPRESSED_COUNT++))
+    else
+        echo "   ❌ Error compressing $filename"
+    fi
 done
 
 echo ""

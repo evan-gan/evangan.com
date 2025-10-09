@@ -32,7 +32,7 @@ projects:
     tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
     description: |
       Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-    thumbnail: /thumbnails/1759492393466.jpg
+    thumbnail: /thumbnails/1759492393466-compressed.jpg
     websiteURL: https://daydream.hackclub.com/boston
     categories:
       - Hackathons I Ran
@@ -45,7 +45,7 @@ projects:
       Spent the entire summer working at [Hack Club](https://hackclub.com) full
       time to organize and run a four-day hackathon at the Cathleen Stone
       Outward Bound School on Thompson Island in the Boston Harbor.
-    thumbnail: /thumbnails/ShipwreckedGroupPhoto.jpg
+    thumbnail: /thumbnails/ShipwreckedGroupPhoto-compressed.jpg
     websiteURL: https://shipwrecked.hackclub.com
     categories:
       - Hackathons I Ran
@@ -97,7 +97,7 @@ projects:
       guillotine both entertained the community and sped up composting, turning
       pumpkin waste into soil while showcasing engineering, leadership, and
       sustainability in action.
-    thumbnail: /thumbnails/1759760697739.jpg
+    thumbnail: /thumbnails/1759760697739-compressed.jpg
     categories:
       - Highlights
   - date: Jul 12–19, 2024
@@ -157,7 +157,7 @@ projects:
     description: >
       We were prompted to make a useless project. What better than an
       anti-productivity app to fulfill this objective.
-    thumbnail: /thumbnails/scrapyardFlagship.jpg
+    thumbnail: /thumbnails/scrapyardFlagship-compressed.jpg
     githubURL: https://github.com/evan-gan/distractatime
     categories:
       - Programming Projects
@@ -176,5 +176,5 @@ projects:
       frame with slots and repurposed an acrylic face shield to create a large,
       clear window. Several years later, it still stands strong, having endured
       many wind and snow storms.
-    thumbnail: /thumbnails/1759675385330.jpeg
+    thumbnail: /thumbnails/1759675385330-compressed.jpeg
     categories: []
