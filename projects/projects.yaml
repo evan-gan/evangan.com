@@ -22,7 +22,7 @@ projects:
 
       3. `pnpm dev` (you can see this editor by going to
       [http://localhost:5173/editor](http://localhost:5173/editor) now!)
-    thumbnail: /thumbnails/placeholder.svg
+    thumbnail: /thumbnails/1760028884932-compressed.png
     categories:
       - Programming Projects
     websiteURL: evangan.com
@@ -111,6 +111,7 @@ projects:
     githubURL: https://github.com/evan-gan/trail-PCB-communication-network
     categories:
       - Hardware Projects
+    videoURL: https://www.youtube.com/watch?v=ufMUJ9D1fi8
   - date: May 17–19, 2024
     name: Apocalypse Hackathon Device
     tagline: >-
