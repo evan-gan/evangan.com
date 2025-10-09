@@ -8,6 +8,10 @@ const config = {
 	preprocess: vitePreprocess(),
 	kit: { 
 		adapter: adapter({
+			pages: 'build',
+			assets: 'build',
+			fallback: undefined,
+			precompress: false,
 			strict: false // Allow dev-only routes (editor, API endpoints) to be excluded from build
 		})
 	}
