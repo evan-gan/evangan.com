@@ -143,6 +143,21 @@
 	function markDirty() {
 		isDirty = true;
 	}
+
+	function cleanUnusedTags() {
+		// Get all unique categories used in projects
+		const usedCategories = new Set<string>();
+		for (const project of projects) {
+			for (const category of project.categories) {
+				usedCategories.add(category);
+			}
+		}
+		
+		// Filter tagOrder to only include "All Projects" and categories that are still in use
+		tagOrder = tagOrder.filter(tag => 
+			tag === 'All Projects' || usedCategories.has(tag)
+		);
+	}
 	
 	async function saveProject() {
 		if (!editedProject || selectedIndex < 0) return;
@@ -153,6 +168,9 @@
 			
 			// Sort projects by date (newest first) before saving
 			const sortedProjects = sortProjects(projects);
+			
+			// Clean up unused tags from tagOrder
+			cleanUnusedTags();
 			
 			// Build YAML structure with tagOrder
 			const yamlData = tagOrder.length > 0 
@@ -223,6 +241,9 @@
 		
 		// Sort projects by date (newest first) before saving
 		projects = sortProjects(projects);
+		
+		// Clean up unused tags from tagOrder
+		cleanUnusedTags();
 		
 		selectedIndex = -1;
 		selectedProject = null;

@@ -1,5 +1,5 @@
 tagOrder:
-  - Highlight
+  - Highlights
   - Hackathons I Ran
   - Programming Projects
   - Hardware Projects
@@ -98,7 +98,8 @@ projects:
       pumpkin waste into soil while showcasing engineering, leadership, and
       sustainability in action.
     thumbnail: /thumbnails/1759760697739.jpg
-    categories: []
+    categories:
+      - Highlights
   - date: Jul 12–19, 2024
     name: The Trail
     tagline: Circuit board and firmware project to build trail equipment with friends.

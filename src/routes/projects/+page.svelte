@@ -272,22 +272,23 @@
 
 	.filter-slider {
 		display: flex;
-		gap: 12px;
+		gap: 8px;
 		background: #ffffff;
-		padding: 8px;
-		border-radius: 16px;
+		padding: 6px;
+		border-radius: 24px;
 		border: 2px solid #000000;
 		overflow-x: auto;
 		box-shadow: 4px 4px 0px #000000;
 	}
 
 	.filter-btn {
-		padding: 12px 24px;
+		padding: 10px 20px;
 		background: #ffffff;
 		color: #000000;
-		border: 2px solid transparent;
-		border-radius: 12px;
+		border: 2px solid #000000;
+		border-radius: 20px;
 		font-weight: 500;
+		font-size: 0.9rem;
 		cursor: pointer;
 		transition: all 0.2s ease;
 		white-space: nowrap;
@@ -296,7 +297,8 @@
 
 	.filter-btn:hover {
 		background: #f3f4f6;
-		border-color: #000000;
+		transform: translateY(-1px);
+		box-shadow: 2px 2px 0px #000000;
 	}
 
 	.filter-btn.active {
