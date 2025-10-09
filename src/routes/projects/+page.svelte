@@ -4,6 +4,9 @@
 
 	export let data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
 
+	// Track which images have loaded
+	let loadedImages = new Set<string>();
+
 	// Create filter items respecting tagOrder
 	$: filterItems = (() => {
 		const allProjectsItem = { name: 'all', displayName: 'All Projects' };
@@ -46,6 +49,9 @@
 		filteredProjects = selectedCategory === 'all'
 			? data.projects
 			: data.projects.filter((project) => project.categorySlugs.includes(selectedCategory));
+		
+		// Clear loaded images when filter changes to force reload
+		loadedImages = new Set();
 	}
 
 	$: {
@@ -82,6 +88,11 @@
 			event.preventDefault();
 			openProject(project);
 		}
+	}
+
+	function handleImageLoad(url: string) {
+		loadedImages.add(url);
+		loadedImages = loadedImages; // Trigger reactivity
 	}
 
 	onDestroy(() => {
@@ -133,8 +144,16 @@
 						aria-label={`View details for ${project.name}`}
 					>
 						{#if project.thumbnail}
-							<div class="project-thumbnail">
-								<img src={project.thumbnail} alt={project.name} />
+							<div class="project-thumbnail" class:loading={!loadedImages.has(project.thumbnail)}>
+								{#if !loadedImages.has(project.thumbnail)}
+									<div class="thumbnail-skeleton"></div>
+								{/if}
+								<img 
+									src={project.thumbnail} 
+									alt={project.name}
+									class:loaded={loadedImages.has(project.thumbnail)}
+									on:load={() => handleImageLoad(project.thumbnail)}
+								/>
 							</div>
 						{/if}
 						<div class="project-content">
@@ -196,8 +215,16 @@
 						✕
 					</button>
 					{#if activeProject.thumbnail}
-						<div class="project-modal-thumbnail">
-							<img src={activeProject.thumbnail} alt={activeProject.name} />
+						<div class="project-modal-thumbnail" class:loading={!loadedImages.has(activeProject.thumbnail)}>
+							{#if !loadedImages.has(activeProject.thumbnail)}
+								<div class="thumbnail-skeleton"></div>
+							{/if}
+							<img 
+								src={activeProject.thumbnail} 
+								alt={activeProject.name}
+								class:loaded={loadedImages.has(activeProject.thumbnail)}
+								on:load={() => handleImageLoad(activeProject.thumbnail)}
+							/>
 						</div>
 					{/if}
 					<div class="project-modal-meta">
@@ -352,11 +379,46 @@
 		position: relative;
 	}
 
+	.project-thumbnail.loading {
+		background: #e5e7eb;
+	}
+
+	.thumbnail-skeleton {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			90deg,
+			#f3f4f6 25%,
+			#e5e7eb 50%,
+			#f3f4f6 75%
+		);
+		background-size: 200% 100%;
+		animation: shimmer 1.5s infinite;
+	}
+
+	@keyframes shimmer {
+		0% {
+			background-position: 200% 0;
+		}
+		100% {
+			background-position: -200% 0;
+		}
+	}
+
 	.project-thumbnail img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
 		transition: transform 0.5s ease;
+		opacity: 0;
+	}
+
+	.project-thumbnail img.loaded {
+		opacity: 1;
+		transition: opacity 0.3s ease, transform 0.5s ease;
 	}
 
 	.project-card:hover .project-thumbnail img {
@@ -557,12 +619,23 @@
 		align-items: center;
 		justify-content: center;
 		border: 2px solid #000000;
+		position: relative;
+	}
+
+	.project-modal-thumbnail.loading {
+		background: #e5e7eb;
 	}
 
 	.project-modal-thumbnail img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		opacity: 0;
+	}
+
+	.project-modal-thumbnail img.loaded {
+		opacity: 1;
+		transition: opacity 0.3s ease;
 	}
 
 	.project-modal-meta {
