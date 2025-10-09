@@ -11,6 +11,7 @@
 		thumbnail?: string;
 		websiteURL?: string;
 		githubURL?: string;
+		videoURL?: string;
 		categories: string[];
 	}
 	
@@ -483,6 +484,16 @@
 							on:input={markDirty}
 						/>
 					</div>
+
+					<div class="form-group">
+						<label for="videoURL">Video URL</label>
+						<input
+							id="videoURL"
+							type="text"
+							bind:value={editedProject.videoURL}
+							on:input={markDirty}
+						/>
+					</div>
 				</div>
 
 				<div class="form-row">
@@ -848,7 +859,7 @@
 
 	.form-row {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 		gap: 16px;
 	}
 

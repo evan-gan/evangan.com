@@ -161,6 +161,11 @@ function normalizeProjects(): NormalizedProjectsResult {
         ? data.githubURL.trim()
         : undefined
     );
+    const videoURL = normalizeURL(
+      typeof data.videoURL === 'string' && data.videoURL.trim()
+        ? data.videoURL.trim()
+        : undefined
+    );
     const demoURL = normalizeURL(
       typeof data.demoURL === 'string' && data.demoURL.trim()
         ? data.demoURL.trim()
@@ -178,6 +183,9 @@ function normalizeProjects(): NormalizedProjectsResult {
     }
     if (githubURL) {
       links.push({ type: 'github', label: 'Code', url: githubURL });
+    }
+    if (videoURL) {
+      links.push({ type: 'external', label: 'Video', url: videoURL });
     }
     if (demoURL) {
       links.push({ type: 'demo', label: 'Demo', url: demoURL });
