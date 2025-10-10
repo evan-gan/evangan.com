@@ -15,7 +15,10 @@
 			<div class="photo-container">
 				<img src="/photo of me.jpg" alt="Evan Gan" class="profile-photo" />
 				<div class="easter-egg">
-					<p>Look to the left of me in this photo- that's a guillotine I built! Check out more info about it on <a href="/projects">my projects page</a>.</p>
+									<p>
+					Look to the left of me in this photo- that's a guillotine I built! Check out more info
+					about it on <a href="/projects" style="color: rgb(176, 135, 255) !important;">my projects page</a>.
+				</p>
 				</div>
 			</div>
 			
@@ -25,7 +28,7 @@
 					From web applications to mobile apps and data science projects, I enjoy solving complex problems with elegant solutions.
 				</p>
 				<p>
-					Check out my <a href="/projects">projects page</a> to see what I've been working on.
+					Check out my <a href="/projects" style="color: rgb(176, 135, 255) !important;">projects page</a> to see what I've been working on.
 				</p>
 			</div>
 		</div>
@@ -136,6 +139,29 @@
 		min-width: 0;
 	}
 
+	.text-section a {
+		color: rgba(176, 135, 255, 1) !important;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		font-weight: 600;
+		transition: color 0.2s ease, text-decoration-thickness 0.2s ease;
+	}
+
+	.text-section a:link {
+		color: rgba(176, 135, 255, 1) !important;
+	}
+
+	.text-section a:hover {
+		color: rgba(23, 241, 209, 1) !important;
+		text-decoration-thickness: 2px;
+	}
+
+	.text-section a:focus-visible {
+		outline: 2px solid rgba(176, 135, 255, 1);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
+
 	.content p {
 		font-size: 1.25rem;
 		line-height: 1.8;
@@ -146,25 +172,6 @@
 
 	.content p:last-child {
 		margin-bottom: 0;
-	}
-
-	.content a {
-		color: rgba(23, 241, 209, 1);
-		text-decoration: underline;
-		text-underline-offset: 2px;
-		font-weight: 600;
-		transition: color 0.2s ease, text-decoration-thickness 0.2s ease;
-	}
-
-	.content a:hover {
-		color: rgba(176, 135, 255, 1);
-		text-decoration-thickness: 2px;
-	}
-
-	.content a:focus-visible {
-		outline: 2px solid rgba(23, 241, 209, 1);
-		outline-offset: 2px;
-		border-radius: 2px;
 	}
 
 	@media (max-width: 768px) {
