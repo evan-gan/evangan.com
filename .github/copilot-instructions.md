@@ -50,6 +50,7 @@ projects:              # Array of project objects
   - Turquoise: `rgba(23, 241, 209, 1)` 
   - Purple: `rgba(176, 135, 255, 1)`
 - **Typography**: DM Sans font, bold weights, black text
+- **Backgrounds**: Solid colors only - **NEVER use gradients**
 
 ### Lift Effect Pattern
 ```css

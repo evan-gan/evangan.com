@@ -7,122 +7,153 @@
 
 <main>
 	<div class="container">
-		<h1>Get In Touch</h1>
-		<p>
-			I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Feel free to reach out.
-		</p>
-		
-		<div class="contact-links">
-			<a href="https://github.com/evan-gan" target="_blank" rel="noopener noreferrer" class="contact-link">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-				</svg>
-				GitHub
-			</a>
-			<!-- <a href="mailto:hello@evangan.com" class="contact-link">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-					<polyline points="22,6 12,13 2,6"></polyline>
-				</svg>
-				Email
-			</a> -->
-		</div>
+		<header class="page-header">
+			<h1>Get In Touch</h1>
+		</header>
 
-		<a href="/" class="back-link">← Back to Home</a>
+		<div class="content">
+			<p>
+				I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious vision. Feel free to reach out.
+			</p>
+			
+			<div class="contact-links">
+				<a href="https://github.com/evan-gan" target="_blank" rel="noopener noreferrer" class="contact-link">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+					</svg>
+					GitHub
+				</a>
+			</div>
+		</div>
 	</div>
 </main>
 
 <style>
 	main {
 		min-height: calc(100vh - 80px);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 80px 20px 40px;
+		padding: 100px 24px 80px;
+		background: #f8f9fa;
 	}
 
 	.container {
 		max-width: 800px;
-		width: 100%;
-		text-align: center;
+		margin: 0 auto;
 	}
 
-	h1 {
+	.page-header {
+		text-align: center;
+		margin-bottom: 48px;
+	}
+
+	.page-header h1 {
 		font-size: 3rem;
 		font-weight: 700;
-		margin-bottom: 2rem;
-		color: #1f2937;
+		margin: 0;
+		color: #000000;
 	}
 
-	p {
+	.content {
+		background: #ffffff;
+		border: 2px solid #000000;
+		border-radius: 16px;
+		padding: 48px;
+		box-shadow: 4px 4px 0px #000000;
+	}
+
+	.content p {
 		font-size: 1.25rem;
 		line-height: 1.8;
-		color: #4b5563;
-		margin-bottom: 3rem;
-		max-width: 600px;
-		margin-left: auto;
-		margin-right: auto;
-		text-align: left;
+		color: #000000;
+		margin: 0 0 32px 0;
+		font-weight: 500;
 	}
 
 	.contact-links {
 		display: flex;
 		justify-content: center;
-		gap: 2rem;
-		margin-bottom: 3rem;
+		gap: 20px;
+		flex-wrap: wrap;
 	}
 
 	.contact-link {
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
-		padding: 1rem 2rem;
-		background: white;
-		color: #1f2937;
+		gap: 12px;
+		padding: 16px 32px;
+		background: #ffffff;
+		color: #000000;
 		text-decoration: none;
-		border-radius: 12px;
+		border-radius: 16px;
 		font-weight: 600;
-		border: 2px solid #e5e7eb;
-		transition: all 0.3s ease;
+		font-size: 1.1rem;
+		border: 2px solid #000000;
+		box-shadow: 3px 3px 0px #000000;
+		transition: all 0.2s ease;
 	}
 
 	.contact-link:hover {
-		border-color: #8b5cf6;
-		color: #8b5cf6;
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+		background: rgba(23, 241, 209, 1);
+		transform: translate(-1px, -1px);
+		box-shadow: 4px 4px 0px #000000;
 	}
 
-	.back-link {
-		display: inline-block;
-		margin-top: 2rem;
-		color: #8b5cf6;
-		text-decoration: none;
-		font-weight: 600;
-		transition: transform 0.3s ease;
+	.contact-link:focus-visible {
+		outline: 2px solid rgba(23, 241, 209, 1);
+		outline-offset: 2px;
 	}
 
-	.back-link:hover {
-		transform: translateX(-5px);
+	.contact-link:active {
+		transform: translate(1px, 1px);
+		box-shadow: 2px 2px 0px #000000;
+	}
+
+	.contact-link svg {
+		flex-shrink: 0;
 	}
 
 	@media (max-width: 768px) {
-		h1 {
+		main {
+			padding: 80px 20px 60px;
+		}
+
+		.page-header h1 {
 			font-size: 2.5rem;
 		}
 
-		p {
+		.content {
+			padding: 32px 24px;
+		}
+
+		.content p {
 			font-size: 1.1rem;
 		}
 
 		.contact-links {
 			flex-direction: column;
-			align-items: center;
+			align-items: stretch;
 		}
 
 		.contact-link {
-			width: 100%;
-			max-width: 300px;
+			justify-content: center;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.page-header h1 {
+			font-size: 2rem;
+		}
+
+		.content {
+			padding: 24px 20px;
+		}
+
+		.content p {
+			font-size: 1rem;
+		}
+
+		.contact-link {
+			padding: 14px 24px;
+			font-size: 1rem;
 		}
 	}
 </style>
