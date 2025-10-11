@@ -29,9 +29,16 @@ projects:
     githubURL: github.com/evan-gan/evangan.com
   - date: Sep 27, 2025
     name: Daydream Hackathon
-    tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-    description: |
-      Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
+    tagline: >-
+      Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
+      teen attendees.
+    description: >-
+      I organized a 60-person Boston Daydream Hackathon, part of a global series
+      with 100 simultaneous events. I led a team of organizers and secured a
+      donated venue. I also handled teacher and student outreach to recruit
+      attendees. To help train the next generation of organizers, I made the
+      planning process open encouraged more teens to contribute, with the goal
+      of enabling teens to run future events after I graduate high school.
     thumbnail: /thumbnails/1759492393466-compressed.jpg
     websiteURL: https://daydream.hackclub.com/boston
     categories:
@@ -39,12 +46,17 @@ projects:
   - date: Aug 8–11, 2025
     name: Shipwrecked
     tagline: >-
-      Organized and ran a four-day hackathon at the Cathleen Stone Outward Bound
-      School on Thompson Island in the Boston Harbor.
-    description: >
-      Spent the entire summer working at [Hack Club](https://hackclub.com) full
-      time to organize and run a four-day hackathon at the Cathleen Stone
-      Outward Bound School on Thompson Island in the Boston Harbor.
+      Conceived and led a 120-person hackathon; secured $130K funding, managed
+      logistics, recruited participants, and coordinated all event operations.
+    description: >-
+      I once had the wild idea of running a hackathon on an island. A year
+      later, I spent the entire summer at [Hack Club](https://hackclub.com)
+      bringing that idea to life by organizing a four-day hackathon at the
+      Cathleen Stone Outward Bound School on Thompson Island in Boston Harbor. I
+      helped coordinate the event for 120 participants, securing $130K in
+      funding, handling logistics, recruiting attendees, and keeping everything
+      running smoothly while learning a lot about teamwork, planning, and what
+      it takes to turn an ambitious idea into reality.
     thumbnail: /thumbnails/ShipwreckedGroupPhoto-compressed.jpg
     websiteURL: https://shipwrecked.hackclub.com
     categories:
@@ -54,9 +66,17 @@ projects:
   - date: Mar 15, 2025
     name: Scrapyard Hackathon
     tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-    description: |
-      Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-    thumbnail: /thumbnails/placeholder.svg
+    description: >-
+      I organized a 60-person Boston Scrapyard Hackathon, part of a global
+      series with 75 simultaneous events. I led a team of organizers, raised
+      $1K, and secured a donated venue. I also handled teacher and student
+      outreach to recruit attendees. To help train the next generation of
+      organizers, I made the planning process more open encouraged more teens to
+      contribute, with the goal of enabling teens to run future events after I
+      graduate high school. I also developed upon marketing materials from the
+      Counterspell Hackathon I ran and made them more generic to be more easily
+      reusable for future hackathons.
+    thumbnail: /thumbnails/1760207708262-compressed.jpg
     websiteURL: https://scrapyard.hackclub.com/boston
     categories:
       - Hackathons I Ran
@@ -76,9 +96,13 @@ projects:
   - date: Nov 23, 2024
     name: Counterspell Hackathon
     tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-    description: |
-      Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
-    thumbnail: /thumbnails/placeholder.svg
+    description: >-
+      I organized a 60-person Boston Counterspell Hackathon, part of a global
+      series with 50 simultaneous events. I led a team of organizers and secured
+      a donated venue. I also handled teacher and student outreach to recruit
+      attendees. I helped create many email templates and lots of outreach
+      materials for the event with the intent of re-using them in the future.
+    thumbnail: /thumbnails/1760207809207-compressed.jpg
     websiteURL: https://counterspell.hackclub.com/boston
     categories:
       - Hackathons I Ran
@@ -100,18 +124,6 @@ projects:
     thumbnail: /thumbnails/1759760697739-compressed.jpg
     categories:
       - Highlights
-  - date: Jul 12–19, 2024
-    name: The Trail
-    tagline: Circuit board and firmware project to build trail equipment with friends.
-    description: >
-      Circuit board and firmware project to build trail equipment with friends.
-      Learned how to design a circuit board for the first time, designed it, and
-      got it manufactured.
-    thumbnail: /thumbnails/placeholder.svg
-    githubURL: https://github.com/evan-gan/trail-PCB-communication-network
-    categories:
-      - Hardware Projects
-    videoURL: https://www.youtube.com/watch?v=ufMUJ9D1fi8
   - date: May 17–19, 2024
     name: Apocalypse Hackathon Device
     tagline: >-
@@ -150,6 +162,30 @@ projects:
     githubURL: https://github.com/evan-gan/wordleSolver
     categories:
       - Programming Projects
+  - date: April-July, 2024
+    name: Off the Grid Communicator Circuit Board
+    tagline: >-
+      Built off the grid texting device for a hackathon on the Pacific Crest
+      Trail, without cell service
+    description: >-
+      I had an idea for building a texting device for a seven-day off-the-grid
+      hike. I enlisted a small team of friends excited by the idea, and we
+      worked on a circuit board and firmware project to bring it to life. I
+      learned how to design a circuit board for the first time using EasyEDA,
+      designed most of the board, and optimized it for long-lasting battery life
+      so it could run for eight days of constant use. I also designed it for far
+      ranged communications having it communicate over a mile without cell
+      towers or any external infrastructure. We got it manufactured in China and
+      distributed about 20 units for the other hikers in our group to use during
+      the hike. I also programmed the board from scratch and gained hands-on
+      experience soldering while assembling the components. Throughout the
+      project, I collaborated closely with my friends on both the design and
+      software, learning a great deal about electronics and teamwork.
+    thumbnail: /thumbnails/1760206485488-compressed.jpg
+    githubURL: https://github.com/evan-gan/trail-PCB-communication-network
+    categories:
+      - Hardware Projects
+    videoURL: https://www.youtube.com/watch?v=ufMUJ9D1fi8
   - date: Mar 1–2, 2024
     name: Scrapyard Flagship Hackathon
     tagline: >-

@@ -24,11 +24,10 @@
 			
 			<div class="text-section">
 				<p>
-					I'm a passionate developer who loves creating digital experiences that make people's lives better. 
-					From web applications to mobile apps and data science projects, I enjoy solving complex problems with elegant solutions.
+					Hey, I'm Evan. I love building robots with my FIRST team, programming, and creating fun projects from electronics to construction. I also enjoy running hackathons for teens and collaborating with others to bring ambitious ideas to life.
 				</p>
 				<p>
-					Check out my <a href="/projects" style="color: rgb(176, 135, 255) !important;">projects page</a> to see what I've been working on.
+					Check out what I've done and what I'm up to on <a href="/projects" style="color: rgb(176, 135, 255) !important;">projects page</a>.
 				</p>
 			</div>
 		</div>
