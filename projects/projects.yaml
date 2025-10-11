@@ -6,22 +6,30 @@ tagOrder:
   - All Projects
 projects:
   - date: Oct, 3 2025
-    name: evangan.com
-    tagline: This site! I developed the site from scratch built in svelte kit.
+    name: Personal Website
+    tagline: This site! Built from the ground up in SvelteKit.
     description: >-
-      I built this site in Svelte kit to compile statically to be deployed. My
-      project list _(all of the projects you see in this gallery)_ are stored in
-      a "Yet Another Markup Language" (yaml) file. I built an editor around this
-      file so in development mode I can edit projects from an intuitive and easy
-      to use editor. You can take a look at the editor by going to the linked
-      github repo, cloning it, and running:
+      The site you’re looking at is built in SvelteKit, a lightweight web
+      framework. I chose Svelte because I wanted to improve my skills with it
+      and create something unique. I also wanted more flexibility to customize
+      my site. Another reason for this approach was so I could store all my
+      projects in a single file, which I could later reuse if, for example, I
+      decide to redo the site.
 
-      1. `pnpm install`
 
-      2. `pnpm build`
+      All of the projects you see in this gallery are stored in a “Yet Another
+      Markup Language” (YAML) file, a human-editable text format that machines
+      can also read. I built an editor around this file, so in development mode,
+      I can manage projects through an intuitive and easy-to-use interface. You
+      can check out the editor by visiting the linked GitHub repo and following
+      the setup instructions.
 
-      3. `pnpm dev` (you can see this editor by going to
-      [http://localhost:5173/editor](http://localhost:5173/editor) now!)
+
+      When I was testing out my site for speed with a simulated slow network, I
+      found that it took over 20 seconds to load some of the images. I then made
+      an automation to solve this which will automatically compress my images
+      with Image Magick (a command line tool for manipulating images) by a
+      factor of 10-20x without significant quality compromise.
     thumbnail: /thumbnails/1760028884932-compressed.png
     categories:
       - Programming Projects
@@ -31,7 +39,7 @@ projects:
     name: Daydream Hackathon
     tagline: >-
       Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
-      teen attendees.
+      teen attendees. | Fourth Hackathon Organized
     description: >-
       I organized a 60-person Boston Daydream Hackathon, part of a global series
       with 100 simultaneous events. I led a team of organizers and secured a
@@ -47,7 +55,8 @@ projects:
     name: Shipwrecked
     tagline: >-
       Conceived and led a 120-person hackathon; secured $130K funding, managed
-      logistics, recruited participants, and coordinated all event operations.
+      logistics, recruited participants, and coordinated all event operations. |
+      Third Hackathon Organized
     description: >-
       I once had the wild idea of running a hackathon on an island. A year
       later, I spent the entire summer at [Hack Club](https://hackclub.com)
@@ -65,17 +74,23 @@ projects:
     videoURL: https://www.youtube.com/watch?v=uXWMr0gdLJA
   - date: Mar 15, 2025
     name: Scrapyard Hackathon
-    tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
+    tagline: >-
+      Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
+      teen attendees. | Second Hackathon Organized
     description: >-
       I organized a 60-person Boston Scrapyard Hackathon, part of a global
       series with 75 simultaneous events. I led a team of organizers, raised
       $1K, and secured a donated venue. I also handled teacher and student
-      outreach to recruit attendees. To help train the next generation of
-      organizers, I made the planning process more open encouraged more teens to
-      contribute, with the goal of enabling teens to run future events after I
-      graduate high school. I also developed upon marketing materials from the
-      Counterspell Hackathon I ran and made them more generic to be more easily
-      reusable for future hackathons.
+      outreach to recruit attendees. I also took the marketing materials from my
+      previous hackathon project, Counterspell, and made them more generic so
+      they could be easily reused for future hackathons.
+
+
+      After a tedious check-in experience at Counterspell Boston, I decided to
+      build a QR code-based check-in system and send QR codes to attendees in
+      advance. To keep the system flexible, I used Google Sheets as the
+      database, allowing us to manually verify waiver completions and check
+      people in if they couldn’t access their QR code.
     thumbnail: /thumbnails/1760207708262-compressed.jpg
     websiteURL: https://scrapyard.hackclub.com/boston
     categories:
@@ -93,15 +108,41 @@ projects:
     githubURL: https://github.com/ph4iry/polaris
     categories:
       - Programming Projects
+  - date: March, 2025
+    name: QR Code Check-in Web App
+    tagline: 'A flexible, easy to use, QR code check-in app for events. '
+    description: >-
+      After a tedious check-in experience at the first hackathon I ran, I
+      decided to build a QR code-based check-in system and send QR codes to
+      attendees in advance. To keep the system flexible, I used Google Sheets as
+      the database, allowing us to manually verify waiver completions and check
+      people in if they couldn’t access their QR code.
+
+
+      I created a website that securely shares credentials for the user-friendly
+      check-in scanner page, so multiple people can help sign attendees in. If
+      someone hasn’t completed their forms, the system automatically sends them
+      an email with instructions on how to submit them and what to do afterward.
+      Oh, and did I mention it automatically marks people as present in a
+      human-editable Google Sheet for those inevitable edge cases? The entire
+      project revolves around Google Sheets: once attendee data is added, a
+      mail-merge-style spreadsheet is generated, making it easy to send
+      personalized emails with each attendee’s QR code.
+    thumbnail: /thumbnails/placeholder.svg
+    categories:
+      - Programming Projects
+    githubURL: https://github.com/evan-gan/GoogleSheetsQRSignIn
   - date: Nov 23, 2024
     name: Counterspell Hackathon
-    tagline: Organized and ran a 12-hour hackathon at the Microsoft NERD Center.
+    tagline: >-
+      Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
+      teen attendees. | First Hackathon Organized
     description: >-
       I organized a 60-person Boston Counterspell Hackathon, part of a global
       series with 50 simultaneous events. I led a team of organizers and secured
       a donated venue. I also handled teacher and student outreach to recruit
-      attendees. I helped create many email templates and lots of outreach
-      materials for the event with the intent of re-using them in the future.
+      attendees. I helped create several email templates and a variety of
+      outreach materials for the event.
     thumbnail: /thumbnails/1760207809207-compressed.jpg
     websiteURL: https://counterspell.hackclub.com/boston
     categories:
@@ -129,10 +170,27 @@ projects:
     tagline: >-
       Peer-to-peer communication device built for an apocalypse-themed
       hackathon.
-    description: >
-      Peer-to-peer communication device built for an apocalypse-themed
-      hackathon.
-    thumbnail: /thumbnails/placeholder.svg
+    description: >-
+      Infromedead is a set of devices that can communicate with each other off
+      the grid!
+
+
+      The prompt for Apocalypse was to create something to help you survive the
+      zombie apocalypse. We thought that since the internet would be unreliable
+      during the apocalypse, it would be helpful to have devices that allow you
+      to communicate regardless!
+
+
+      The code runs on ESP32s, and the devices work by each setting up their own
+      WiFi access points. From there, if a device wants to send a message, it
+      simply connects to the access point of the one it's sending to and sends
+      its message via the WiFi.
+
+
+      All the inputs come from the keypads connected to the ESP32s which are set
+      up somewhat like phone keypads, allowing the user to type any letter or
+      number.
+    thumbnail: /thumbnails/1760215838683-compressed.jpg
     githubURL: https://github.com/EerierGosling/Informedead
     categories:
       - Hardware Projects
