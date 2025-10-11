@@ -1,9 +1,9 @@
 tagOrder:
   - Highlights
+  - All Projects
   - Hackathons I Ran
   - Programming Projects
   - Hardware Projects
-  - All Projects
 projects:
   - date: Oct, 3 2025
     name: Personal Website
