@@ -92,6 +92,13 @@ export function formatDate(input: string | undefined | null): string {
     return `${month} ${ordinal(day)} ${y}`;
   }
 
+  // Month + comma + Year: "May, 2024" -> "May 2024"
+  m = s.match(/^([A-Za-z]+),\s*(\d{4})$/);
+  if (m) {
+    const [, mon, y] = m;
+    return `${monthCap3(mon)} ${y}`;
+  }
+
   // Month + Year: "May 2024"
   m = s.match(/^([A-Za-z]+)\s+(\d{4})$/);
   if (m) {
