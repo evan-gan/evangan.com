@@ -9,7 +9,7 @@ projects:
     name: Personal Website
     tagline: This site! Built from the ground up in SvelteKit.
     description: >-
-      The site you’re looking at is built in SvelteKit, a lightweight web
+      The site you're looking at is built in SvelteKit, a lightweight web
       framework. I chose Svelte because I wanted to improve my skills with it
       and create something unique. I also wanted more flexibility to customize
       my site. Another reason for this approach was so I could store all my
@@ -51,7 +51,7 @@ projects:
     websiteURL: https://daydream.hackclub.com/boston
     categories:
       - Hackathons I Ran
-  - date: Aug 8–11, 2025
+  - date: Aug 8-11, 2025
     name: Shipwrecked
     tagline: >-
       Conceived and led a 120-person hackathon; secured $130K funding, managed
@@ -90,7 +90,7 @@ projects:
       build a QR code-based check-in system and send QR codes to attendees in
       advance. To keep the system flexible, I used Google Sheets as the
       database, allowing us to manually verify waiver completions and check
-      people in if they couldn’t access their QR code.
+      people in if they couldn't access their QR code.
     thumbnail: /thumbnails/1760207708262-compressed.jpg
     websiteURL: https://scrapyard.hackclub.com/boston
     categories:
@@ -116,18 +116,18 @@ projects:
       decided to build a QR code-based check-in system and send QR codes to
       attendees in advance. To keep the system flexible, I used Google Sheets as
       the database, allowing us to manually verify waiver completions and check
-      people in if they couldn’t access their QR code.
+      people in if they couldn't access their QR code.
 
 
       I created a website that securely shares credentials for the user-friendly
       check-in scanner page, so multiple people can help sign attendees in. If
-      someone hasn’t completed their forms, the system automatically sends them
+      someone hasn't completed their forms, the system automatically sends them
       an email with instructions on how to submit them and what to do afterward.
       Oh, and did I mention it automatically marks people as present in a
       human-editable Google Sheet for those inevitable edge cases? The entire
       project revolves around Google Sheets: once attendee data is added, a
       mail-merge-style spreadsheet is generated, making it easy to send
-      personalized emails with each attendee’s QR code.
+      personalized emails with each attendee's QR code.
     thumbnail: /thumbnails/placeholder.svg
     categories:
       - Programming Projects
@@ -165,7 +165,7 @@ projects:
     thumbnail: /thumbnails/1759760697739-compressed.jpg
     categories:
       - Highlights
-  - date: May 17–19, 2024
+  - date: May 17-19, 2024
     name: Apocalypse Hackathon Device
     tagline: >-
       Peer-to-peer communication device built for an apocalypse-themed
@@ -244,7 +244,7 @@ projects:
     categories:
       - Hardware Projects
     videoURL: https://www.youtube.com/watch?v=ufMUJ9D1fi8
-  - date: Mar 1–2, 2024
+  - date: Mar 1-2, 2024
     name: Scrapyard Flagship Hackathon
     tagline: >-
       Built an anti-productivity Mac app for the "useless project" prompt at a
