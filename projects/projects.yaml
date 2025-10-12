@@ -18,7 +18,7 @@ projects:
       attendees. To help train the next generation of organizers, I made the
       planning process open encouraged more teens to contribute, with the goal
       of enabling teens to run future events after I graduate high school.
-    thumbnail: /thumbnails/1759492393466-compressed.jpg
+    thumbnail: /thumbnails/1759492393466-webp.webp
     websiteURL: https://daydream.hackclub.com/boston
     categories:
       - Hackathons
@@ -47,7 +47,7 @@ projects:
       an automation to solve this which will automatically compress my images
       with Image Magick (a command line tool for manipulating images) by a
       factor of 10-20x without significant quality compromise.
-    thumbnail: /thumbnails/1760028884932-compressed.png
+    thumbnail: /thumbnails/1760028884932-webp.webp
     categories:
       - Programming
     websiteURL: evangan.com
@@ -67,7 +67,7 @@ projects:
       funding, handling logistics, recruiting attendees, and keeping everything
       running smoothly while learning a lot about teamwork, planning, and what
       it takes to turn an ambitious idea into reality.
-    thumbnail: /thumbnails/ShipwreckedGroupPhoto-compressed.jpg
+    thumbnail: /thumbnails/ShipwreckedGroupPhoto-webp.webp
     websiteURL: https://shipwrecked.hackclub.com
     categories:
       - Hackathons
@@ -92,7 +92,7 @@ projects:
       advance. To keep the system flexible, I used Google Sheets as the
       database, allowing us to manually verify waiver completions and check
       people in if they couldn't access their QR code.
-    thumbnail: /thumbnails/1760207708262-compressed.jpg
+    thumbnail: /thumbnails/1760207708262-webp.webp
     websiteURL: https://scrapyard.hackclub.com/boston
     categories:
       - Hackathons
@@ -112,7 +112,7 @@ projects:
       parsing. Built with Next.js, React, and OpenAI’s classification tools, the
       system dynamically structures and updates student data while maintaining a
       clean, intuitive interface. 
-    thumbnail: /thumbnails/1760281002150-compressed.jpg
+    thumbnail: /thumbnails/1760281002150-webp.webp
     githubURL: https://github.com/ph4iry/polaris
     categories:
       - Programming
@@ -151,7 +151,7 @@ projects:
       a donated venue. I also handled teacher and student outreach to recruit
       attendees. I helped create several email templates and a variety of
       outreach materials for the event.
-    thumbnail: /thumbnails/1760207809207-compressed.jpg
+    thumbnail: /thumbnails/1760207809207-webp.webp
     websiteURL: https://counterspell.hackclub.com/boston
     categories:
       - Hackathons
@@ -170,7 +170,7 @@ projects:
       guillotine both entertained the community and sped up composting, turning
       pumpkin waste into soil while showcasing engineering, leadership, and
       sustainability in action.
-    thumbnail: /thumbnails/1759760697739-compressed.jpg
+    thumbnail: /thumbnails/1759760697739-webp.webp
     categories:
       - Builds
       - Robotics
@@ -199,7 +199,7 @@ projects:
       All the inputs come from the keypads connected to the ESP32s which are set
       up somewhat like phone keypads, allowing the user to type any letter or
       number.
-    thumbnail: /thumbnails/1760215838683-compressed.jpg
+    thumbnail: /thumbnails/1760215838683-webp.webp
     githubURL: https://github.com/EerierGosling/Informedead
     categories:
       - Builds
@@ -238,7 +238,7 @@ projects:
       dataset, and ranks possible answers by vowel diversity, letter repetition,
       frequency, and usage weight. The result is a fast, data-driven tool that
       quickly identifies the best next guess.
-    thumbnail: /thumbnails/1760284204583-compressed.jpg
+    thumbnail: /thumbnails/1760284204583-webp.webp
     githubURL: https://github.com/evan-gan/wordleSolver
     categories:
       - Programming
@@ -261,7 +261,7 @@ projects:
       experience soldering while assembling the components. Throughout the
       project, I collaborated closely with my friends on both the design and
       software, learning a great deal about electronics and teamwork.
-    thumbnail: /thumbnails/1760206485488-compressed.jpg
+    thumbnail: /thumbnails/1760206485488-webp.webp
     githubURL: https://github.com/evan-gan/trail-PCB-communication-network
     categories:
       - Builds
@@ -291,7 +291,7 @@ projects:
       resort, siren noises will play, annoying windows will spawn and move
       across the screen, with a loud balloon popping as a final deterrent. What
       a practical solution to an impractical problem!
-    thumbnail: /thumbnails/scrapyardFlagship-compressed.jpg
+    thumbnail: /thumbnails/scrapyardFlagship-webp.webp
     githubURL: https://github.com/evan-gan/distractatime
     categories:
       - Programming
@@ -311,7 +311,7 @@ projects:
       at the Greater Boston District qualifier, we won the FIRST Impact Award,
       the most prestigious award in FIRST. In my junior year, I was awarded my
       team's Gracious Professionalism Award.
-    thumbnail: /thumbnails/1760289446557.jpg
+    thumbnail: /thumbnails/1760310168343-webp.webp
     categories:
       - Robotics
       - Highlights
@@ -334,6 +334,6 @@ projects:
 
 
       Neighbors still stop by everyday to pick up or drop off books!
-    thumbnail: /thumbnails/1759675385330-compressed.jpeg
+    thumbnail: /thumbnails/1759675385330-webp.webp
     categories:
       - Builds
