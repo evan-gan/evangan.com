@@ -1,9 +1,9 @@
 tagOrder:
   - Highlights
   - All Projects
-  - Hackathons I Ran
-  - Programming Projects
-  - Hardware Projects
+  - Hackathons
+  - Programming
+  - Builds
 projects:
   - date: Oct, 3 2025
     name: Personal Website
@@ -32,7 +32,7 @@ projects:
       factor of 10-20x without significant quality compromise.
     thumbnail: /thumbnails/1760028884932-compressed.png
     categories:
-      - Programming Projects
+      - Programming
     websiteURL: evangan.com
     githubURL: github.com/evan-gan/evangan.com
   - date: Sep 27, 2025
@@ -50,7 +50,7 @@ projects:
     thumbnail: /thumbnails/1759492393466-compressed.jpg
     websiteURL: https://daydream.hackclub.com/boston
     categories:
-      - Hackathons I Ran
+      - Hackathons
   - date: Aug 8-11, 2025
     name: Shipwrecked
     tagline: >-
@@ -69,7 +69,7 @@ projects:
     thumbnail: /thumbnails/ShipwreckedGroupPhoto-compressed.jpg
     websiteURL: https://shipwrecked.hackclub.com
     categories:
-      - Hackathons I Ran
+      - Hackathons
       - Highlights
     videoURL: https://www.youtube.com/watch?v=uXWMr0gdLJA
   - date: Mar 15, 2025
@@ -94,7 +94,7 @@ projects:
     thumbnail: /thumbnails/1760207708262-compressed.jpg
     websiteURL: https://scrapyard.hackclub.com/boston
     categories:
-      - Hackathons I Ran
+      - Hackathons
   - date: Mar 8, 2025
     name: Hack The Castle
     tagline: >-
@@ -107,7 +107,7 @@ projects:
     thumbnail: /thumbnails/placeholder.svg
     githubURL: https://github.com/ph4iry/polaris
     categories:
-      - Programming Projects
+      - Programming
   - date: March, 2025
     name: QR Code Check-in Web App
     tagline: 'A flexible, easy to use, QR code check-in app for events. '
@@ -130,7 +130,7 @@ projects:
       personalized emails with each attendee's QR code.
     thumbnail: /thumbnails/placeholder.svg
     categories:
-      - Programming Projects
+      - Programming
     githubURL: https://github.com/evan-gan/GoogleSheetsQRSignIn
   - date: Nov 23, 2024
     name: Counterspell Hackathon
@@ -146,7 +146,7 @@ projects:
     thumbnail: /thumbnails/1760207809207-compressed.jpg
     websiteURL: https://counterspell.hackclub.com/boston
     categories:
-      - Hackathons I Ran
+      - Hackathons
   - date: Sep-Nov, 2024
     name: Pumpkin Smash
     tagline: >-
@@ -193,7 +193,7 @@ projects:
     thumbnail: /thumbnails/1760215838683-compressed.jpg
     githubURL: https://github.com/EerierGosling/Informedead
     categories:
-      - Hardware Projects
+      - Builds
   - date: May, 2024
     name: Maze Generator
     tagline: >-
@@ -207,7 +207,7 @@ projects:
       https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg
     githubURL: https://github.com/evan-gan/blot
     categories:
-      - Programming Projects
+      - Programming
   - date: May, 2024
     name: Wordle Solver
     tagline: >-
@@ -219,7 +219,7 @@ projects:
     thumbnail: /thumbnails/placeholder.svg
     githubURL: https://github.com/evan-gan/wordleSolver
     categories:
-      - Programming Projects
+      - Programming
   - date: April-July, 2024
     name: Off the Grid Communicator Circuit Board
     tagline: >-
@@ -242,7 +242,7 @@ projects:
     thumbnail: /thumbnails/1760206485488-compressed.jpg
     githubURL: https://github.com/evan-gan/trail-PCB-communication-network
     categories:
-      - Hardware Projects
+      - Builds
     videoURL: https://www.youtube.com/watch?v=ufMUJ9D1fi8
   - date: Mar 1-2, 2024
     name: Scrapyard Flagship Hackathon
@@ -255,7 +255,7 @@ projects:
     thumbnail: /thumbnails/scrapyardFlagship-compressed.jpg
     githubURL: https://github.com/evan-gan/distractatime
     categories:
-      - Programming Projects
+      - Programming
   - date: Oct 5, 2021
     name: Little Free Library
     tagline: Designed and built a Little Free Library from scratch in Tinker CAD
@@ -272,4 +272,5 @@ projects:
       clear window. Several years later, it still stands strong, having endured
       many wind and snow storms.
     thumbnail: /thumbnails/1759675385330-compressed.jpeg
-    categories: []
+    categories:
+      - Builds
