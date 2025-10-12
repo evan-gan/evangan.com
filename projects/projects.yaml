@@ -2,6 +2,7 @@ tagOrder:
   - Highlights
   - All Projects
   - Hackathons
+  - Robotics
   - Programming
   - Builds
 projects:
@@ -165,6 +166,8 @@ projects:
     thumbnail: /thumbnails/1759760697739-compressed.jpg
     categories:
       - Highlights
+      - Builds
+      - Robotics
   - date: May 17-19, 2024
     name: Apocalypse Hackathon Device
     tagline: >-
