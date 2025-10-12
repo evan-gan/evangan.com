@@ -45,6 +45,9 @@
 	// Check if the current date parses correctly
 	$: isDateValid = editedProject ? formatDate(editedProject.date) !== editedProject.date : true;
 	
+	// Get the formatted date for preview
+	$: formattedDatePreview = editedProject ? formatDate(editedProject.date) : '';
+	
 	onMount(() => {
 		loadProjects();
 	});
@@ -555,7 +558,12 @@
 					</div>
 
 					<div class="form-group">
-						<label for="date">Date {#if !isDateValid}⚠️{/if}</label>
+						<label for="date">
+							Date {#if !isDateValid}⚠️{/if}
+							{#if formattedDatePreview}
+								<span class="parsed-date-preview"> - {formattedDatePreview}</span>
+							{/if}
+						</label>
 						<input
 							id="date"
 							type="text"
@@ -1046,6 +1054,11 @@
 		margin-bottom: 8px;
 		font-weight: 600;
 		color: #000000;
+	}
+
+	.parsed-date-preview {
+		font-weight: 400;
+		color: #6b7280;
 	}
 
 	input[type="text"],
