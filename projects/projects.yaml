@@ -219,7 +219,7 @@ projects:
     description: >
       A Swift-based solver for Wordle. Created as a playful way to improve
       results by automating the problem instead of practicing the game by hand.
-    thumbnail: /thumbnails/placeholder.svg
+    thumbnail: /thumbnails/1760281874905-compressed.jpg
     githubURL: https://github.com/evan-gan/wordleSolver
     categories:
       - Programming

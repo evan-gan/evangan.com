@@ -2,7 +2,11 @@ import { dev } from '$app/environment';
 import { json, error } from '@sveltejs/kit';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import type { RequestHandler } from './$types';
+
+const execAsync = promisify(exec);
 
 export const prerender = false;
 
@@ -30,6 +34,20 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const { content } = await request.json();
 		await writeFile(PROJECTS_FILE, content, 'utf-8');
+		
+		// Wait 100ms after save completes, then run compression script
+		setTimeout(async () => {
+			try {
+				const scriptPath = join(process.cwd(), 'compress-thumbnails.sh');
+				console.log('Running compression script after save...');
+				await execAsync(`bash "${scriptPath}"`);
+				console.log('Compression complete');
+			} catch (compressionError) {
+				console.error('Compression script failed:', compressionError);
+				// Don't fail the save if compression fails
+			}
+		}, 100);
+		
 		return json({ success: true });
 	} catch (err) {
 		console.error('Error writing projects file:', err);
