@@ -6,7 +6,23 @@ tagOrder:
   - Programming
   - Builds
 projects:
-  - date: Oct, 3 2025
+  - date: Sep 27, 2025
+    name: Daydream Hackathon
+    tagline: >-
+      Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
+      teen attendees. | Fourth Hackathon Organized
+    description: >-
+      I organized a 60-person Boston Daydream Hackathon, part of a global series
+      with 100 simultaneous events. I led a team of organizers and secured a
+      donated venue. I also handled teacher and student outreach to recruit
+      attendees. To help train the next generation of organizers, I made the
+      planning process open encouraged more teens to contribute, with the goal
+      of enabling teens to run future events after I graduate high school.
+    thumbnail: /thumbnails/1759492393466-compressed.jpg
+    websiteURL: https://daydream.hackclub.com/boston
+    categories:
+      - Hackathons
+  - date: Sep-Oct, 2025
     name: Personal Website
     tagline: This site! Built from the ground up in SvelteKit.
     description: >-
@@ -36,22 +52,6 @@ projects:
       - Programming
     websiteURL: evangan.com
     githubURL: github.com/evan-gan/evangan.com
-  - date: Sep 27, 2025
-    name: Daydream Hackathon
-    tagline: >-
-      Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
-      teen attendees. | Fourth Hackathon Organized
-    description: >-
-      I organized a 60-person Boston Daydream Hackathon, part of a global series
-      with 100 simultaneous events. I led a team of organizers and secured a
-      donated venue. I also handled teacher and student outreach to recruit
-      attendees. To help train the next generation of organizers, I made the
-      planning process open encouraged more teens to contribute, with the goal
-      of enabling teens to run future events after I graduate high school.
-    thumbnail: /thumbnails/1759492393466-compressed.jpg
-    websiteURL: https://daydream.hackclub.com/boston
-    categories:
-      - Hackathons
   - date: Aug 8-11, 2025
     name: Shipwrecked
     tagline: >-
@@ -97,14 +97,21 @@ projects:
     categories:
       - Hackathons
   - date: Mar 8, 2025
-    name: Hack The Castle
+    name: Polaris student management system
     tagline: >-
-      Web app built with Next.js to help a foundation track students and search
-      by date/time windows.
-    description: >
-      Web app built with Next.js to help a foundation track students and search
-      by date/time windows, addressing their challenge of keeping track of
-      students.
+      Web app built with Next.js to help the Achieve Nonprofit track students
+      and search by date/time windows.
+    description: >-
+      Built at a 1 day Hackathon, Hack the Castle, Polaris is a student
+      management system built to help staff at Achieve quickly locate students
+      and manage schedules more efficiently. Inspired by the difficulty of
+      tracking students across multiple classrooms, Polaris replaces scattered
+      spreadsheets with a centralized dashboard where users can instantly find a
+      student’s current location, view schedules in a clear format, and organize
+      pre-existing data into a standardized schedule using AI-powered data
+      parsing. Built with Next.js, React, and OpenAI’s classification tools, the
+      system dynamically structures and updates student data while maintaining a
+      clean, intuitive interface. 
     thumbnail: /thumbnails/1760281002150-compressed.jpg
     githubURL: https://github.com/ph4iry/polaris
     categories:
@@ -165,7 +172,6 @@ projects:
       sustainability in action.
     thumbnail: /thumbnails/1759760697739-compressed.jpg
     categories:
-      - Highlights
       - Builds
       - Robotics
   - date: May 17-19, 2024
@@ -174,14 +180,14 @@ projects:
       Peer-to-peer communication device built for an apocalypse-themed
       hackathon.
     description: >-
-      Infromedead is a set of devices that can communicate with each other off
-      the grid!
-
-
       The prompt for Apocalypse was to create something to help you survive the
       zombie apocalypse. We thought that since the internet would be unreliable
       during the apocalypse, it would be helpful to have devices that allow you
       to communicate regardless!
+
+
+      Infromedead is a set of devices that can communicate with each other off
+      the grid!
 
 
       The code runs on ESP32s, and the devices work by each setting up their own
@@ -202,13 +208,21 @@ projects:
     tagline: >-
       Recursive TypeScript maze generator for a pen plotter in the Hack Club
       Blot ecosystem.
-    description: >
-      Recursive maze generator written in TypeScript for a pen plotter. Built as
-      part of the Hack Club Blot ecosystem, with custom tool path (that I
-      designed & wrote) optimization for plotting.
+    description: >-
+      This project is a recursive maze generator written in TypeScript for the
+      Hack Club Blot ecosystem, designed to create generative mazes optimized
+      for pen plotting through a custom tool path algorithm I built. The maze
+      generation follows a simple recursive process of breaking walls, marking
+      visited cells, and backtracking when no unvisited paths remain. While the
+      algorithm itself was straightforward, developing the maze structure and
+      optimizing the plotting efficiency proved to be the most rewarding
+      challenge. I taught myself TypeScript and Node.js for this project,
+      building on previous experience with C++, Swift, and Arduino. The
+      generator can create mazes at any position on the page with fully
+      customizable dimensions for rows, columns, and cell sizes.
     thumbnail: >-
       https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg
-    githubURL: https://github.com/evan-gan/blot
+    githubURL: https://github.com/hackclub/blot/pull/230
     categories:
       - Programming
   - date: May, 2024
@@ -253,17 +267,55 @@ projects:
       - Builds
     videoURL: https://www.youtube.com/watch?v=ufMUJ9D1fi8
   - date: Mar 1-2, 2024
-    name: Scrapyard Flagship Hackathon
+    name: Distractatime
     tagline: >-
       Built an anti-productivity Mac app for the "useless project" prompt at a
       12-hour hackathon.
-    description: >
-      We were prompted to make a useless project. What better than an
-      anti-productivity app to fulfill this objective.
+    description: >-
+      For the Scrapyard Flagship Hackathon, we were prompted to make a useless
+      project. What better than an anti-productivity app to fulfill this
+      objective.
+
+
+      Using SwiftUI, we developed a MacOS application which tracks the amount of
+      time you spend coding, and deploys various distractions to prevent you
+      from being productive.
+
+
+      If you try to code for an excessive amount of time, productivity
+      countermeasures such as repeatedly changing the font in VSCode to fonts
+      like Wingdings will be deployed. However, if the user continues to attempt
+      to code, further distractions will be implemented, such as opening
+      #confessions (a channel on the Hack Club Slack notorious for being a
+      distraction) and playing Subway Surfers with very loud volume. As a last
+      resort, siren noises will play, annoying windows will spawn and move
+      across the screen, with a loud balloon popping as a final deterrent. What
+      a practical solution to an impractical problem!
     thumbnail: /thumbnails/scrapyardFlagship-compressed.jpg
     githubURL: https://github.com/evan-gan/distractatime
     categories:
       - Programming
+  - date: Sep 2022 - June 2026
+    name: The LigerBots
+    tagline: The LigerBots - First robotics team 2877 for Newton MA
+    description: >-
+      Freshman year, I joined my high school's 60 person robotics team, the
+      LigerBots, which competes among 3,500 teams worldwide in FIRST Robotics.
+      Over my four years on the team, I’ve become a jack of all trades,
+      programming the robot, leading build and prototyping groups to design and
+      construct mechanisms, and creating CAD models for robot components. As a
+      senior, I was appointed Chief Operating Officer (COO), overseeing team
+      operations and logistics. During my time with the LigerBots, we progressed
+      from qualifying for the District Championship to competing at the World
+      Championship, ultimately winning our division at Worlds in 2025. In 2024,
+      at the Greater Boston District qualifier, we won the FIRST Impact Award,
+      the most prestigious award in FIRST. In my junior year, I was awarded my
+      team's Gracious Professionalism Award.
+    thumbnail: /thumbnails/1760289446557.jpg
+    categories:
+      - Robotics
+      - Highlights
+    websiteURL: ligerbots.org
   - date: Oct 5, 2021
     name: Little Free Library
     tagline: Designed and built a Little Free Library from scratch in Tinker CAD
@@ -273,12 +325,15 @@ projects:
       and taught myself to use power tools such as a table saw, drill, and
       pneumatic nail gun to build it. Wanting to do the job right, I reached out
       to people in my community and found some who had recently re-roofed their
-      houses and were willing to share leftover shingles. I purchased tar mat
-      and drip edge from Home Depot and constructed the roof just like a real
-      house. For the front, I wanted a full-sized window, so I built a custom
-      frame with slots and repurposed an acrylic face shield to create a large,
-      clear window. Several years later, it still stands strong, having endured
-      many wind and snow storms.
+      houses and were willing to share leftover shingles and tar mat. I
+      purchased some drip edge from Home Depot and constructed the roof just
+      like a real house. For the front, I wanted a full-sized window, so I built
+      a custom frame with slots and repurposed an acrylic face shield to create
+      a large, clear window. Several years later, it still stands strong, having
+      endured many wind and snow storms.
+
+
+      Neighbors still stop by everyday to pick up or drop off books!
     thumbnail: /thumbnails/1759675385330-compressed.jpeg
     categories:
       - Builds
