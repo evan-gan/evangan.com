@@ -214,12 +214,17 @@ projects:
   - date: May, 2024
     name: Wordle Solver
     tagline: >-
-      Swift-based solver that automates the Wordle process as a playful
-      challenge.
-    description: >
-      A Swift-based solver for Wordle. Created as a playful way to improve
-      results by automating the problem instead of practicing the game by hand.
-    thumbnail: /thumbnails/1760281874905-compressed.jpg
+      A scalable Swift-based solver that cracks any Wordle variant using ranked
+      word heuristics.
+    description: >-
+      Curious about how efficiently a program could solve Wordle, I built a
+      solver as my first project in Swift to learn the language. It works with
+      all Wordle variants (including Absurdle) and supports longer word lengths.
+      The solver takes your game feedback, filters through a 333,000-word
+      dataset, and ranks possible answers by vowel diversity, letter repetition,
+      frequency, and usage weight. The result is a fast, data-driven tool that
+      quickly identifies the best next guess.
+    thumbnail: /thumbnails/1760284204583-compressed.jpg
     githubURL: https://github.com/evan-gan/wordleSolver
     categories:
       - Programming
