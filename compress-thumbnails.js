@@ -104,9 +104,12 @@ async function compressImage(filePath, filename) {
 	try {
 		// ALL files go through the SAME compression command
 		// WebP format for better compression with quality retention
-		// -quality 80: WebP quality level (higher than JPG 50 because WebP is more efficient)
+		// -auto-orient: physically rotate image data based on EXIF orientation (MUST come before -strip)
+		// -strip: remove all metadata (EXIF, GPS, device info, etc.) AFTER orientation is applied
+		// -quality 75: WebP quality level (balanced between size and quality)
 		// -define webp:method=6: Best compression (0-6, 6 is slowest but best)
-		const command = `magick "${filePath}" -quality 80 -define webp:method=6 "${webpPath}"`;
+		// -define webp:lossless=false: Use lossy compression for smaller files
+		const command = `magick "${filePath}" -auto-orient -strip -quality 75 -define webp:method=6 -define webp:lossless=false "${webpPath}"`;
 		
 		console.log(`   🔧 Running: ${command}`);
 		

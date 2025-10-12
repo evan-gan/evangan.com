@@ -38,9 +38,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		// Wait 100ms after save completes, then run compression script
 		setTimeout(async () => {
 			try {
-				const scriptPath = join(process.cwd(), 'compress-thumbnails.sh');
+				const scriptPath = join(process.cwd(), 'compress-thumbnails.js');
 				console.log('Running compression script after save...');
-				await execAsync(`bash "${scriptPath}"`);
+				await execAsync(`node "${scriptPath}"`);
 				console.log('Compression complete');
 			} catch (compressionError) {
 				console.error('Compression script failed:', compressionError);
