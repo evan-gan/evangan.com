@@ -49,9 +49,6 @@
 		filteredProjects = selectedCategory === 'all'
 			? data.projects
 			: data.projects.filter((project) => project.categorySlugs.includes(selectedCategory));
-		
-		// Clear loaded images when filter changes to force reload
-		loadedImages = new Set();
 	}
 
 	$: {
@@ -92,12 +89,51 @@
 
 	function handleImageLoad(url: string) {
 		loadedImages.add(url);
-		loadedImages = loadedImages; // Trigger reactivity
+		loadedImages = loadedImages;
+	}
+
+	let pollInterval: ReturnType<typeof setInterval> | null = null;
+	
+	function startPolling() {
+		if (pollInterval) {
+			clearInterval(pollInterval);
+		}
+		
+		pollInterval = setInterval(() => {
+			const images = document.querySelectorAll('.project-thumbnail img, .project-modal-thumbnail img');
+			let hasUnloadedImages = false;
+			
+			images.forEach((img) => {
+				const htmlImg = img as HTMLImageElement;
+				const src = htmlImg.src;
+				
+				if (src && !loadedImages.has(src)) {
+					if (htmlImg.complete && htmlImg.naturalHeight !== 0) {
+						handleImageLoad(src);
+					} else {
+						hasUnloadedImages = true;
+					}
+				}
+			});
+			
+			if (!hasUnloadedImages && pollInterval) {
+				clearInterval(pollInterval);
+				pollInterval = null;
+			}
+		}, 100);
+	}
+	
+	$: if (filteredProjects.length > 0 && typeof document !== 'undefined') {
+		setTimeout(startPolling, 50);
 	}
 
 	onDestroy(() => {
 		if (typeof document !== 'undefined') {
 			document.body.style.overflow = '';
+		}
+		if (pollInterval) {
+			clearInterval(pollInterval);
+			pollInterval = null;
 		}
 	});
 </script>
