@@ -232,22 +232,47 @@ function normalizeProjects(): NormalizedProjectsResult {
   // Sort by date (newest first), then by original order as tiebreaker
   projectEntries.sort((a, b) => {
     const parseDate = (dateStr: string) => {
-      const yearMatch = dateStr.match(/\b(20\d{2})\b/);
+      // For multi-month/year ranges (e.g., "Sep 2022 - June 2026"), extract the END date
+      const rangeMatch = dateStr.match(/[-–]\s*([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s+(\d{4})/);
+      const rangeMonthOnly = dateStr.match(/[-–]\s*([A-Za-z]+)\s+(\d{4})/);
+      
+      let targetDateStr = dateStr;
+      if (rangeMatch) {
+        // Has specific day in end date: "- June 3rd 2026"
+        targetDateStr = `${rangeMatch[1]} ${rangeMatch[2]}, ${rangeMatch[3]}`;
+      } else if (rangeMonthOnly) {
+        // Month-only end date: "- June 2026"
+        targetDateStr = `${rangeMonthOnly[1]} ${rangeMonthOnly[2]}`;
+      }
+      
+      const yearMatch = targetDateStr.match(/\b(20\d{2})\b/);
       const year = yearMatch ? parseInt(yearMatch[1]) : 0;
       
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       let month = 0;
       for (let i = 0; i < months.length; i++) {
-        if (dateStr.includes(months[i])) {
+        if (targetDateStr.includes(months[i])) {
           month = i;
           break;
         }
       }
       
-      // Try to extract day number (handles ranges by taking the first day)
-      const dayMatch = dateStr.match(/\b(\d{1,2})(?:[-–]\d{1,2})?\b/);
-      const day = dayMatch ? parseInt(dayMatch[1]) : 0;
+      // Extract day number - for ranges (8-11), take the LAST day (11)
+      const dayMatch = targetDateStr.match(/\b(\d{1,2})(?:[-–](\d{1,2}))?\b/);
+      let day = 0;
+      let hasSpecificDay = false;
+      if (dayMatch) {
+        hasSpecificDay = true;
+        // If there's a range (group 2 exists), use the end day; otherwise use the single day
+        day = dayMatch[2] ? parseInt(dayMatch[2]) : parseInt(dayMatch[1]);
+      }
+      
+      // If no specific day (e.g., "Aug 2025"), treat as 32 (greater than any valid day)
+      // This makes whole months sort as more recent than specific dates in that month
+      if (!hasSpecificDay && month > 0) {
+        day = 32;
+      }
       
       return { year, month, day };
     };
