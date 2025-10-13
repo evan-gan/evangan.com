@@ -36,7 +36,7 @@
 
 <style>
 	main {
-		min-height: calc(100vh - 80px);
+		min-height: 100vh;
 		padding: 100px 24px 80px;
 		background: #f8f9fa;
 	}
