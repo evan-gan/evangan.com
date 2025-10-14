@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
 
 	let { children } = $props();
 </script>
@@ -12,7 +12,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </svelte:head>
 
-{#if !$page.url.pathname.startsWith('/editor')}
+{#if !page.url.pathname.startsWith('/editor')}
 <header class="site-header">
 	<a href="/" class="site-logo">Evan Gan</a>
 </header>

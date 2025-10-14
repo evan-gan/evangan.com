@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { load as parseYaml, dump as stringifyYaml } from 'js-yaml';
 	import { formatDate } from '$lib/date';
 	
@@ -15,40 +14,47 @@
 		categories: string[];
 	}
 	
-	let projects: Project[] = [];
-	let selectedProject: Project | null = null;
-	let selectedIndex = -1;
-	let editedProject: Project | null = null;
-	let isDirty = false;
-	let showUnsavedWarning = false;
+	let projects: Project[] = $state([]);
+	let selectedProject: Project | null = $state(null);
+	let selectedIndex = $state(-1);
+	let editedProject: Project | null = $state(null);
+	let isDirty = $state(false);
+	let showUnsavedWarning = $state(false);
 	let pendingIndex = -1;
-	let isDragOver = false;
-	let isUploading = false;
-	let newCategory = '';
-	let showCategoryDropdown = false;
-	let filteredCategories: string[] = [];
-	let showSaveSuccess = false;
-	let showDeleteConfirm = false;
-	let showChangesWarning = false;
-	let showThumbnailGallery = false;
-	let availableThumbnails: string[] = [];
-	let hoveredThumbnail: string | null = null;
-	let showTagOrderEditor = false;
+	let isDragOver = $state(false);
+	let isUploading = $state(false);
+	let newCategory = $state('');
+	let showCategoryDropdown = $state(false);
+	let filteredCategories: string[] = $state([]);
+	let showSaveSuccess = $state(false);
+	let showDeleteConfirm = $state(false);
+	let showChangesWarning = $state(false);
+	let showThumbnailGallery = $state(false);
+	let availableThumbnails: string[] = $state([]);
+	let hoveredThumbnail: string | null = $state(null);
+	let showTagOrderEditor = $state(false);
 	let tagOrder: string[] = [];
-	let editedTagOrder: string[] = [];
-	let draggedTagIndex: number | null = null;
-	let dragOverIndex: number | null = null;
+	let editedTagOrder: string[] = $state([]);
+	let draggedTagIndex: number | null = $state(null);
+	let dragOverIndex: number | null = $state(null);
 	
 	// Get all unique categories from all projects
-	$: allCategories = [...new Set(projects.flatMap(p => p.categories))].sort();
+	let allCategories = $derived([...new Set(projects.flatMap(p => p.categories))].sort());
 	
 	// Check if the current date parses correctly
-	$: isDateValid = editedProject ? formatDate(editedProject.date) !== editedProject.date : true;
+	let isDateValid = $derived.by(() => {
+		if (!editedProject) return true;
+		return formatDate(editedProject.date) !== editedProject.date;
+	});
 	
 	// Get the formatted date for preview
-	$: formattedDatePreview = editedProject ? formatDate(editedProject.date) : '';
+	let formattedDatePreview = $derived.by(() => {
+		if (!editedProject) return '';
+		return formatDate(editedProject.date);
+	});
 	
-	onMount(() => {
+	// Load projects on mount
+	$effect(() => {
 		loadProjects();
 	});
 	
@@ -507,8 +513,8 @@
 		<div class="sidebar-header">
 			<h2>Projects</h2>
 			<div class="sidebar-buttons">
-				<button class="btn-new" on:click={createNewProject}>+ New</button>
-				<button class="btn-tag-order" on:click={openTagOrderEditor}>Tag Order</button>
+				<button class="btn-new" onclick={createNewProject}>+ New</button>
+				<button class="btn-tag-order" onclick={openTagOrderEditor}>Tag Order</button>
 			</div>
 		</div>
 		<div class="project-items">
@@ -516,7 +522,7 @@
 				<button
 					class="project-item"
 					class:active={selectedIndex === index}
-					on:click={() => selectProject(index)}
+					onclick={() => selectProject(index)}
 				>
 					<div class="project-item-name">{project.name}</div>
 					<div class="project-item-date">{project.date}</div>
@@ -536,10 +542,10 @@
 					{:else if isDirty}
 						<span class="unsaved-indicator">● Unsaved changes</span>
 					{/if}
-					<button class="btn-save" on:click={saveProject} disabled={!isDirty}>
+					<button class="btn-save" onclick={saveProject} disabled={!isDirty}>
 						Save
 					</button>
-					<button class="btn-delete" on:click={deleteProject}>
+					<button class="btn-delete" onclick={deleteProject}>
 						Delete
 					</button>
 				</div>
@@ -553,7 +559,7 @@
 							id="name"
 							type="text"
 							bind:value={editedProject.name}
-							on:input={markDirty}
+							oninput={markDirty}
 						/>
 					</div>
 
@@ -568,7 +574,7 @@
 							id="date"
 							type="text"
 							bind:value={editedProject.date}
-							on:input={markDirty}
+							oninput={markDirty}
 							placeholder="e.g. Aug 8–11, 2025"
 							class:invalid={!isDateValid}
 						/>
@@ -581,7 +587,7 @@
 						id="tagline"
 						type="text"
 						bind:value={editedProject.tagline}
-						on:input={markDirty}
+						oninput={markDirty}
 					/>
 				</div>
 
@@ -591,7 +597,7 @@
 						id="description"
 						rows="5"
 						bind:value={editedProject.description}
-						on:input={markDirty}
+						oninput={markDirty}
 					></textarea>
 				</div>
 
@@ -602,7 +608,7 @@
 							id="websiteURL"
 							type="text"
 							bind:value={editedProject.websiteURL}
-							on:input={markDirty}
+							oninput={markDirty}
 						/>
 					</div>
 
@@ -612,7 +618,7 @@
 							id="githubURL"
 							type="text"
 							bind:value={editedProject.githubURL}
-							on:input={markDirty}
+							oninput={markDirty}
 						/>
 					</div>
 
@@ -622,7 +628,7 @@
 							id="videoURL"
 							type="text"
 							bind:value={editedProject.videoURL}
-							on:input={markDirty}
+							oninput={markDirty}
 						/>
 					</div>
 				</div>
@@ -636,11 +642,11 @@
 							class:drag-over={isDragOver}
 							role="button"
 							tabindex="0"
-							on:dragover={handleDragOver}
-							on:dragleave={handleDragLeave}
-							on:drop={handleDrop}
-							on:click={openThumbnailGallery}
-							on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? openThumbnailGallery() : null}
+							ondragover={handleDragOver}
+							ondragleave={handleDragLeave}
+							ondrop={handleDrop}
+							onclick={openThumbnailGallery}
+							onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? openThumbnailGallery() : null}
 						>
 							{#if isUploading}
 								<div class="upload-status">Uploading...</div>
@@ -661,20 +667,20 @@
 									id="category-input"
 									type="text"
 									bind:value={newCategory}
-									on:input={handleCategoryInput}
-									on:focus={handleCategoryFocus}
-									on:blur={handleCategoryBlur}
-									on:keydown={(e) => e.key === 'Enter' && addCategory()}
+									oninput={handleCategoryInput}
+									onfocus={handleCategoryFocus}
+									onblur={handleCategoryBlur}
+									onkeydown={(e) => e.key === 'Enter' && addCategory()}
 									placeholder="Add category..."
 								/>
-								<button class="btn-add-category" on:click={addCategory}>Add</button>
+								<button class="btn-add-category" onclick={addCategory}>Add</button>
 							</div>
 							{#if showCategoryDropdown && filteredCategories.length > 0}
 								<div class="category-dropdown">
 									{#each filteredCategories as category}
 										<button
 											class="category-dropdown-item"
-											on:click={() => selectCategory(category)}
+											onclick={() => selectCategory(category)}
 										>
 											{category}
 										</button>
@@ -686,7 +692,7 @@
 							{#each editedProject.categories as category, index}
 								<div class="category-tag">
 									{category}
-									<button class="remove-category" on:click={() => removeCategory(index)}>
+									<button class="remove-category" onclick={() => removeCategory(index)}>
 										×
 									</button>
 								</div>
@@ -706,15 +712,15 @@
 
 <!-- Unsaved changes warning modal -->
 {#if showUnsavedWarning}
-	<div class="modal-overlay" role="button" tabindex="0" on:click={handleReturnToEdit} on:keydown={(e) => e.key === 'Escape' && handleReturnToEdit()}>
-		<div class="modal" role="dialog" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
+	<div class="modal-overlay" role="button" tabindex="0" onclick={handleReturnToEdit} onkeydown={(e) => e.key === 'Escape' && handleReturnToEdit()}>
+		<div class="modal" role="dialog" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
 			<h2>Unsaved Changes</h2>
 			<p>You have unsaved changes. Do you want to continue without saving?</p>
 			<div class="modal-actions">
-				<button class="btn-secondary" on:click={handleReturnToEdit}>
+				<button class="btn-secondary" onclick={handleReturnToEdit}>
 					Return to Editor
 				</button>
-				<button class="btn-danger" on:click={handleContinueWithoutSaving}>
+				<button class="btn-danger" onclick={handleContinueWithoutSaving}>
 					Discard Changes
 				</button>
 			</div>
@@ -724,15 +730,15 @@
 
 <!-- Delete confirmation modal -->
 {#if showDeleteConfirm}
-	<div class="modal-overlay" role="button" tabindex="0" on:click={cancelDelete} on:keydown={(e) => e.key === 'Escape' && cancelDelete()}>
-		<div class="modal" role="dialog" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
+	<div class="modal-overlay" role="button" tabindex="0" onclick={cancelDelete} onkeydown={(e) => e.key === 'Escape' && cancelDelete()}>
+		<div class="modal" role="dialog" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
 			<h2>Delete Project</h2>
 			<p>Are you sure you want to delete this project? This action cannot be undone. <br>(well it can, in git but it's a pain)</p>
 			<div class="modal-actions">
-				<button class="btn-secondary" on:click={cancelDelete}>
+				<button class="btn-secondary" onclick={cancelDelete}>
 					Cancel
 				</button>
-				<button class="btn-danger" on:click={confirmDelete}>
+				<button class="btn-danger" onclick={confirmDelete}>
 					Delete
 				</button>
 			</div>
@@ -742,12 +748,12 @@
 
 <!-- Changes warning modal -->
 {#if showChangesWarning}
-	<div class="modal-overlay" role="button" tabindex="0" on:click={() => showChangesWarning = false} on:keydown={(e) => e.key === 'Escape' && (showChangesWarning = false)}>
-		<div class="modal" role="dialog" tabindex="-1" on:click|stopPropagation on:keydown|stopPropagation>
+	<div class="modal-overlay" role="button" tabindex="0" onclick={() => showChangesWarning = false} onkeydown={(e) => e.key === 'Escape' && (showChangesWarning = false)}>
+		<div class="modal" role="dialog" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
 			<h2>Save Changes First</h2>
 			<p>Please save or discard your current changes before proceeding.</p>
 			<div class="modal-actions">
-				<button class="btn-secondary" on:click={() => showChangesWarning = false}>
+				<button class="btn-secondary" onclick={() => showChangesWarning = false}>
 					OK
 				</button>
 			</div>
@@ -761,19 +767,19 @@
 		class="modal-overlay gallery-overlay" 
 		role="button" 
 		tabindex="0"
-		on:click={closeThumbnailGallery}
-		on:keydown={(e) => e.key === 'Escape' && closeThumbnailGallery()}
+		onclick={closeThumbnailGallery}
+		onkeydown={(e) => e.key === 'Escape' && closeThumbnailGallery()}
 	>
 		<div 
 			class="gallery-modal" 
 			role="dialog"
 			tabindex="-1"
-			on:click|stopPropagation
-			on:keydown|stopPropagation
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => e.stopPropagation()}
 		>
 			<div class="gallery-header">
 				<h2>Select Thumbnail</h2>
-				<button class="gallery-close" on:click={closeThumbnailGallery}>×</button>
+				<button class="gallery-close" onclick={closeThumbnailGallery}>×</button>
 			</div>
 			<div class="gallery-content">
 				<div class="gallery-grid">
@@ -784,10 +790,10 @@
 							class:hovered={hoveredThumbnail === thumbnail}
 							role="button"
 							tabindex="0"
-							on:mouseenter={() => handleThumbnailHover(thumbnail)}
-							on:mouseleave={handleThumbnailLeave}
-							on:click={() => selectThumbnail(thumbnail)}
-							on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectThumbnail(thumbnail)}
+							onmouseenter={() => handleThumbnailHover(thumbnail)}
+							onmouseleave={handleThumbnailLeave}
+							onclick={() => selectThumbnail(thumbnail)}
+							onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && selectThumbnail(thumbnail)}
 						>
 							<img src={thumbnail} alt="Thumbnail option" />
 							<div class="gallery-item-name">{thumbnail.split('/').pop()}</div>
@@ -812,13 +818,13 @@
 		class="modal-backdrop"
 		role="button"
 		tabindex="0"
-		on:click={closeTagOrderEditor}
-		on:keydown={(e) => e.key === 'Escape' && closeTagOrderEditor()}
+		onclick={closeTagOrderEditor}
+		onkeydown={(e) => e.key === 'Escape' && closeTagOrderEditor()}
 	>
-		<div class="modal tag-order-modal" on:click|stopPropagation on:keydown|stopPropagation role="dialog" tabindex="-1">
+		<div class="modal tag-order-modal" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="-1">
 			<div class="modal-header">
 				<h3>Tag Order</h3>
-				<button class="gallery-close" on:click={closeTagOrderEditor}>×</button>
+				<button class="gallery-close" onclick={closeTagOrderEditor}>×</button>
 			</div>
 			<div class="modal-body">
 				<p class="tag-order-help">Drag to reorder tags. This controls the order of filter buttons on the projects page.</p>
@@ -829,9 +835,9 @@
 							class:dragging={draggedTagIndex === index}
 							class:drag-over={dragOverIndex === index && draggedTagIndex !== null && draggedTagIndex !== index}
 							draggable="true"
-							on:dragstart={() => handleTagDragStart(index)}
-							on:dragover={(e) => handleTagDragOver(e, index)}
-							on:dragend={handleTagDragEnd}
+							ondragstart={() => handleTagDragStart(index)}
+							ondragover={(e) => handleTagDragOver(e, index)}
+							ondragend={handleTagDragEnd}
 							role="button"
 							tabindex="0"
 						>
@@ -842,8 +848,8 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn-cancel" on:click={closeTagOrderEditor}>Cancel</button>
-				<button class="btn-save" on:click={saveTagOrder}>Save Order</button>
+				<button class="btn-cancel" onclick={closeTagOrderEditor}>Cancel</button>
+				<button class="btn-save" onclick={saveTagOrder}>Save Order</button>
 			</div>
 		</div>
 	</div>

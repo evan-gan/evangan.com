@@ -1,14 +1,18 @@
 <script lang="ts">
 	import type { ProjectCategory, ProjectData } from '$lib/projects';
-	import { onDestroy } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 
-	export let data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
+	interface Props {
+		data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
+	}
 
-	// Track which images have loaded
-	let loadedImages = new Set<string>();
+	let { data }: Props = $props();
+
+	// Track which images have loaded - use SvelteSet for reactive Set
+	let loadedImages = $state(new SvelteSet<string>());
 
 	// Create filter items respecting tagOrder
-	$: filterItems = (() => {
+	let filterItems = $derived.by(() => {
 		const allProjectsItem = { name: 'all', displayName: 'All Projects' };
 		const categoryItems = data.categories.map(cat => ({ name: cat.name, displayName: cat.displayName }));
 		
@@ -38,24 +42,42 @@
 		ordered.push(...remaining);
 		
 		return ordered;
-	})();
+	});
 
 	// Set default to first item in the ordered list
-	$: selectedCategory = filterItems.length > 0 ? filterItems[0].name : 'all';
-	let filteredProjects: ProjectData[] = [];
-	let activeProject: ProjectData | null = null;
-
-	$:{
-		filteredProjects = selectedCategory === 'all'
+	let selectedCategory = $state('all');
+	
+	// Initialize to first filter item once
+	let initialized = $state(false);
+	$effect(() => {
+		if (!initialized && filterItems.length > 0) {
+			selectedCategory = filterItems[0].name;
+			initialized = true;
+		}
+	});
+	
+	// Filtered projects should be derived from selectedCategory
+	let filteredProjects = $derived(
+		selectedCategory === 'all'
 			? data.projects
-			: data.projects.filter((project) => project.categorySlugs.includes(selectedCategory));
-	}
+			: data.projects.filter((project) => project.categorySlugs.includes(selectedCategory))
+	);
+	
+	let activeProject: ProjectData | null = $state(null);
 
-	$: {
+	// Use $effect for side effects (body overflow management)
+	$effect(() => {
 		if (typeof document !== 'undefined') {
 			document.body.style.overflow = activeProject ? 'hidden' : '';
 		}
-	}
+		
+		// Cleanup when component is destroyed
+		return () => {
+			if (typeof document !== 'undefined') {
+				document.body.style.overflow = '';
+			}
+		};
+	});
 
 	function openProject(project: ProjectData) {
 		activeProject = project;
@@ -89,10 +111,9 @@
 
 	function handleImageLoad(url: string) {
 		loadedImages.add(url);
-		loadedImages = loadedImages;
 	}
 
-	let pollInterval: ReturnType<typeof setInterval> | null = null;
+	let pollInterval: ReturnType<typeof setInterval> | null = $state(null);
 	
 	function startPolling() {
 		if (pollInterval) {
@@ -123,22 +144,23 @@
 		}, 100);
 	}
 	
-	$: if (filteredProjects.length > 0 && typeof document !== 'undefined') {
-		setTimeout(startPolling, 50);
-	}
-
-	onDestroy(() => {
-		if (typeof document !== 'undefined') {
-			document.body.style.overflow = '';
+	// Start polling when filtered projects change
+	$effect(() => {
+		if (filteredProjects.length > 0 && typeof document !== 'undefined') {
+			setTimeout(startPolling, 50);
 		}
-		if (pollInterval) {
-			clearInterval(pollInterval);
-			pollInterval = null;
-		}
+		
+		// Cleanup polling interval when component is destroyed
+		return () => {
+			if (pollInterval) {
+				clearInterval(pollInterval);
+				pollInterval = null;
+			}
+		};
 	});
 </script>
 
-<svelte:window on:keydown={handleWindowKeydown} />
+<svelte:window onkeydown={handleWindowKeydown} />
 
 <svelte:head>
 	<title>Projects - Evan Gan</title>
@@ -158,7 +180,7 @@
 						<button
 							class="filter-btn"
 							class:active={selectedCategory === item.name}
-							on:click={() => selectedCategory = item.name}
+							onclick={() => selectedCategory = item.name}
 						>
 							{item.displayName}
 						</button>
@@ -169,13 +191,13 @@
 			<!-- Projects Grid -->
 			<div class="projects-grid">
 				{#each filteredProjects as project, index}
-					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-					<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<article
 						class="project-card"
 						style="--card-index: {index}"
-						on:click={() => openProject(project)}
-						on:keydown={(event) => handleCardKeydown(event, project)}
+						onclick={() => openProject(project)}
+						onkeydown={(event) => handleCardKeydown(event, project)}
 						tabindex="0"
 						aria-label={`View details for ${project.name}`}
 					>
@@ -188,7 +210,7 @@
 									src={project.thumbnail} 
 									alt={project.name}
 									class:loaded={loadedImages.has(project.thumbnail)}
-									on:load={() => handleImageLoad(project.thumbnail)}
+									onload={() => handleImageLoad(project.thumbnail)}
 								/>
 							</div>
 						{/if}
@@ -210,17 +232,17 @@
 							{#if project.links.length}
 								<div class="project-links">
 									{#each project.links as link}
-										<a
-											href={link.url}
-											target="_blank"
-											rel="noopener"
-											class="project-link"
-											on:click|stopPropagation
-											on:keydown|stopPropagation
-										>
-											{link.label}
-											<span class="external-icon">↗</span>
-										</a>
+									<a
+										href={link.url}
+										target="_blank"
+										rel="noopener"
+										class="project-link"
+										onclick={(e) => e.stopPropagation()}
+										onkeydown={(e) => e.stopPropagation()}
+									>
+										{link.label}
+										<span class="external-icon">↗</span>
+									</a>
 									{/each}
 								</div>
 							{/if}
@@ -243,11 +265,11 @@
 				role="button"
 				tabindex="0"
 				aria-label="Close project dialog"
-				on:click|self={closeProject}
-				on:keydown={handleBackdropKeydown}
+				onclick={(e) => { if (e.target === e.currentTarget) closeProject(); }}
+				onkeydown={handleBackdropKeydown}
 			>
 				<div class="project-modal" role="dialog" aria-modal="true" id="project-modal">
-					<button type="button" class="modal-close" on:click={closeProject} aria-label="Close project details">
+					<button type="button" class="modal-close" onclick={closeProject} aria-label="Close project details">
 						✕
 					</button>
 					{#if activeProject.thumbnail}
@@ -259,7 +281,7 @@
 								src={activeProject.thumbnail} 
 								alt={activeProject.name}
 								class:loaded={loadedImages.has(activeProject.thumbnail)}
-								on:load={() => activeProject && handleImageLoad(activeProject.thumbnail)}
+								onload={() => activeProject && handleImageLoad(activeProject.thumbnail)}
 							/>
 						</div>
 					{/if}
