@@ -56,11 +56,14 @@
 		}
 	});
 	
-	// Filtered projects should be derived from selectedCategory
-	let filteredProjects = $derived(
-		selectedCategory === 'all'
-			? data.projects
-			: data.projects.filter((project) => project.categorySlugs.includes(selectedCategory))
+	// Helper to check if a project matches the current filter
+	function isProjectVisible(project: ProjectData) {
+		return selectedCategory === 'all' || project.categorySlugs.includes(selectedCategory);
+	}
+	
+	// Count visible projects for empty state
+	let visibleProjectCount = $derived(
+		data.projects.filter(isProjectVisible).length
 	);
 	
 	let activeProject: ProjectData | null = $state(null);
@@ -121,10 +124,15 @@
 		}
 		
 		pollInterval = setInterval(() => {
-			const images = document.querySelectorAll('.project-thumbnail img, .project-modal-thumbnail img');
-			let hasUnloadedImages = false;
+			// Prioritize visible images first
+			const visibleImages = document.querySelectorAll('.project-card:not(.hidden) .project-thumbnail img, .project-modal-thumbnail img');
+			const hiddenImages = document.querySelectorAll('.project-card.hidden .project-thumbnail img');
 			
-			images.forEach((img) => {
+			let hasUnloadedVisibleImages = false;
+			let hasUnloadedHiddenImages = false;
+			
+			// Check visible images first
+			visibleImages.forEach((img) => {
 				const htmlImg = img as HTMLImageElement;
 				const src = htmlImg.src;
 				
@@ -132,21 +140,40 @@
 					if (htmlImg.complete && htmlImg.naturalHeight !== 0) {
 						handleImageLoad(src);
 					} else {
-						hasUnloadedImages = true;
+						hasUnloadedVisibleImages = true;
 					}
 				}
 			});
 			
-			if (!hasUnloadedImages && pollInterval) {
+			// Only check hidden images if all visible ones are loaded
+			if (!hasUnloadedVisibleImages) {
+				hiddenImages.forEach((img) => {
+					const htmlImg = img as HTMLImageElement;
+					const src = htmlImg.src;
+					
+					if (src && !loadedImages.has(src)) {
+						if (htmlImg.complete && htmlImg.naturalHeight !== 0) {
+							handleImageLoad(src);
+						} else {
+							hasUnloadedHiddenImages = true;
+						}
+					}
+				});
+			}
+			
+			if (!hasUnloadedVisibleImages && !hasUnloadedHiddenImages && pollInterval) {
 				clearInterval(pollInterval);
 				pollInterval = null;
 			}
 		}, 100);
 	}
 	
-	// Start polling when filtered projects change
+	// Start polling when selected category changes
 	$effect(() => {
-		if (filteredProjects.length > 0 && typeof document !== 'undefined') {
+		// Track selectedCategory to re-trigger on filter change
+		selectedCategory;
+		
+		if (data.projects.length > 0 && typeof document !== 'undefined') {
 			setTimeout(startPolling, 50);
 		}
 		
@@ -190,16 +217,19 @@
 
 			<!-- Projects Grid -->
 			<div class="projects-grid">
-				{#each filteredProjects as project, index}
+				{#each data.projects as project, index}
+					{@const visible = isProjectVisible(project)}
 					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<article
 						class="project-card"
+						class:hidden={!visible}
 						style="--card-index: {index}"
 						onclick={() => openProject(project)}
 						onkeydown={(event) => handleCardKeydown(event, project)}
-						tabindex="0"
+						tabindex={visible ? 0 : -1}
 						aria-label={`View details for ${project.name}`}
+						aria-hidden={!visible}
 					>
 						{#if project.thumbnail}
 							<div class="project-thumbnail" class:loading={!loadedImages.has(project.thumbnail)}>
@@ -251,7 +281,7 @@
 				{/each}
 			</div>
 
-			{#if filteredProjects.length === 0}
+			{#if visibleProjectCount === 0}
 				<div class="empty-state">
 					<h3>No projects found</h3>
 					<p>Try selecting a different category or check back soon!</p>
@@ -407,7 +437,7 @@
 		border-radius: 16px;
 		overflow: hidden;
 		border: 2px solid #000000;
-		transition: all 0.2s ease;
+		transition: all 0.2s ease, opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
 		animation: fadeInUp 0.6s ease forwards;
 		opacity: 0;
 		transform: translateY(30px);
@@ -415,6 +445,18 @@
 		position: relative;
 		cursor: pointer;
 		box-shadow: 4px 4px 0px #000000;
+	}
+
+	.project-card.hidden {
+		opacity: 0 !important;
+		pointer-events: none;
+		max-height: 0;
+		margin: 0;
+		padding: 0;
+		border: none;
+		box-shadow: none;
+		overflow: hidden;
+		transform: scale(0.95);
 	}
 
 	.project-card:hover {
