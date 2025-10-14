@@ -10,6 +10,12 @@
 
 	// Track which images have loaded - use SvelteSet for reactive Set
 	let loadedImages = $state(new SvelteSet<string>());
+	
+	// Track whether all visible images have finished loading
+	let visibleImagesLoaded = $state(false);
+	
+	// Track which hidden images should start loading
+	let shouldLoadHiddenImages = $state(false);
 
 	// Create filter items respecting tagOrder
 	let filterItems = $derived.by(() => {
@@ -118,10 +124,36 @@
 
 	let pollInterval: ReturnType<typeof setInterval> | null = $state(null);
 	
+	function checkIfImageCached(url: string): boolean {
+		// Check if we've already loaded this image
+		if (loadedImages.has(url)) {
+			return true;
+		}
+		
+		// Check if image is cached by creating a temporary image
+		const img = new Image();
+		img.src = url;
+		return img.complete && img.naturalHeight !== 0;
+	}
+	
 	function startPolling() {
 		if (pollInterval) {
 			clearInterval(pollInterval);
 		}
+		
+		// Check if all visible images are already cached
+		const visibleImageUrls: string[] = [];
+		data.projects.forEach(project => {
+			if (project.thumbnail && isProjectVisible(project)) {
+				visibleImageUrls.push(project.thumbnail);
+			}
+		});
+		
+		const allVisibleCached = visibleImageUrls.every(url => checkIfImageCached(url));
+		
+		// If all visible images are cached, allow hidden images to load immediately
+		visibleImagesLoaded = allVisibleCached;
+		shouldLoadHiddenImages = allVisibleCached;
 		
 		pollInterval = setInterval(() => {
 			// Prioritize visible images first
@@ -145,8 +177,14 @@
 				}
 			});
 			
+			// Mark visible images as loaded and trigger hidden image loading
+			if (!hasUnloadedVisibleImages && !visibleImagesLoaded) {
+				visibleImagesLoaded = true;
+				shouldLoadHiddenImages = true;
+			}
+			
 			// Only check hidden images if all visible ones are loaded
-			if (!hasUnloadedVisibleImages) {
+			if (!hasUnloadedVisibleImages && shouldLoadHiddenImages) {
 				hiddenImages.forEach((img) => {
 					const htmlImg = img as HTMLImageElement;
 					const src = htmlImg.src;
@@ -237,7 +275,7 @@
 									<div class="thumbnail-skeleton"></div>
 								{/if}
 								<img 
-									src={project.thumbnail} 
+									src={visible || shouldLoadHiddenImages ? project.thumbnail : ''}
 									alt={project.name}
 									class:loaded={loadedImages.has(project.thumbnail)}
 									onload={() => handleImageLoad(project.thumbnail)}
