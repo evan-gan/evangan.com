@@ -16,7 +16,7 @@ projects:
       with 100 simultaneous events. I led a team of organizers and secured a
       donated venue. I also handled teacher and student outreach to recruit
       attendees. To help train the next generation of organizers, I made the
-      planning process open encouraged more teens to contribute, with the goal
+      planning process open encouraging more teens to contribute, with the goal
       of enabling teens to run future events after I graduate high school.
     thumbnail: /thumbnails/1759492393466-webp.webp
     websiteURL: https://daydream.hackclub.com/boston
@@ -81,10 +81,10 @@ projects:
     description: >-
       I organized a 60-person Boston Scrapyard Hackathon, part of a global
       series with 75 simultaneous events. I led a team of organizers, raised
-      $1K, and secured a donated venue. I also handled teacher and student
-      outreach to recruit attendees. I also took the marketing materials from my
-      previous hackathon project, Counterspell, and made them more generic so
-      they could be easily reused for future hackathons.
+      $1K, and secured a donated venue. I handled teacher and student outreach
+      to recruit attendees. I also took the marketing materials from my previous
+      hackathon project, Counterspell, and made them more generic so they could
+      be easily reused for future hackathons.
 
 
       After a tedious check-in experience at Counterspell Boston, I decided to
@@ -249,18 +249,19 @@ projects:
       Trail, without cell service
     description: >-
       I had an idea for building a texting device for a seven-day off-the-grid
-      hike. I enlisted a small team of friends excited by the idea, and we
-      worked on a circuit board and firmware project to bring it to life. I
-      learned how to design a circuit board for the first time using EasyEDA,
-      designed most of the board, and optimized it for long-lasting battery life
-      so it could run for eight days of constant use. I also designed it for far
-      ranged communications having it communicate over a mile without cell
-      towers or any external infrastructure. We got it manufactured in China and
-      distributed about 20 units for the other hikers in our group to use during
-      the hike. I also programmed the board from scratch and gained hands-on
-      experience soldering while assembling the components. Throughout the
-      project, I collaborated closely with my friends on both the design and
-      software, learning a great deal about electronics and teamwork.
+      hike. I enlisted a small team of friends from around the world excited by
+      the idea, and we worked on a circuit board and firmware project to bring
+      it to life. I learned how to design a circuit board for the first time
+      using EasyEDA, designed most of the board, and optimized it for
+      long-lasting battery life so it could run for eight days of constant use.
+      I also designed it for far range communications allowing it to communicate
+      over a mile without cell towers or any external infrastructure. We had it
+      manufactured in China and distributed about 20 units for the other hikers
+      in our group to use during the hike. I also programmed the board from
+      scratch and gained hands-on experience soldering while assembling the
+      components. Throughout the project, I collaborated closely with my friends
+      on both the design and software, learning a great deal about electronics
+      and teamwork.
     thumbnail: /thumbnails/1760206485488-webp.webp
     githubURL: https://github.com/evan-gan/trail-PCB-communication-network
     categories:
