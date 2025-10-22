@@ -24,10 +24,10 @@
 			
 			<div class="text-section">
 				<p>
-					Hey, I'm Evan. I love building robots with my FIRST team, programming, and creating fun projects from electronics to construction. I also enjoy running hackathons for teens and collaborating with others to bring ambitious ideas to life.
+					Hey, I'm Evan. I love building robots with my FIRST team, programming, and creating fun projects ranging from electronics to wood working. I also enjoy running hackathons for teens and collaborating with people to bring ambitious ideas to life.
 				</p>
 				<p>
-					Check out what I've done and what I'm up to on <a href="/projects" style="color: rgb(176, 135, 255) !important;">projects page</a>.
+					Check out what I've done and what I'm up to on my <a href="/projects" style="color: rgb(176, 135, 255) !important;">projects page</a>.
 				</p>
 			</div>
 		</div>

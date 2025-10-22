@@ -10,14 +10,15 @@ projects:
     name: Daydream Hackathon
     tagline: >-
       Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
-      teen attendees. | Fourth Hackathon Organized
+      teen attendees. (Fourth hackathon organized)
     description: >-
       I organized a 60-person Boston Daydream Hackathon, part of a global series
       with 100 simultaneous events. I led a team of organizers and secured a
-      donated venue. I also handled teacher and student outreach to recruit
-      attendees. To help train the next generation of organizers, I made the
-      planning process open encouraging more teens to contribute, with the goal
-      of enabling teens to run future events after I graduate high school.
+      donated venue at the Microsoft NERD center in Cambridge, MA. Additionally
+      I handled teacher and student outreach to recruit attendees. To help train
+      the next generation of organizers, I made the planning process open
+      encouraging more teens to contribute, with the goal of enabling teens to
+      run future events after I graduate high school.
     thumbnail: /thumbnails/1759492393466-webp.webp
     websiteURL: https://daydream.hackclub.com/boston
     categories:
@@ -29,9 +30,8 @@ projects:
       The site you're looking at is built in SvelteKit, a lightweight web
       framework. I chose Svelte because I wanted to improve my skills with it
       and create something unique. I also wanted more flexibility to customize
-      my site. Another reason for this approach was so I could store all my
-      projects in a single file, which I could later reuse if, for example, I
-      decide to redo the site.
+      my site and so I could store all my projects in a single file, which I
+      could later reuse.
 
 
       All of the projects you see in this gallery are stored in a “Yet Another
@@ -56,8 +56,8 @@ projects:
     name: Shipwrecked
     tagline: >-
       Conceived and led a 120-person hackathon; secured $130K funding, managed
-      logistics, recruited participants, and coordinated all event operations. |
-      Third Hackathon Organized
+      logistics, recruited participants, and coordinated all event operations.
+      (Third hackathon organized)
     description: >-
       I once had the wild idea of running a hackathon on an island. A year
       later, I spent the entire summer at [Hack Club](https://hackclub.com)
@@ -77,7 +77,7 @@ projects:
     name: Scrapyard Hackathon
     tagline: >-
       Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
-      teen attendees. | Second Hackathon Organized
+      teen attendees. (Second hackathon organized)
     description: >-
       I organized a 60-person Boston Scrapyard Hackathon, part of a global
       series with 75 simultaneous events. I led a team of organizers, raised
@@ -144,7 +144,7 @@ projects:
     name: Counterspell Hackathon
     tagline: >-
       Organized and ran a 12-hour hackathon at the Microsoft NERD Center with 60
-      teen attendees. | First Hackathon Organized
+      teen attendees. (First hackathon organized)
     description: >-
       I organized a 60-person Boston Counterspell Hackathon, part of a global
       series with 50 simultaneous events. I led a team of organizers and secured
@@ -298,7 +298,9 @@ projects:
       - Programming
   - date: Sep 2022 - June 2026
     name: The LigerBots
-    tagline: The LigerBots - First robotics team 2877 for Newton MA
+    tagline: >-
+      The LigerBots - First robotics team 2877 for Newton North and South High
+      Schools. Newton MA
     description: >-
       Freshman year, I joined my high school's 60 person robotics team, the
       LigerBots, which competes among 3,500 teams worldwide in FIRST Robotics.
