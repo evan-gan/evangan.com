@@ -735,6 +735,7 @@
 		align-items: center;
 		justify-content: center;
 		box-shadow: 2px 2px 0px #000000;
+		z-index: 1001;
 	}
 
 	.modal-close:hover,
