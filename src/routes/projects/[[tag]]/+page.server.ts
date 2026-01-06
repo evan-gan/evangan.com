@@ -11,3 +11,12 @@ export const load = async () => {
 		tagOrder
 	};
 };
+
+export const entries = () => {
+	const categories = loadAllProjects();
+	const tags = categories.map(c => ({ tag: c.name }));
+	return [
+		{ tag: 'all' },
+		...tags
+	];
+};

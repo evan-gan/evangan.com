@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ProjectCategory, ProjectData } from '$lib/projects';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { page } from '$app/stores';
 
 	interface Props {
 		data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
@@ -50,17 +51,8 @@
 		return ordered;
 	});
 
-	// Set default to first item in the ordered list
-	let selectedCategory = $state('all');
-	
-	// Initialize to first filter item once
-	let initialized = $state(false);
-	$effect(() => {
-		if (!initialized && filterItems.length > 0) {
-			selectedCategory = filterItems[0].name;
-			initialized = true;
-		}
-	});
+	// Derived from URL
+	let selectedCategory = $derived($page.params.tag || 'highlights');
 	
 	// Helper to check if a project matches the current filter
 	function isProjectVisible(project: ProjectData) {
@@ -242,13 +234,14 @@
 			<div class="filter-section">
 				<div class="filter-slider">
 					{#each filterItems as item}
-						<button
+						<a
+							href="/projects/{item.name}"
 							class="filter-btn"
 							class:active={selectedCategory === item.name}
-							onclick={() => selectedCategory = item.name}
+							data-sveltekit-noscroll
 						>
 							{item.displayName}
-						</button>
+						</a>
 					{/each}
 				</div>
 			</div>
@@ -435,6 +428,8 @@
 	}
 
 	.filter-btn {
+		text-decoration: none;
+		display: block;
 		padding: 10px 20px;
 		background: #ffffff;
 		color: #000000;
