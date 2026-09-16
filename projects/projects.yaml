@@ -6,6 +6,86 @@ tagOrder:
   - Programming
   - Builds
 projects:
+  - date: Aug-Sep, 2026
+    name: WPI Planner Refresh
+    tagline: >-
+      A port of WPI's course planner to SvelteKit with faster load times and
+      calendar export.
+    description: >-
+      The WPI planner is a site students at WPI use to plan their courses and
+      avoid schedule conflicts. I ported it from a legacy Java and HTML
+      framework to SvelteKit, keeping conflict detection working across the full
+      course catalog. Along the way, I compressed the class data to cut load
+      time and added a way for students to export their schedules to an external
+      calendar like Outlook, Google, or Apple Calendar.
+    thumbnail: /thumbnails/1789568653473-webp.webp
+    categories:
+      - Programming
+    websiteURL: https://planner.evangan.com
+    githubURL: https://github.com/evan-gan/wpiplanner-svelte
+  - date: Jun, 2026
+    name: Passport Photo Maker
+    tagline: A free, open source website that crops photos to passport standards.
+    description: >-
+      I was frustrated by how many websites charge you to make a photo meet
+      passport photo standards, which usually just means rotating it level and
+      cropping it to the right size. So I made a site that does it for free. It
+      uses computer vision to detect a face, automatically corrects the image's
+      rotation, and crops the face to the correct size. It's also free and open
+      source!
+    thumbnail: /thumbnails/1789568743516-webp.webp
+    categories:
+      - Programming
+    githubURL: https://github.com/evan-gan/PassportPhotoMaker
+  - date: Jun-Jul, 2026
+    name: CoreXY Pen Plotter
+    tagline: >-
+      A 2' by 2' CoreXY pen plotter I designed, built, and exhibited at Open
+      Sauce.
+    description: >-
+      After being inspired by Hack Club's [Blot](https://blot.hackclub.com), I
+      wanted to make a large scale pen plotter. I also wanted to learn about the
+      CoreXY belt drive system, which mounts both motors that drive the XY
+      gantry to the frame. With less mass moving around, the plotter can travel
+      faster. I modeled the frame and gantry in Onshape, which sharpened my CAD
+      skills, and exhibited the finished machine at Open Sauce.
+    thumbnail: /thumbnails/1788642542809-webp.webp
+    categories:
+      - Builds
+    githubURL: https://github.com/evan-gan/plotter
+  - date: Mar-Sep, 2026
+    name: Tract
+    tagline: An iPad note taking app with an infinite canvas and problem tagging.
+    description: >-
+      I tried out a bunch of note taking apps, but none of them had everything I
+      wanted in a note taking app:
+
+      - An infinite canvas to avoid cramped handwriting
+
+      - Problem tagging for clean exports (notes automatically group by problem,
+      so it's clear what is what when you export)
+
+      - A minimalist, clean UI
+
+
+      So I built my own in Swift. The source is public on GitHub, so check it
+      out and compile it for yourself if you'd like. (coming to tesflight soon!)
+    thumbnail: /thumbnails/placeholder.svg
+    categories:
+      - Programming
+    githubURL: https://github.com/evan-gan/Tract
+  - date: Nov, 2025
+    name: Next Up
+    tagline: A macOS menu bar app that counts down to the next event on your schedule.
+    description: >-
+      To make it easier to figure out when my next class was in high school, I
+      built this Electron app. Give it a schedule.yaml file, and it shows a live
+      countdown in the menu bar to the next class on the list, along with the
+      class name, location, teacher, and more.
+    thumbnail: /thumbnails/1788641199794-webp.webp
+    categories:
+      - Programming
+    githubURL: https://github.com/evan-gan/next-up
   - date: Sep 27, 2025
     name: Daydream Hackathon
     tagline: >-
@@ -55,7 +135,7 @@ projects:
   - date: Aug 8-11, 2025
     name: Shipwrecked
     tagline: >-
-      Conceived and led a 120-person hackathon; secured $130K funding, managed
+      Conceived and led a 130-person hackathon; secured $140K funding, managed
       logistics, recruited participants, and coordinated all event operations.
       (Third hackathon organized)
     description: >-
@@ -63,16 +143,74 @@ projects:
       later, I spent the entire summer at [Hack Club](https://hackclub.com)
       bringing that idea to life by organizing a four-day hackathon at the
       Cathleen Stone Outward Bound School on Thompson Island in Boston Harbor. I
-      helped coordinate the event for 120 participants, securing $130K in
+      helped coordinate the event for 130 participants, securing $140K in
       funding, handling logistics, recruiting attendees, and keeping everything
       running smoothly while learning a lot about teamwork, planning, and what
       it takes to turn an ambitious idea into reality.
+
+
+      I directed a team of teen organizers and a separate development team,
+      setting scope and specs for both and keeping them in sync ahead of a fixed
+      event date. I also built the project review and submission flows in
+      Next.js for the event platform, which served 1,500 users, and reviewed
+      several hundred project submissions from attendees who traveled from more
+      than 10 countries.
     thumbnail: /thumbnails/ShipwreckedGroupPhoto-webp.webp
     websiteURL: https://shipwrecked.hackclub.com
     categories:
       - Hackathons
       - Highlights
     videoURL: https://www.youtube.com/watch?v=uXWMr0gdLJA
+  - date: Nov, 2025 - Aug, 2026
+    name: Horizons
+    tagline: >-
+      Managed $200K across a global series of six hackathons, leading local
+      teams and running operations on site in Berlin and San Francisco.
+    description: >-
+      Horizons was a Hack Club series of six hackathons around the world. As
+      Senior Event Manager, I managed $200,000 of spend across the series,
+      building the budgets and tracking every event to plan. I led the local
+      organizing teams for all six events and ran operations on the ground at
+      Europa in Berlin and Nexus in San Francisco.
+
+
+      The day before one event, we found bed bugs at the hostel we had reserved.
+      I rebooked lodging for 70 attendees, and the event still closed with an
+      NPS of 84.
+
+
+      I also worked on the Horizons platform, which served 6,500 participants. I
+      built the project review and submission flows in SvelteKit and NestJS
+      alongside a distributed team, working through shared specs and code
+      review. Using support tickets and organizer feedback, I redesigned the
+      submission experience to cut steps out of the user flow, with the goal of
+      raising retention.
+    thumbnail: /thumbnails/1789569010889-webp.webp
+    categories:
+      - Hackathons
+      - Highlights
+    websiteURL: https://horizons.hackclub.com
+  - date: Apr 2025-May 2026
+    name: Slack Ticketing Bot
+    tagline: >-
+      A Slack ticketing bot that handled hundreds of tickets a day during live
+      Hack Club events.
+    description: >-
+      I built this bot with two goals: never lose track of a question, and
+      resolve questions as quickly as possible. It ran in production during live
+      Hack Club events and handled hundreds of tickets a day.
+
+
+      The bot went through many iterations. My first version used AI to reply to
+      questions with a bit of context about the event. That failed because the
+      AI didn't have enough context, so it hallucinated answers and confidently
+      told people the wrong thing. I replaced it with a constrained system that
+      only links matching FAQ entries. This worked much better and resolved
+      around half of our tickets before a volunteer had to reply.
+    thumbnail: /thumbnails/placeholder.svg
+    categories:
+      - Programming
+    githubURL: https://github.com/evan-gan/ticketSlackBot
   - date: Mar 15, 2025
     name: Scrapyard Hackathon
     tagline: >-
@@ -140,6 +278,21 @@ projects:
     categories:
       - Programming
     githubURL: https://github.com/evan-gan/GoogleSheetsQRSignIn
+  - date: Dec 2025 - Feb 2026
+    name: Campfire Flagship
+    tagline: >-
+      Organized and ran a 60-person hackathon in Los Angeles, partnering with
+      Open Sauce to bring creators on site.
+    description: >-
+      As Event Lead for Campfire Flagship, I organized and ran a 60-person
+      hackathon for teenagers in Los Angeles on an $80,000 budget. We partnered
+      with Open Sauce to bring creators to the event. I also worked on the event
+      platform, building the project review and submission flows in Ruby
+      alongside a distributed team.
+    thumbnail: /thumbnails/1788639210808.JPG-webp.webp
+    categories:
+      - Hackathons
+    websiteURL: https://flagship.hackclub.com
   - date: Nov 23, 2024
     name: Counterspell Hackathon
     tagline: >-
@@ -219,7 +372,8 @@ projects:
       challenge. I taught myself TypeScript and Node.js for this project,
       building on previous experience with C++, Swift, and Arduino. The
       generator can create mazes at any position on the page with fully
-      customizable dimensions for rows, columns, and cell sizes.
+      customizable dimensions for rows, columns, and cell sizes. My work was
+      merged into the open source Blot repository.
     thumbnail: >-
       https://raw.githubusercontent.com/hackclub/blot/main/art/mazeGenerator-Evan/snapshots/mazeThumbnail.svg
     githubURL: https://github.com/hackclub/blot/pull/230
@@ -252,16 +406,17 @@ projects:
       hike. I enlisted a small team of friends from around the world excited by
       the idea, and we worked on a circuit board and firmware project to bring
       it to life. I learned how to design a circuit board for the first time
-      using EasyEDA, designed most of the board, and optimized it for
-      long-lasting battery life so it could run for eight days of constant use.
-      I also designed it for far range communications allowing it to communicate
-      over a mile without cell towers or any external infrastructure. We had it
-      manufactured in China and distributed about 20 units for the other hikers
-      in our group to use during the hike. I also programmed the board from
-      scratch and gained hands-on experience soldering while assembling the
-      components. Throughout the project, I collaborated closely with my friends
-      on both the design and software, learning a great deal about electronics
-      and teamwork.
+      using EasyEDA, designed the circuits and roughly two thirds of the board
+      layout, including a full mini keyboard, and optimized it for long-lasting
+      battery life so it could run for eight days of constant use. The device
+      uses LoRa radio, and I tuned it for far range communications, allowing it
+      to communicate over a mile without cell towers or any external
+      infrastructure. I coordinated manufacturing in China, and we distributed
+      about 20 units for the other hikers in our group to use during the hike. I
+      also wrote the firmware from scratch and gained hands-on experience
+      soldering while assembling the components. Throughout the project, I
+      collaborated closely with my friends on both the design and software,
+      learning a great deal about electronics and teamwork.
     thumbnail: /thumbnails/1760206485488-webp.webp
     githubURL: https://github.com/evan-gan/trail-PCB-communication-network
     categories:
@@ -302,18 +457,39 @@ projects:
       The LigerBots - First robotics team 2877 for Newton North and South High
       Schools. Newton MA
     description: >-
-      Freshman year, I joined my high school's 60 person robotics team, the
+      Freshman year, I joined my high school's 80 person robotics team, the
       LigerBots, which competes among 3,500 teams worldwide in FIRST Robotics.
       Over my four years on the team, I’ve become a jack of all trades,
       programming the robot, leading build and prototyping groups to design and
-      construct mechanisms, and creating CAD models for robot components. As a
-      senior, I was appointed Chief Operating Officer (COO), overseeing team
-      operations and logistics. During my time with the LigerBots, we progressed
-      from qualifying for the District Championship to competing at the World
-      Championship, ultimately winning our division at Worlds in 2025. In 2024,
-      at the Greater Boston District qualifier, we won the FIRST Impact Award,
-      the most prestigious award in FIRST. In my junior year, I was awarded my
-      team's Gracious Professionalism Award.
+      construct mechanisms, and creating CAD models for robot components in
+      Onshape. I also trained underclassmen on CAD and shop tools.
+
+
+      As a sophomore Build Lead, I prototyped a climbing mechanism with hand
+      tools when machine time ran out, and that design made it onto our 2024
+      competition robot. As a junior, I served as VP of Technical Research,
+      pitching new mechanism concepts that shaped which designs the team carried
+      into the season. As Build Lead that year, I led a group of 10 students in
+      manufacturing a robot elevator with more than 200 unique parts, machining
+      roughly 50 by hand and CNCing another 50.
+
+
+      As a senior, I was appointed Chief Operating Officer (COO), running
+      operations for the 80 person team, including logistics, waivers, budget
+      tracking, and carpool coordination for 50 or more students per event. I
+      was also lead programmer, programming the competition robot in Java with
+      WPILib, teaching underclassmen to write and ship code, and pushing for
+      automated routines that helped the team reach the Einstein field at
+      Worlds.
+
+
+      During my time with the LigerBots, we progressed from qualifying for the
+      District Championship to competing at the World Championship, winning our
+      division at Worlds in both 2025 and 2026. We were one of only five teams
+      to win our division both years. We also won the FIRST Impact Award, the
+      most prestigious award in FIRST, at the 2024 Greater Boston District
+      qualifier and the 2026 North Shore qualifier. In my junior year, I was
+      awarded my team's Gracious Professionalism Award.
     thumbnail: /thumbnails/1760310168343-webp.webp
     categories:
       - Robotics

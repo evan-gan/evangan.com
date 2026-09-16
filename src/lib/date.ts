@@ -59,8 +59,8 @@ export function formatDate(input: string | undefined | null): string {
     return `${month1} ${ordinal(day1)} ${y1} - ${month2} ${ordinal(day2)} ${y2}`;
   }
 
-  // Month-year range: "April 2024 - June 2025"
-  m = s.match(/^([A-Za-z]+)\s+(\d{4})\s*-\s*([A-Za-z]+)\s+(\d{4})$/);
+  // Month-year range: "April 2024 - June 2025" or "Nov, 2025 - Aug, 2026"
+  m = s.match(/^([A-Za-z]+),?\s+(\d{4})\s*-\s*([A-Za-z]+),?\s+(\d{4})$/);
   if (m) {
     const [, mon1, y1, mon2, y2] = m;
     return `${monthCap3(mon1)} ${y1} - ${monthCap3(mon2)} ${y2}`;
