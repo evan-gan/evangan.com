@@ -30,7 +30,8 @@ src/
                          #   AVIF support probe, usablePreview(), requestPhotoImages(); retries on 'online', wakes the queue on
                          #   window 'load'. holdImagesDuringNavigation: no new downloads during a nav, cancels in-flight after 150ms
     galleryLoading.ts    # Pure maths: secondsUntilVisible (drifting tile → when on screen), previewLooksSoft (zoom/density check)
-    galleryImageLoader.ts# Home gallery glue: ranks drifting tiles by time-to-visible, queues their photos, zoom → 'zoomed' boost
+    galleryImageLoader.ts# Home gallery glue: ranks drifting tiles by time-to-visible, queues their photos (fulls too, for opening;
+                         #   no zoom boost since tiles never show fulls)
     scrollLoading.ts     # Pure maths: secondsUntilScrolledIntoView (distance from screen ÷ assumed scroll speed; 0 = visible)
     pageImageLoader.ts   # Projects/About glue: photoElementAttributes (data-photo-src), ranks by scroll distance, wakes queue on
                          #   scroll, zoom/density → 'zoomed' boost for visible photos; startPageImageLoading(root, photos)
@@ -59,11 +60,12 @@ src/
       ProjectSheet.svelte    # Project detail modal on native <dialog> (Esc/backdrop close, focus trap, scroll lock); photo is a
                              #   ProgressiveImage (fit=contain, sized by thumbnailRatio), boosted as 'clicked' on open
       DriftingGallery.svelte # Full-screen tilted rows of photos drifting right (CSS animation, doubled track), re-plans on resize,
-                             #   rows never pause or slow; can hide one tile (hiddenTileKey); reduced-motion stops it. Starts the
+                             #   rows never pause or slow; tiles are previewOnly; can hide one tile (hiddenTileKey); reduced-motion stops it. Starts the
                              #   gallery image loader; hover (pointer must actually move — rows drifting under a resting
                              #   mouse don't count — then 150ms intent) / focus boosts that photo's full file as 'hovered'
       ProgressiveImage.svelte# Shows only queue-loaded images: preview layer, full layer on top revealed after decode() (or 800ms
-                             #   at most, since decode() can hang); fit = cover | contain
+                             #   at most, since decode() can hang); fit = cover | contain; previewOnly = never show the full file
+                             #   while a preview is usable (home tiles: decoding 5000px+ fulls per tile stuttered on Low Power Mode)
       FocusedProject.svelte  # Clicked gallery photo (ProgressiveImage; boosts the full file as 'clicked'): flies from its (still-moving) tile to top-centre with rotate + zoom, then the
                              #   text panel reveals downward from under the photo. Close (Esc/×/backdrop): if the tile is still on
                              #   screen, text collapses and the photo flies back onto the tile; if it drifted off, the card sweeps up

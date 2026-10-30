@@ -10,15 +10,18 @@
 		alt?: string;
 		/** cover crops to fill the box; contain shows the whole photo. */
 		fit?: 'cover' | 'contain';
+		/** Never swap to `src` while a preview is usable (keeps big decodes off small tiles). */
+		previewOnly?: boolean;
 	}
 
-	let { src, preview, alt = '', fit = 'cover' }: Props = $props();
+	let { src, preview, alt = '', fit = 'cover', previewOnly = false }: Props = $props();
 
 	// Only images the shared queue has finished downloading are shown, so this component never
 	// starts a download itself (that would jump the queue's ordering).
 	let previewSrc = $derived(usablePreview(preview));
 	let showPreview = $derived(previewSrc !== null && isImageLoaded(previewSrc));
-	let showFull = $derived(isImageLoaded(src));
+	// Without a usable preview (no AVIF support, or none generated) the full file is all there is.
+	let showFull = $derived(isImageLoaded(src) && !(previewOnly && previewSrc !== null));
 	let fullPainted = $state(false);
 
 	// decode() isn't guaranteed to settle promptly in every browser (e.g. for very large images), and

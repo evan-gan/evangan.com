@@ -32,8 +32,7 @@
 	onMount(() => {
 		const stopLoading = startGalleryImageLoading({
 			root: galleryElement!,
-			photos: items,
-			getRowHeight: () => layout.rowHeight
+			photos: items
 		});
 		return () => {
 			stopLoading();
@@ -79,7 +78,9 @@
 								onfocus={() => imageQueue.boost(tile.thumbnail, 'hovered')}
 								onclick={(event) => onSelect(tile, event.currentTarget, tileKey)}
 							>
-								<ProgressiveImage src={tile.thumbnail} preview={tile.preview} />
+								<!-- Previews are sharp enough at tile size; decoding the multi-megapixel full files
+								     for every drifting tile caused stutter on slower (e.g. Low Power Mode) Macs. -->
+								<ProgressiveImage src={tile.thumbnail} preview={tile.preview} previewOnly />
 							</button>
 						{/each}
 					{/each}

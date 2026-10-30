@@ -1,12 +1,13 @@
 // Feeds the home gallery's photos into the shared image queue and tells it how soon each photo
 // drifts on screen; the queue's PRIORITY decides the order (on-screen previews, then clicked /
-// hovered / zoomed full files, then the rest). The maths lives in galleryLoading.ts.
+// hovered full files, then the rest). The maths lives in galleryLoading.ts.
+// Tiles only ever show previews, so there's no zoom upgrade here: full files are fetched for
+// when a photo is opened, not for the tiles themselves.
 
-import { currentDisplayDensity, visibleViewportRect, watchDisplayDensity } from './displayDensity';
-import { previewLooksSoft, secondsUntilVisible } from './galleryLoading';
+import { visibleViewportRect } from './displayDensity';
+import { secondsUntilVisible } from './galleryLoading';
 import { detectAvifSupport, imageQueue, requestPhotoImages } from './imageCache.svelte';
 import { prefersReducedMotion } from './motion';
-import { PREVIEW_HEIGHT } from './thumbnailPreview.js';
 
 export interface GalleryPhoto {
 	id: string;
@@ -29,16 +30,10 @@ export function tileDataAttributes(photoId: string, loopWidth: number, speedPxPe
 	};
 }
 
-// While zoomed in, photos this close to drifting on screen also get full quality early.
-const ZOOM_LOOKAHEAD_SECONDS = 3;
-const ZOOM_CHECK_INTERVAL_MS = 1000;
-
 interface LoaderOptions {
 	/** Element containing the gallery tiles (each spread with tileDataAttributes). */
 	root: HTMLElement;
 	photos: GalleryPhoto[];
-	/** Current tile height in CSS pixels. */
-	getRowHeight: () => number;
 }
 
 /**
@@ -74,16 +69,6 @@ function rankPhotosByUrl(root: HTMLElement, photos: GalleryPhoto[]) {
 	};
 }
 
-/** When the screen shows more detail than a preview holds, fetch full quality for what's (nearly) visible. */
-function upgradeVisibleIfZoomed({ root, photos, getRowHeight }: LoaderOptions) {
-	if (!previewLooksSoft(getRowHeight(), currentDisplayDensity(), PREVIEW_HEIGHT)) return;
-	for (const photo of photos) {
-		if (imageQueue.isLoaded(photo.thumbnail)) continue;
-		if (secondsUntilPhotoVisible(root, photo.id) <= ZOOM_LOOKAHEAD_SECONDS)
-			imageQueue.boost(photo.thumbnail, 'zoomed');
-	}
-}
-
 /**
  * Start loading the gallery's photos. Downloads carry on after stopping (they're cached for the
  * rest of the visit, e.g. for the projects page); stopping only drops the on-screen ordering.
@@ -93,9 +78,6 @@ function upgradeVisibleIfZoomed({ root, photos, getRowHeight }: LoaderOptions) {
  */
 export function startGalleryImageLoading(options: LoaderOptions): () => void {
 	let stopped = false;
-	const stopWatchingZoom = watchDisplayDensity(() => upgradeVisibleIfZoomed(options));
-	// Entering tiles need checking too while zoomed, not just the ones on screen when zoom changed.
-	const zoomTimer = setInterval(() => upgradeVisibleIfZoomed(options), ZOOM_CHECK_INTERVAL_MS);
 
 	const rankOf = rankPhotosByUrl(options.root, options.photos);
 
@@ -103,13 +85,10 @@ export function startGalleryImageLoading(options: LoaderOptions): () => void {
 		if (stopped) return;
 		imageQueue.setRanker(rankOf);
 		requestPhotoImages(options.photos);
-		upgradeVisibleIfZoomed(options);
 	});
 
 	return () => {
 		stopped = true;
-		stopWatchingZoom();
-		clearInterval(zoomTimer);
 		// Nothing from the gallery is on screen any more, so whatever's left loads as off-screen work.
 		imageQueue.releaseRanker(rankOf);
 	};
