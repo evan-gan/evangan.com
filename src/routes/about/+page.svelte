@@ -78,7 +78,7 @@
 <main bind:this={pageElement} class="about-page">
 	<div class="widget-grid">
 		<section class="intro span-full span-two-rows">
-			<img class="intro-photo" src="/photo of me.jpg" alt="Evan Gan" />
+			<img class="intro-photo" src="/photo-of-me.webp" width="888" height="1200" alt="Evan Gan" />
 			<div class="intro-text">
 				<div class="eyebrow">About</div>
 				<h1>Hey, I'm Evan.</h1>

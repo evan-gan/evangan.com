@@ -88,7 +88,7 @@ src/
     about/+page.svelte   # Widget grid (canvas "R5 · About"): intro block (uncropped photo + text), AFFILIATIONS tiles
                          #   (LigerBots, Hack Club, Open Sauce, WPI placeholder: fill in role/years/photo there), stat tiles
                          #   (7 hackathons, $500K, 130 people, project count), Working on lately, event map, ContactBlock.
-                         #   Affiliation + recent photos load via startPageImageLoading (photo of me is a plain <img>)
+                         #   Affiliation + recent photos load via startPageImageLoading (photo-of-me.webp is a plain <img>)
     projects/[[tag]]/
       +page.server.ts    # Loads projects; prerenders /projects/all and one page per category slug
       +page.svelte       # "Year wall": header, FilterBar, YearSection per year, ProjectSheet. Default filter = highlights.
@@ -104,7 +104,7 @@ assets/
 static/
   thumbnails/            # Project images (compressed *-webp.webp; some are still multi-MB / 5000px+)
     previews/            # Generated 720px AVIF previews (commit them; Vercel has no ImageMagick). A test fails if one is missing
-  photo of me.jpg        # About page photo
+  photo-of-me.webp       # About page photo (888×1200, resized from the original kept in oldNonCompressedAssets/)
   favicon.svg, robots.txt
 tests/                   # vitest; mirrors src/lib (date/, projectGroups/, categoryColors/, gallery/, flight/, imageQueue/,
                          #   galleryLoading/, scrollLoading/, eventMap/, thumbnailPreview/, projects/ smoke test)
