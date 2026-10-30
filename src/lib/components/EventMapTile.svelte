@@ -1,28 +1,36 @@
 <script lang="ts">
-	// Stylised (not geographic) map: Boston in the middle, arcs out to the other event cities.
+	import { arcPath, dotsPath, fitViewBox, nearestDot, projectToMap } from '$lib/eventMap';
+
+	// The first city is the hub every arc starts from.
 	const CITIES = [
-		{ name: 'Boston', ink: 'var(--cat-hackathons-ink)' },
-		{ name: 'Los Angeles', ink: 'var(--cat-programming-ink)' },
-		{ name: 'San Francisco', ink: 'var(--cat-programming-ink)' },
-		{ name: 'Berlin', ink: 'var(--stat-purple-ink)' }
+		{ name: 'Boston', longitude: -71.06, latitude: 42.36, pin: 'var(--cat-hackathons)', ink: 'var(--cat-hackathons-ink)' },
+		{ name: 'Los Angeles', longitude: -118.24, latitude: 34.05, pin: 'var(--cat-programming)', ink: 'var(--cat-programming-ink)' },
+		{ name: 'San Francisco', longitude: -122.42, latitude: 37.77, pin: 'var(--cat-programming)', ink: 'var(--cat-programming-ink)' },
+		{ name: 'Berlin', longitude: 13.4, latitude: 52.52, pin: 'var(--brand-purple)', ink: 'var(--stat-purple-ink)' }
 	];
+
+	const pins = CITIES.map((city) => ({ ...city, ...nearestDot(projectToMap(city.longitude, city.latitude)) }));
+	const [hub, ...destinations] = pins;
+	const viewBox = fitViewBox(pins);
+	const landDots = dotsPath();
 </script>
 
 <section class="event-map" aria-label="Places I've run events">
-	<svg viewBox="0 0 560 190" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Arcs from Boston to Los Angeles, San Francisco and Berlin">
-		<defs>
-			<pattern id="event-map-dots" width="12" height="12" patternUnits="userSpaceOnUse">
-				<circle cx="2" cy="2" r="1.3" fill="var(--map-dots)" />
-			</pattern>
-		</defs>
-		<rect width="560" height="190" fill="url(#event-map-dots)" />
-		<path d="M248 92 Q170 30 92 112" class="arc" stroke="var(--cat-programming)" />
-		<path d="M248 92 Q160 10 70 96" class="arc" stroke="var(--cat-programming)" />
-		<path d="M248 92 Q350 10 432 70" class="arc" stroke="var(--brand-purple)" />
-		<circle cx="248" cy="92" r="8" fill="var(--cat-hackathons)" class="pin" />
-		<circle cx="92" cy="112" r="6" fill="var(--cat-programming)" class="pin" />
-		<circle cx="70" cy="96" r="6" fill="var(--cat-programming)" class="pin" />
-		<circle cx="432" cy="70" r="6" fill="var(--brand-purple)" class="pin" />
+	<!-- meet keeps every pin in view at any tile shape; overflow: visible lets the rest of the map fill the tile
+	     around the framed area. yMin pins the frame to the top on narrow tiles, clear of the wrapping city chips. -->
+	<svg
+		viewBox="{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"
+		preserveAspectRatio="xMidYMin meet"
+		role="img"
+		aria-label="Map with arcs from Boston to Los Angeles, San Francisco and Berlin"
+	>
+		<path d={landDots} class="land" />
+		{#each destinations as city (city.name)}
+			<path d={arcPath(hub, city)} class="arc" stroke={city.pin} />
+		{/each}
+		{#each pins as city (city.name)}
+			<circle cx={city.x} cy={city.y} r={city === hub ? 10 : 8} fill={city.pin} class="pin" />
+		{/each}
 	</svg>
 	<h2 class="heading">Where I've run events</h2>
 	<ul class="cities">
@@ -47,18 +55,27 @@
 		inset: 0;
 		width: 100%;
 		height: 100%;
+		overflow: visible;
+	}
+
+	/* stroke-width is the dot diameter, in map units (dots are 20 units apart in the source PNG). */
+	.land {
+		fill: none;
+		stroke: var(--map-dots);
+		stroke-width: 8;
+		stroke-linecap: round;
 	}
 
 	.arc {
 		fill: none;
-		stroke-width: 2.5;
-		stroke-dasharray: 5 6;
+		stroke-width: 3.4;
+		stroke-dasharray: 7 8;
 		stroke-linecap: round;
 	}
 
 	.pin {
 		stroke: #ffffff;
-		stroke-width: 3;
+		stroke-width: 3.5;
 	}
 
 	.heading {
@@ -93,5 +110,17 @@
 		font-size: 13px;
 		font-weight: 600;
 		line-height: 1.2;
+	}
+
+	/* On a phone the frame is width-limited (so pins sit near the top) and the chips wrap to two rows: start the
+	   map below the heading and make the tile tall enough that the pins clear the chips. */
+	@media (max-width: 560px) {
+		.event-map {
+			min-height: 240px;
+		}
+
+		svg {
+			top: 44px;
+		}
 	}
 </style>
