@@ -1,0 +1,125 @@
+# evangan.com
+
+Evan Gan's personal portfolio site: a static SvelteKit site (adapter-static, deployed on Vercel) with a home page, an About page (bio + contact links), and a filterable Projects page driven by a YAML file. A dev-only `/editor` route edits that YAML and uploads thumbnails; it is excluded from production builds.
+
+Package manager: pnpm. `pnpm dev` / `pnpm build` / `pnpm check` / `pnpm lint` / `pnpm test` (vitest) / `pnpm compress`
+(WebP-compress new uploads, then make previews) / `pnpm previews` (only the AVIF previews; needs ImageMagick 7).
+
+## Structure
+
+```
+projects/
+  projects.yaml          # All project data + tagOrder (filter order). Edit here or via /editor in dev.
+  exampleFormat.yaml     # Reference for the project entry schema
+src/
+  app.html               # HTML shell + meta description
+  app.css                # Tailwind import + design tokens (colours, category colours, glass, radii, shadows, fonts). Change the look here.
+  lib/
+    projects.ts          # SERVER ONLY (reads fs). Load + normalize YAML → ProjectData: sorting, tag order, URLs, markdown → html/plain text,
+                         #   year, thumbnail aspect ratio (via image-size, so cards reserve space before images load), thumbnailPreview path
+    thumbnailPreview.js  # Preview naming/size rules (720px tall, AVIF q45, previews/<name>.avif); plain JS so generate-previews.js shares it
+    imageQueue.ts        # Framework-free download priority queue. PRIORITY: on-screen previews > clicked > hovered > zoomed full >
+                         #   off-screen previews > remaining full (ranker = seconds until on screen). Gates: before window load only
+                         #   on-screen previews start (so the page stops "loading" once they're in); full files wait for on-screen
+                         #   previews, un-asked-for full files for all previews; clicked/hovered go over the caps but not
+                         #   maxInFlight (5, leaves an HTTP/1.1 connection for page requests). 4 slots / 2 full, retry backoff,
+                         #   pauses while offline. hold() (stacking pause), cancelActive() (abort all but clicked, requeue free),
+                         #   releaseRanker() (only if still current); requestAll re-tries given-up jobs
+    imageCache.svelte.ts # Site-wide singleton queue + reactive set of loaded URLs (survives client nav, so /projects reuses them),
+                         #   AVIF support probe, usablePreview(), requestPhotoImages(); retries on 'online', wakes the queue on
+                         #   window 'load'. holdImagesDuringNavigation: no new downloads during a nav, cancels in-flight after 150ms
+    galleryLoading.ts    # Pure maths: secondsUntilVisible (drifting tile → when on screen), previewLooksSoft (zoom/density check)
+    galleryImageLoader.ts# Home gallery glue: ranks drifting tiles by time-to-visible, queues their photos, zoom → 'zoomed' boost
+    scrollLoading.ts     # Pure maths: secondsUntilScrolledIntoView (distance from screen ÷ assumed scroll speed; 0 = visible)
+    pageImageLoader.ts   # Projects/About glue: photoElementAttributes (data-photo-src), ranks by scroll distance, wakes queue on
+                         #   scroll, zoom/density → 'zoomed' boost for visible photos; startPageImageLoading(root, photos)
+    hoverIntent.ts       # Shared hover intent (pointer must actually move, then 150ms on the same photo); gallery + wall cards
+    displayDensity.ts    # Zoom detection: devicePixelRatio (browser zoom) × visualViewport.scale (pinch); visible viewport rect
+    projectGroups.ts     # Pure helpers: groupProjectsByYear (recent years + "Earlier"), buildFilterItems (tagOrder), matchesFilter,
+                         #   isHighlight, displayCategories (drops "Highlights")
+    categoryColors.ts    # categoryColorStyle(slug): inline CSS vars pointing at a category's --cat-* tokens with neutral fallback
+    date.ts              # formatDate (display) + parseSortableDate / compareSortableDatesDescending (uses END of ranges)
+    gallery.ts           # Home gallery maths: planGalleryLayout (row count/height, disjoint balanced rows, drift speed) so no photo
+                         #   is ever on screen twice; seeded shuffle, partitionBalanced, coverSizeForTilt
+    galleryProject.ts    # GalleryProject type: the trimmed project fields the home page ships
+    flight.ts            # Focus-transition geometry: BoxState pose, computeFocusTarget (top-centre resting size), lerpBoxState,
+                         #   transformFromRest, isRectOnScreen, sweepUpDistance, easeInOutCubic
+    motion.ts            # Browser helpers: runTween (rAF, abortable, re-reads live positions), prefersReducedMotion
+    index.ts             # $lib alias placeholder (boilerplate)
+    components/
+      GlassNav.svelte        # Floating frosted pill nav (brand + links, highlights current section); used by +layout
+      FilterBar.svelte       # Pill row of filter links (one prerendered page per tag), horizontally scrollable on phones
+      YearSection.svelte     # One year: sticky year heading + count + category dots, masonry (CSS columns) of cards
+      ProjectWallCard.svelte # Masonry card: ProgressiveImage at true aspect ratio or tinted text tile, Highlight badge, name + meta;
+                             #   hover intent / focus boosts the full file as 'hovered'
+      ProjectSheet.svelte    # Project detail modal on native <dialog> (Esc/backdrop close, focus trap, scroll lock); photo is a
+                             #   ProgressiveImage (fit=contain, sized by thumbnailRatio), boosted as 'clicked' on open
+      DriftingGallery.svelte # Full-screen tilted rows of photos drifting right (CSS animation, doubled track), re-plans on resize,
+                             #   rows never pause or slow; can hide one tile (hiddenTileKey); reduced-motion stops it. Starts the
+                             #   gallery image loader; hover (pointer must actually move — rows drifting under a resting
+                             #   mouse don't count — then 150ms intent) / focus boosts that photo's full file as 'hovered'
+      ProgressiveImage.svelte# Shows only queue-loaded images: preview layer, full layer on top revealed after decode() (or 800ms
+                             #   at most, since decode() can hang); fit = cover | contain
+      FocusedProject.svelte  # Clicked gallery photo (ProgressiveImage; boosts the full file as 'clicked'): flies from its (still-moving) tile to top-centre with rotate + zoom, then the
+                             #   text panel reveals downward from under the photo. Close (Esc/×/backdrop): if the tile is still on
+                             #   screen, text collapses and the photo flies back onto the tile; if it drifted off, the card sweeps up
+      StripeWord.svelte      # Big link word with the three brand-colour stripe hover sweep
+      AffiliationTile.svelte # About: tall photo tile (ProgressiveImage; role / name / detail over a scrim); no image → striped placeholder
+      StatTile.svelte        # About: coloured number tile (label, big value, caption or `footer` snippet)
+      EventMapTile.svelte    # About: stylised arc map of event cities (Boston → LA / SF / Berlin) + city chips
+      ContactBlock.svelte    # "Say hi." dark block with GitHub / LinkedIn chips (used at the bottom of About, id say-hi)
+  routes/
+    +layout.svelte       # GlassNav (hidden on /editor), Google Fonts (DM Sans for home/error, Inter fallback), global body styles;
+                         #   beforeNavigate → holdImagesDuringNavigation so image downloads never block a page change
+    +layout.ts           # Prerender config
+    +page.server.ts      # Home data: projects with a measured photo, trimmed to GalleryProject
+    +page.svelte         # Home: DriftingGallery behind a frosted panel of StripeWords; clicking a photo opens FocusedProject
+                         #   (source tile hidden meanwhile); "Check out more" goes to /projects/all#<project-id>
+    +error.svelte        # 404 page (old style)
+    about/+page.server.ts # Project count + 2 most recent projects with photos ("Working on lately") + previewByThumbnail map
+    about/+page.svelte   # Widget grid (canvas "R5 · About"): intro block (uncropped photo + text), AFFILIATIONS tiles
+                         #   (LigerBots, Hack Club, Open Sauce, WPI placeholder: fill in role/years/photo there), stat tiles
+                         #   (7 hackathons, $500K, 130 people, project count), Working on lately, event map, ContactBlock.
+                         #   Affiliation + recent photos load via startPageImageLoading (photo of me is a plain <img>)
+    projects/[[tag]]/
+      +page.server.ts    # Loads projects; prerenders /projects/all and one page per category slug
+      +page.svelte       # "Year wall": header, FilterBar, YearSection per year, ProjectSheet. Default filter = highlights.
+                         #   A #<project-id> hash opens that project's sheet on load; closing clears the hash.
+                         #   startPageImageLoading queues every project's photo (not just this filter's)
+    editor/              # Dev-only YAML editor UI (+page.server.ts redirects to / in prod)
+    api/
+      projects/+server.ts         # Dev-only GET/POST of projects.yaml
+      thumbnails/+server.ts       # Dev-only thumbnail listing
+      upload-thumbnail/+server.ts # Dev-only thumbnail upload
+static/
+  thumbnails/            # Project images (compressed *-webp.webp; some are still multi-MB / 5000px+)
+    previews/            # Generated 720px AVIF previews (commit them; Vercel has no ImageMagick). A test fails if one is missing
+  photo of me.jpg        # About page photo
+  favicon.svg, robots.txt
+tests/                   # vitest; mirrors src/lib (date/, projectGroups/, categoryColors/, gallery/, flight/, imageQueue/,
+                         #   galleryLoading/, scrollLoading/, thumbnailPreview/, projects/ smoke test)
+compress-thumbnails.js   # Converts thumbnails to WebP, moves originals to oldNonCompressedAssets/
+generate-previews.js     # Builds missing/stale AVIF previews with ImageMagick (execFile, -depth 8 for browser-safe AVIF)
+svelte.config.js         # adapter-static, strict:false so dev-only routes drop out of the build; prerender.handleMissingId
+                         #   ignores /projects/...#<project-id> (hash opens a sheet, not an element anchor)
+vite.config.ts           # Tailwind + SvelteKit plugins; vitest picks up tests/**/*.test.ts
+pnpm-workspace.yaml      # pnpm 10 build-script allowlist (esbuild)
+vercel.json              # pnpm build → build/, clean URLs; redirects old /contact → /about#say-hi (contact lives on About);
+                         #   /thumbnails/* cached 1 week + 30 days stale-while-revalidate
+.github/copilot-instructions.md  # Older agent notes (describe the previous brutalist design)
+```
+
+## Visual style (mid-migration)
+
+Moving from neo-brutalist (black borders, hard offset shadows, DM Sans) to an Apple-style "glass" look: system font, `#f5f5f7` ground, frosted translucent chrome, soft shadows, category colour dots. Done: nav (all pages), Home, Projects, About (which also holds contact). Not yet: error — they still hardcode their own colours. New work should use the tokens in `src/app.css`, not literals. No dark-mode token set yet.
+
+Home is the "B3" design from the canvas: tilted rows drifting right. Each row holds a disjoint set of photos and planGalleryLayout picks fewer/taller rows until every row's loop is wider than the screen plus its widest tile, so no photo shows twice at once (tested at phone → 2560×1440). Home image loading: nothing is fetched until hydration; then the order is imageQueue's PRIORITY (see above), previews
+~4 at a time, full files 2 at a time, each class soonest-on-screen first. Judge loading speed on
+a production build (`pnpm build && pnpm preview`): the dev server's unbundled JS delays the first image by 10s+ on a throttled link.
+Projects and About use the same queue (previews first, nearest the screen first, then fulls), so photos fetched on one page show instantly on the others.
+
+`src/routes/daily/` contains only empty, untracked folders (not part of the site).
+
+Lint: the repo predates the current eslint rules and older routes fail `pnpm lint`; new files pass. Prettier's svelte plugin currently crashes on .svelte files.
+
+`.scratch/` (gitignored) holds one-off files; see `.scratch/INDEX.md`.

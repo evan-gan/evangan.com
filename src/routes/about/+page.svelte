@@ -1,228 +1,398 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
+	import AffiliationTile from '$lib/components/AffiliationTile.svelte';
+	import StatTile from '$lib/components/StatTile.svelte';
+	import EventMapTile from '$lib/components/EventMapTile.svelte';
+	import ContactBlock from '$lib/components/ContactBlock.svelte';
+	import ProgressiveImage from '$lib/components/ProgressiveImage.svelte';
+	import { photoElementAttributes, startPageImageLoading } from '$lib/pageImageLoader';
+
+	let { data } = $props();
+
+	const allProjectsHref = resolve('/projects/[[tag]]', { tag: 'all' });
+
+	function projectHref(projectId: string): string {
+		return `${allProjectsHref}#${projectId}`;
+	}
+
+	// WPI has no image yet, so its tile renders the striped placeholder; fill in role/detail when known.
+	const AFFILIATIONS = [
+		{
+			name: 'The LigerBots',
+			role: 'FIRST Robotics',
+			detail: 'Team 2877 · 2022–2026',
+			image: '/thumbnails/1760310168343-webp.webp',
+			href: 'https://ligerbots.org',
+			fill: 'var(--affiliation-ligerbots)',
+			labelColor: 'var(--affiliation-ligerbots-label)'
+		},
+		{
+			name: 'Hack Club',
+			role: 'Event organizer',
+			detail: 'Hackathons for teens · 2024–2026',
+			image: '/thumbnails/ShipwreckedGroupPhoto-webp.webp',
+			href: 'https://hackclub.com',
+			fill: 'var(--affiliation-hackclub)',
+			labelColor: 'var(--affiliation-hackclub-label)'
+		},
+		{
+			name: 'Open Sauce',
+			role: 'Exhibitor',
+			detail: 'Showed my CoreXY pen plotter · 2026',
+			image: '/thumbnails/1788642542809-webp.webp',
+			href: projectHref('corexy-pen-plotter'),
+			fill: 'var(--affiliation-opensauce)',
+			labelColor: 'var(--affiliation-opensauce-label)'
+		},
+		{
+			name: 'WPI',
+			role: 'Student',
+			detail: 'Worcester Polytechnic Institute · 2026-2030',
+			fill: 'var(--affiliation-wpi)',
+			stripe: 'var(--affiliation-wpi-stripe)',
+			labelColor: 'var(--affiliation-wpi-label)'
+		}
+	];
+
+	function previewOf(image: string): string | null {
+		return data.previewByThumbnail[image] ?? null;
+	}
+
+	let pageElement: HTMLElement | undefined = $state();
+
+	onMount(() =>
+		startPageImageLoading(pageElement!, [
+			...AFFILIATIONS.flatMap((affiliation) =>
+				affiliation.image ? [{ thumbnail: affiliation.image, preview: previewOf(affiliation.image) }] : []
+			),
+			...data.recentProjects
+		])
+	);
 </script>
 
 <svelte:head>
 	<title>About - Evan Gan</title>
 </svelte:head>
 
-<main>
-	<div class="container">
-		<header class="page-header">
-			<h1>About Me</h1>
-		</header>
+<main bind:this={pageElement} class="about-page">
+	<div class="widget-grid">
+		<section class="intro span-full span-two-rows">
+			<img class="intro-photo" src="/photo of me.jpg" alt="Evan Gan" />
+			<div class="intro-text">
+				<div class="eyebrow">About</div>
+				<h1>Hey, I'm Evan.</h1>
+				<p>
+					I'm a student at WPI, and I like building things. Mostly software, but also circuit boards, a pen
+					plotter, and once an 8-foot guillotine for smashing pumpkins. There's plenty more on
+					<a href={allProjectsHref}>my projects page</a>.
+				</p>
+				<p>
+					In high school I was on my FIRST Robotics team, where I did a bit of everything, from CAD and design to
+					manufacturing and programming.
+				</p>
+				<p>I also organize hackathons for teens, which is how I ended up running events from Boston to Berlin.</p>
+			</div>
+		</section>
 
-		<div class="content">
-			<div class="photo-container">
-				<img src="/photo of me.jpg" alt="Evan Gan" class="profile-photo" />
-				<div class="easter-egg">
-									<p>
-					Look to the left of me in this photo- that's a guillotine I built! Check out more info
-					about it on <a href="/projects" style="color: rgb(176, 135, 255) !important;">my projects page</a>.
-				</p>
-				</div>
+		{#each AFFILIATIONS as affiliation (affiliation.name)}
+			<div class="span-two-rows">
+				<AffiliationTile {...affiliation} preview={affiliation.image ? previewOf(affiliation.image) : null} />
 			</div>
-			
-			<div class="text-section">
-				<p>
-					Hey, I'm Evan. I love building robots with my FIRST team, programming, and creating fun projects ranging from electronics to wood working. I also enjoy running hackathons for teens and collaborating with people to bring ambitious ideas to life.
-				</p>
-				<p>
-					Check out what I've done and what I'm up to on my <a href="/projects" style="color: rgb(176, 135, 255) !important;">projects page</a>.
-				</p>
+		{/each}
+
+		<StatTile
+			label="Hackathons run"
+			value="7"
+			caption="organized and run since 2024"
+			background="var(--cat-hackathons)"
+			ink="var(--stat-hackathons-ink)"
+		/>
+		<StatTile
+			label="Managed"
+			value="$500K"
+			caption="in event budgets"
+			background="var(--color-inverse)"
+			ink="var(--color-bg)"
+			labelColor="var(--stat-dark-label)"
+			captionColor="var(--stat-dark-secondary)"
+		/>
+		<StatTile
+			label="Biggest event"
+			value="130"
+			caption="people at Shipwrecked"
+			background="var(--stat-purple-tint)"
+			ink="var(--stat-purple-ink)"
+		/>
+		<StatTile
+			label="Projects"
+			value={String(data.projectCount)}
+			background="var(--cat-programming-tint)"
+			ink="var(--cat-programming-ink)"
+		>
+			{#snippet footer()}
+				<a class="stat-link" href={allProjectsHref}>see them all ›</a>
+			{/snippet}
+		</StatTile>
+
+		<section class="recent span-two-cols" aria-labelledby="recent-heading">
+			<h2 id="recent-heading" class="recent-heading">Working on lately</h2>
+			<div class="recent-list">
+				{#each data.recentProjects as project (project.id)}
+					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- projectHref builds on a resolve()d path -->
+					<a class="recent-item" href={projectHref(project.id)}>
+						<span class="recent-photo" {...photoElementAttributes(project.thumbnail)}>
+							<ProgressiveImage src={project.thumbnail} preview={project.preview} />
+						</span>
+						<span>
+							<span class="recent-name">{project.nameText}</span>
+							<span class="recent-date">{project.dateDisplay}</span>
+						</span>
+					</a>
+				{/each}
 			</div>
+		</section>
+
+		<div class="span-two-cols">
+			<EventMapTile />
+		</div>
+
+		<div class="span-full">
+			<ContactBlock id="say-hi" />
 		</div>
 	</div>
 </main>
 
 <style>
-	main {
+	.about-page {
 		min-height: 100vh;
-		padding: 100px 24px 80px;
-		background: #f8f9fa;
+		padding: calc(var(--nav-clearance) + 8px) var(--page-gutter) 96px;
+		background: var(--color-bg);
+		color: var(--color-label);
+		font-family: var(--font-text);
+		-webkit-font-smoothing: antialiased;
 	}
 
-	.container {
-		max-width: 800px;
+	.widget-grid {
+		max-width: var(--page-max-width);
 		margin: 0 auto;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-auto-rows: 190px;
+		gap: 20px;
 	}
 
-	.page-header {
-		text-align: center;
-		margin-bottom: 48px;
+	.span-full {
+		grid-column: 1 / -1;
 	}
 
-	.page-header h1 {
-		font-size: 3rem;
-		font-weight: 700;
-		margin: 0;
-		color: #000000;
+	.span-two-cols {
+		grid-column: span 2;
 	}
 
-	.content {
-		background: #ffffff;
-		border: 2px solid #000000;
-		border-radius: 16px;
-		padding: 48px;
-		box-shadow: 4px 4px 0px #000000;
+	.span-two-rows {
+		grid-row: span 2;
+	}
+
+	.intro {
 		display: flex;
-		gap: 40px;
-		align-items: flex-start;
+		align-items: stretch;
+		border-radius: var(--radius-widget);
+		background: var(--color-surface);
+		overflow: hidden;
 	}
 
-	.photo-container {
-		position: relative;
-		flex-shrink: 0;
-		width: 350px;
-	}
-
-	.profile-photo {
-		width: 100%;
-		height: auto;
-		border: 3px solid #000000;
-		box-shadow: 4px 4px 0px #000000;
-		transition: all 0.3s ease;
-		display: block;
-	}
-
-	.profile-photo:hover {
-		transform: translate(-2px, -2px);
-		box-shadow: 6px 6px 0px #000000;
-	}
-
-	.easter-egg {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
+	/* Full height at the photo's own aspect ratio, so swapping the photo never needs a re-crop. */
+	.intro-photo {
 		height: 100%;
-		background: rgba(255, 208, 116, 0.98);
-		border: 3px solid #000000;
-		box-shadow: 4px 4px 0px #000000;
-		padding: 24px;
+		width: auto;
+		max-width: 50%;
+		object-fit: cover;
+		display: block;
+		flex-shrink: 0;
+	}
+
+	.intro-text {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 40px 44px;
 		display: flex;
-		align-items: center;
+		flex-direction: column;
 		justify-content: center;
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 0.3s ease;
+		gap: 14px;
 	}
 
-	.easter-egg p {
-		text-align: left;
+	.eyebrow {
+		font-size: 15px;
 		font-weight: 600;
-		font-size: 0.95rem;
-		line-height: 1.6;
+		color: var(--color-label-tertiary);
+	}
+
+	h1 {
 		margin: 0;
-		color: #000000;
-	}
-
-	.photo-container:hover .easter-egg {
-		opacity: 1;
-		pointer-events: auto;
-	}
-
-	.easter-egg a {
-		color: #000000;
-		text-decoration: underline;
-		text-underline-offset: 2px;
+		font-family: var(--font-display);
+		font-size: 56px;
+		line-height: 1;
 		font-weight: 700;
-		transition: color 0.2s ease;
+		letter-spacing: -0.04em;
 	}
 
-	.easter-egg a:hover {
-		color: rgba(176, 135, 255, 1);
+	.intro-text p {
+		margin: 0;
+		font-size: 19px;
+		line-height: 1.55;
+		color: var(--color-label-secondary);
 	}
 
-	.text-section {
-		flex: 1;
+	.intro-text p a {
+		color: var(--color-label);
+		font-weight: 600;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.stat-link {
+		display: block;
+		margin-top: 6px;
+		font-size: 15px;
+		font-weight: 600;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.stat-link:hover {
+		text-decoration: underline;
+	}
+
+	.recent {
+		border-radius: var(--radius-widget);
+		background: var(--color-surface);
+		padding: 22px;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.recent-heading {
+		margin: 0;
+		font-size: 13px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--cat-programming);
+	}
+
+	.recent-list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 14px;
+	}
+
+	.recent-item {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		min-width: 0;
+		color: var(--color-label);
+		text-decoration: none;
+	}
+
+	.recent-photo {
+		width: 72px;
+		height: 72px;
+		flex-shrink: 0;
+		border-radius: 16px;
+		overflow: hidden;
+		background: var(--color-surface-sunken);
+	}
+
+	.recent-item > span {
 		min-width: 0;
 	}
 
-	.text-section a {
-		color: rgba(176, 135, 255, 1) !important;
-		text-decoration: underline;
-		text-underline-offset: 2px;
+	.recent-name {
+		display: block;
+		font-size: 16px;
 		font-weight: 600;
-		transition: color 0.2s ease, text-decoration-thickness 0.2s ease;
+		line-height: 1.25;
 	}
 
-	.text-section a:link {
-		color: rgba(176, 135, 255, 1) !important;
+	.recent-item:hover .recent-name {
+		color: var(--color-accent);
 	}
 
-	.text-section a:hover {
-		color: rgba(23, 241, 209, 1) !important;
-		text-decoration-thickness: 2px;
+	.recent-date {
+		display: block;
+		font-size: 13px;
+		line-height: 1.4;
+		color: var(--color-label-tertiary);
 	}
 
-	.text-section a:focus-visible {
-		outline: 2px solid rgba(176, 135, 255, 1);
-		outline-offset: 2px;
-		border-radius: 2px;
-	}
-
-	.content p {
-		font-size: 1.25rem;
-		line-height: 1.8;
-		color: #000000;
-		margin: 0 0 24px 0;
-		font-weight: 500;
-	}
-
-	.content p:last-child {
-		margin-bottom: 0;
-	}
-
-	@media (max-width: 768px) {
-		main {
-			padding: 80px 20px 60px;
+	@media (max-width: 900px) {
+		/* The text column is narrow here, so two fixed rows clip the bio: size the intro row to its text and let
+		   the photo stretch to match (object-fit crops it). */
+		.widget-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-rows: auto;
 		}
 
-		.page-header h1 {
-			font-size: 2.5rem;
+		.intro {
+			grid-row: span 1;
 		}
 
-		.content {
-			padding: 32px 24px;
+		.intro-photo {
+			width: 40%;
+			height: auto;
+			max-width: none;
+		}
+	}
+
+	/* Below this the intro stacks, so fixed 190px rows would clip it; tiles keep their own min-heights. */
+	@media (max-width: 700px) {
+		.widget-grid {
+			grid-auto-rows: auto;
+		}
+
+		.intro {
+			grid-row: auto;
 			flex-direction: column;
-			gap: 24px;
 		}
 
-		.photo-container {
+		.intro-photo {
 			width: 100%;
-			max-width: 350px;
-			margin: 0 auto;
+			max-width: none;
+			height: auto;
 		}
 
-		.content p {
-			font-size: 1.1rem;
+		.intro-text {
+			padding: 28px 24px;
+		}
+
+		h1 {
+			font-size: 44px;
 		}
 	}
 
-	@media (max-width: 480px) {
-		.page-header h1 {
-			font-size: 2rem;
+	@media (max-width: 560px) {
+		.about-page {
+			padding-left: 16px;
+			padding-right: 16px;
 		}
 
-		.content {
-			padding: 24px 20px;
+		.widget-grid {
+			grid-template-columns: minmax(0, 1fr);
 		}
 
-		.photo-container {
-			max-width: 100%;
+		.span-two-cols {
+			grid-column: span 1;
 		}
 
-		.easter-egg {
-			font-size: 0.85rem;
-			padding: 16px;
+		.span-two-rows {
+			grid-row: span 1;
 		}
 
-		.easter-egg p {
-			font-size: 0.85rem;
-		}
-
-		.content p {
-			font-size: 1rem;
+		.recent-list {
+			grid-template-columns: minmax(0, 1fr);
 		}
 	}
 </style>

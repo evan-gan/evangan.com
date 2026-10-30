@@ -1,8 +1,35 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
-	
-	function splitText(text: string): string[] {
-		return text.split('');
+	import { resolve } from '$app/paths';
+	import type { GalleryProject } from '$lib/galleryProject';
+	import { TILT_DEGREES } from '$lib/gallery';
+	import DriftingGallery from '$lib/components/DriftingGallery.svelte';
+	import FocusedProject from '$lib/components/FocusedProject.svelte';
+	import StripeWord from '$lib/components/StripeWord.svelte';
+
+	interface Props {
+		data: { galleryProjects: GalleryProject[] };
+	}
+
+	let { data }: Props = $props();
+
+	const SECTION_LINKS = [
+		{ href: resolve('/about'), label: 'about' },
+		{ href: resolve('/projects'), label: 'projects' },
+		...(dev ? [{ href: resolve('/editor'), label: 'editor' }] : [])
+	];
+
+	interface Selection {
+		project: GalleryProject;
+		tileElement: HTMLElement;
+		tileKey: string;
+	}
+
+	let selection: Selection | null = $state(null);
+
+	// "All projects" so the project is guaranteed to be on the page; the hash tells it which sheet to open.
+	function projectPageHref(project: GalleryProject): string {
+		return `${resolve('/projects/[[tag]]', { tag: 'all' })}#${project.id}`;
 	}
 </script>
 
@@ -11,218 +38,85 @@
 </svelte:head>
 
 <main>
-	<nav>
-		<ul class="nav-ul">
-			<li class="nav-li">
-				<a href="/about" class="nav-a">
-					<span class="nav-a-letters">
-						{#each splitText('about') as letter}
-							<span class="nav-a-letter">{letter}</span>
-						{/each}
-					</span>
-					<span class="nav-a-stripe nav-a-stripe--yellow"></span>
-					<span class="nav-a-stripe nav-a-stripe--turquoise"></span>
-					<span class="nav-a-stripe nav-a-stripe--purple"></span>
-					<span class="nav-a-letters-top">
-						{#each splitText('about') as letter}
-							<span class="nav-a-letter">{letter}</span>
-						{/each}
-					</span>
-				</a>
-			</li>
-			<li class="nav-li">
-				<a href="/projects" class="nav-a">
-					<span class="nav-a-letters">
-						{#each splitText('projects') as letter}
-							<span class="nav-a-letter">{letter}</span>
-						{/each}
-					</span>
-					<span class="nav-a-stripe nav-a-stripe--yellow"></span>
-					<span class="nav-a-stripe nav-a-stripe--turquoise"></span>
-					<span class="nav-a-stripe nav-a-stripe--purple"></span>
-					<span class="nav-a-letters-top">
-						{#each splitText('projects') as letter}
-							<span class="nav-a-letter">{letter}</span>
-						{/each}
-					</span>
-				</a>
-			</li>
-			<li class="nav-li">
-				<a href="/contact" class="nav-a">
-					<span class="nav-a-letters">
-						{#each splitText('contact') as letter}
-							<span class="nav-a-letter">{letter}</span>
-						{/each}
-					</span>
-					<span class="nav-a-stripe nav-a-stripe--yellow"></span>
-					<span class="nav-a-stripe nav-a-stripe--turquoise"></span>
-					<span class="nav-a-stripe nav-a-stripe--purple"></span>
-					<span class="nav-a-letters-top">
-						{#each splitText('contact') as letter}
-							<span class="nav-a-letter">{letter}</span>
-						{/each}
-					</span>
-				</a>
-			</li>
-			{#if dev}
-				<li class="nav-li">
-					<a href="/editor" class="nav-a">
-						<span class="nav-a-letters">
-							{#each splitText('editor') as letter}
-								<span class="nav-a-letter">{letter}</span>
-							{/each}
-						</span>
-						<span class="nav-a-stripe nav-a-stripe--yellow"></span>
-						<span class="nav-a-stripe nav-a-stripe--turquoise"></span>
-						<span class="nav-a-stripe nav-a-stripe--purple"></span>
-						<span class="nav-a-letters-top">
-							{#each splitText('editor') as letter}
-								<span class="nav-a-letter">{letter}</span>
-							{/each}
-						</span>
-					</a>
-				</li>
-			{/if}
-		</ul>
-	</nav>
+	<DriftingGallery
+		items={data.galleryProjects}
+		hiddenTileKey={selection?.tileKey}
+		onSelect={(project, tileElement, tileKey) => (selection = { project, tileElement, tileKey })}
+	/>
+
+	<div class="panel-layer">
+		<nav aria-label="Sections" class="word-panel">
+			{#each SECTION_LINKS as link (link.href)}
+				<StripeWord href={link.href} label={link.label} />
+			{/each}
+		</nav>
+	</div>
+
+	{#if selection}
+		<!-- Keyed so picking a new photo always starts a fresh fly-in. -->
+		{#key selection.tileKey}
+			<FocusedProject
+				project={selection.project}
+				sourceTile={selection.tileElement}
+				tiltDeg={TILT_DEGREES}
+				moreHref={projectPageHref(selection.project)}
+				onClosed={() => (selection = null)}
+			/>
+		{/key}
+	{/if}
 </main>
 
 <style>
 	main {
-		display: flex;
-		justify-content: center;
-		align-items: center;
+		position: relative;
 		height: 100vh;
-		width: 100vw;
-		overflow: hidden; /* No scroll on homepage only */
+		height: 100dvh;
+		overflow: hidden;
+		font-family: var(--font-text);
+		-webkit-font-smoothing: antialiased;
 	}
 
-	ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
+	/* Spans the screen only to centre the panel; clicks on the empty area fall through to the photos. */
+	.panel-layer {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--nav-clearance) 16px 72px;
+		pointer-events: none;
 	}
 
-	.nav-ul {
-		font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	.word-panel {
+		pointer-events: auto;
+		width: 476px;
+		max-width: 100%;
+		box-sizing: border-box;
+		padding: 56px 48px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 14px;
+		border-radius: var(--radius-panel);
+		background: rgba(255, 255, 255, 0.66);
+		backdrop-filter: var(--glass-blur-heavy);
+		-webkit-backdrop-filter: var(--glass-blur-heavy);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.9),
+			inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+			var(--shadow-panel);
+		font-family: var(--font-display);
 		font-weight: 700;
-		text-transform: lowercase;
-		font-size: 7.5rem;
+		font-size: clamp(56px, 16vw, 104px);
+		line-height: 0.82;
 		letter-spacing: -0.05em;
 	}
 
-	.nav-li {
-		position: relative;
-		line-height: 0.76471;
-	}
-
-	.nav-li + .nav-li {
-		margin-top: 1rem;
-	}
-
-	a {
-		color: inherit;
-		text-decoration: none;
-		cursor: pointer;
-	}
-
-	.nav-a {
-		display: inline-block;
-		position: relative;
-		transition: 0.4s linear color;
-	}
-
-	.nav-a-letters {
-		display: flex;
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.nav-a > * {
-			pointer-events: none;
-		}
-	}
-
-	.nav-a-stripe {
-		position: absolute;
-		background-color: rgba(176, 135, 255, 1);
-		width: calc(100% + 0.075em);
-		left: 0;
-		top: 0.5em;
-		height: 0.115em;
-		transform: scaleX(0);
-		transform-origin: right;
-		transition: transform 0.8s cubic-bezier(0.4, 0, 0, 1);
-	}
-
-	.nav-a-stripe--yellow {
-		background-color: rgba(255, 208, 116, 1);
-		transition-delay: 0.1s;
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.nav-a:hover .nav-a-stripe {
-			transform-origin: left;
-			transform: scaleX(1);
-		}
-		.nav-a:hover .nav-a-stripe--yellow {
-			transition-delay: 0s;
-		}
-	}
-
-	.nav-a-stripe--turquoise {
-		background-color: rgba(23, 241, 209, 1);
-		transition-delay: 50ms;
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.nav-a:hover .nav-a-stripe--turquoise {
-			transition-delay: 50ms;
-		}
-		.nav-a:hover .nav-a-stripe--purple {
-			transition-delay: 0.1s;
-		}
-	}
-
-	.nav-a-letters-top {
-		position: absolute;
-		top: 0;
-		left: 0;
-		display: flex;
-	}
-
-	.nav-a-letter {
-		display: block;
-		will-change: transform, opacity;
-	}
-
-	.nav-a-letters .nav-a-letter:nth-child(2n) {
-		opacity: 0;
-	}
-
-	.nav-a-letters-top .nav-a-letter:nth-child(2n + 1) {
-		opacity: 0 !important;
-	}
-
-	/* Responsive sizing */
-	@media (max-width: 1200px) {
-		.nav-ul {
-			font-size: 6rem;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.nav-ul {
-			font-size: 4rem;
-		}
-	}
-
 	@media (max-width: 480px) {
-		.nav-ul {
-			font-size: 3rem;
-		}
-		
-		.nav-li + .nav-li {
-			margin-top: 0.5rem;
+		.word-panel {
+			padding: 40px 24px;
+			border-radius: 32px;
 		}
 	}
 </style>

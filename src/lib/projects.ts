@@ -2,7 +2,9 @@ import { marked } from 'marked';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import path from 'path';
-import { formatDate } from './date';
+import { imageSize } from 'image-size';
+import { compareSortableDatesDescending, formatDate, parseSortableDate } from './date';
+import { previewPathFor } from './thumbnailPreview.js';
 
 marked.setOptions({
   breaks: true,
@@ -10,7 +12,38 @@ marked.setOptions({
 });
 
 const PROJECTS_FILE = path.join(process.cwd(), 'projects', 'projects.yaml');
+const STATIC_DIR = path.join(process.cwd(), 'static');
 const FALLBACK_THUMBNAIL = '/thumbnails/placeholder.svg';
+
+/**
+ * Read a local thumbnail's width / height so cards can reserve space before the image loads
+ * (otherwise the masonry columns reflow as each photo arrives).
+ *
+ * Args:
+ *   thumbnail: site path like "/thumbnails/foo.webp"; remote URLs are skipped
+ *
+ * Returns:
+ *   The aspect ratio, or null when the file is remote, missing, or unreadable.
+ */
+function readThumbnailRatio(thumbnail: string): number | null {
+  if (!thumbnail.startsWith('/')) return null;
+  const filePath = path.join(STATIC_DIR, thumbnail);
+  // Guard against "../" in YAML escaping the static folder.
+  if (!filePath.startsWith(STATIC_DIR + path.sep) || !fs.existsSync(filePath)) return null;
+  try {
+    const { width, height } = imageSize(fs.readFileSync(filePath));
+    return width && height ? width / height : null;
+  } catch (error) {
+    console.warn(`Could not read dimensions of thumbnail ${thumbnail} — card will size itself after load.`, error);
+    return null;
+  }
+}
+
+/** Site path of the thumbnail's small AVIF preview, or null if `pnpm previews` hasn't made one. */
+function findThumbnailPreview(thumbnail: string): string | null {
+  const previewPath = previewPathFor(thumbnail);
+  return previewPath && fs.existsSync(path.join(STATIC_DIR, previewPath)) ? previewPath : null;
+}
 
 export type ProjectLinkType = 'website' | 'github' | 'demo' | 'external';
 
@@ -28,9 +61,20 @@ export interface ProjectData {
   nameHtml: string;
   tagline: string;
   taglineHtml: string;
+  /** Name and tagline with markdown removed, for places that can't contain links (e.g. inside a button). */
+  nameText: string;
+  taglineText: string;
   description: string;
   descriptionHtml: string;
   thumbnail: string;
+  /** False when the project only has the "coming soon" placeholder. */
+  hasThumbnail: boolean;
+  /** width / height of the thumbnail, or null when it couldn't be measured. */
+  thumbnailRatio: number | null;
+  /** Small AVIF version of the thumbnail (see generate-previews.js), or null when there isn't one. */
+  thumbnailPreview: string | null;
+  /** Year the project ended (0 if the date has no year); used for the year sections. */
+  year: number;
   categories: string[];
   categorySlugs: string[];
   importance: number;
@@ -46,6 +90,21 @@ export interface ProjectCategory {
 function parseInlineMarkdown(text: string): string {
   const html = marked.parseInline(text);
   return typeof html === 'string' ? html : '';
+}
+
+const HTML_ENTITIES: Record<string, string> = {
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&#39;': "'"
+};
+
+// Plain text from marked's inline HTML output; only needs to undo what marked itself escapes.
+function htmlToPlainText(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&(amp|lt|gt|quot|#39);/g, (entity) => HTML_ENTITIES[entity]);
 }
 
 function parseMarkdown(text: string): string {
@@ -217,9 +276,15 @@ function normalizeProjects(): NormalizedProjectsResult {
       nameHtml: parseInlineMarkdown(name),
       tagline,
       taglineHtml: parseInlineMarkdown(tagline),
+      nameText: htmlToPlainText(parseInlineMarkdown(name)),
+      taglineText: htmlToPlainText(parseInlineMarkdown(tagline)),
       description,
       descriptionHtml: parseMarkdown(description),
       thumbnail,
+      hasThumbnail: thumbnail !== FALLBACK_THUMBNAIL,
+      thumbnailRatio: thumbnail === FALLBACK_THUMBNAIL ? null : readThumbnailRatio(thumbnail),
+      thumbnailPreview: findThumbnailPreview(thumbnail),
+      year: parseSortableDate(date).year,
       categories,
       categorySlugs,
       importance,
@@ -231,66 +296,11 @@ function normalizeProjects(): NormalizedProjectsResult {
 
   // Sort by date (newest first), then by original order as tiebreaker
   projectEntries.sort((a, b) => {
-    const parseDate = (dateStr: string) => {
-      // For multi-month/year ranges (e.g., "Sep 2022 - June 2026"), extract the END date
-      const rangeMatch = dateStr.match(/[-–]\s*([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s+(\d{4})/);
-      const rangeMonthOnly = dateStr.match(/[-–]\s*([A-Za-z]+)\s+(\d{4})/);
-      
-      let targetDateStr = dateStr;
-      if (rangeMatch) {
-        // Has specific day in end date: "- June 3rd 2026"
-        targetDateStr = `${rangeMatch[1]} ${rangeMatch[2]}, ${rangeMatch[3]}`;
-      } else if (rangeMonthOnly) {
-        // Month-only end date: "- June 2026"
-        targetDateStr = `${rangeMonthOnly[1]} ${rangeMonthOnly[2]}`;
-      }
-      
-      const yearMatch = targetDateStr.match(/\b(20\d{2})\b/);
-      const year = yearMatch ? parseInt(yearMatch[1]) : 0;
-      
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      let month = 0;
-      for (let i = 0; i < months.length; i++) {
-        if (targetDateStr.includes(months[i])) {
-          month = i;
-          break;
-        }
-      }
-      
-      // Extract day number - for ranges (8-11), take the LAST day (11)
-      const dayMatch = targetDateStr.match(/\b(\d{1,2})(?:[-–](\d{1,2}))?\b/);
-      let day = 0;
-      let hasSpecificDay = false;
-      if (dayMatch) {
-        hasSpecificDay = true;
-        // If there's a range (group 2 exists), use the end day; otherwise use the single day
-        day = dayMatch[2] ? parseInt(dayMatch[2]) : parseInt(dayMatch[1]);
-      }
-      
-      // If no specific day (e.g., "Aug 2025"), treat as 32 (greater than any valid day)
-      // This makes whole months sort as more recent than specific dates in that month
-      if (!hasSpecificDay && month > 0) {
-        day = 32;
-      }
-      
-      return { year, month, day };
-    };
-    
-    const dateA = parseDate(a.project.date);
-    const dateB = parseDate(b.project.date);
-    
-    // Sort by year (newest first)
-    if (dateA.year !== dateB.year) return dateB.year - dateA.year;
-    
-    // Then by month (newest first)
-    if (dateA.month !== dateB.month) return dateB.month - dateA.month;
-    
-    // Then by day (newest first)
-    if (dateA.day !== dateB.day) return dateB.day - dateA.day;
-    
-    // Finally by original order as tiebreaker
-    return a.sortOrder - b.sortOrder;
+    const byDate = compareSortableDatesDescending(
+      parseSortableDate(a.project.date),
+      parseSortableDate(b.project.date)
+    );
+    return byDate !== 0 ? byDate : a.sortOrder - b.sortOrder;
   });
 
   const projects = projectEntries.map((entry) => entry.project);

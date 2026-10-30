@@ -13,7 +13,15 @@ const config = {
 			fallback: undefined,
 			precompress: false,
 			strict: false // Allow dev-only routes (editor, API endpoints) to be excluded from build
-		})
+		}),
+		prerender: {
+			// /projects/...#<project-id> isn't an element anchor: the page reads the hash and opens that
+			// project's sheet. Any other missing anchor is still a real broken link.
+			handleMissingId: ({ path, message }) => {
+				if (path.startsWith('/projects/')) return;
+				throw new Error(message);
+			}
+		}
 	}
 };
 

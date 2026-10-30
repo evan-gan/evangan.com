@@ -1,7 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
+	import { replaceState } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import type { ProjectCategory, ProjectData } from '$lib/projects';
-	import { SvelteSet } from 'svelte/reactivity';
-	import { page } from '$app/stores';
+	import { buildFilterItems, groupProjectsByYear, matchesFilter } from '$lib/projectGroups';
+	import FilterBar from '$lib/components/FilterBar.svelte';
+	import YearSection from '$lib/components/YearSection.svelte';
+	import ProjectSheet from '$lib/components/ProjectSheet.svelte';
+	import { startPageImageLoading } from '$lib/pageImageLoader';
 
 	interface Props {
 		data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
@@ -9,885 +16,136 @@
 
 	let { data }: Props = $props();
 
-	// Track which images have loaded - use SvelteSet for reactive Set
-	let loadedImages = $state(new SvelteSet<string>());
-	
-	// Track whether all visible images have finished loading
-	let visibleImagesLoaded = $state(false);
-	
-	// Track which hidden images should start loading
-	let shouldLoadHiddenImages = $state(false);
+	// /projects with no tag shows highlights, matching the first entry of tagOrder.
+	const DEFAULT_FILTER = 'highlights';
 
-	// Create filter items respecting tagOrder
-	let filterItems = $derived.by(() => {
-		const allProjectsItem = { name: 'all', displayName: 'All Projects' };
-		const categoryItems = data.categories.map(cat => ({ name: cat.name, displayName: cat.displayName }));
-		
-		if (data.tagOrder.length === 0) {
-			// No tag order, show All Projects first
-			return [allProjectsItem, ...categoryItems];
-		}
-		
-		// Build ordered list based on tagOrder
-		const ordered: Array<{ name: string; displayName: string }> = [];
-		const remaining = new Set([allProjectsItem, ...categoryItems]);
-		
-		for (const tagName of data.tagOrder) {
-			if (tagName === 'All Projects') {
-				ordered.push(allProjectsItem);
-				remaining.delete(allProjectsItem);
-			} else {
-				const category = categoryItems.find(c => c.displayName === tagName);
-				if (category) {
-					ordered.push(category);
-					remaining.delete(category);
-				}
-			}
-		}
-		
-		// Add any remaining items not in tagOrder
-		ordered.push(...remaining);
-		
-		return ordered;
-	});
-
-	// Derived from URL
-	let selectedCategory = $derived($page.params.tag || 'highlights');
-	
-	// Helper to check if a project matches the current filter
-	function isProjectVisible(project: ProjectData) {
-		return selectedCategory === 'all' || project.categorySlugs.includes(selectedCategory);
-	}
-	
-	// Count visible projects for empty state
-	let visibleProjectCount = $derived(
-		data.projects.filter(isProjectVisible).length
+	let selectedFilter = $derived(page.params.tag || DEFAULT_FILTER);
+	let filterOptions = $derived(
+		buildFilterItems(data.categories, data.tagOrder).map((item) => ({
+			href: resolve('/projects/[[tag]]', { tag: item.slug }),
+			label: item.label
+		}))
 	);
-	
-	let activeProject: ProjectData | null = $state(null);
+	let yearGroups = $derived(
+		groupProjectsByYear(data.projects.filter((project) => matchesFilter(project, selectedFilter)))
+	);
 
-	// Use $effect for side effects (body overflow management)
-	$effect(() => {
-		if (typeof document !== 'undefined') {
-			document.body.style.overflow = activeProject ? 'hidden' : '';
-		}
-		
-		// Cleanup when component is destroyed
-		return () => {
-			if (typeof document !== 'undefined') {
-				document.body.style.overflow = '';
-			}
-		};
+	let openProject: ProjectData | null = $state(null);
+	let mainElement: HTMLElement | undefined = $state();
+
+	// Links like /projects/all#shipwrecked (from the home gallery) open that project's sheet.
+	onMount(() => {
+		const projectId = decodeURIComponent(window.location.hash.slice(1));
+		if (projectId) openProject = data.projects.find((project) => project.id === projectId) ?? null;
 	});
 
-	function openProject(project: ProjectData) {
-		activeProject = project;
-	}
+	// Every project's photo is queued, not just this filter's, so switching filters finds them ready.
+	onMount(() =>
+		startPageImageLoading(
+			mainElement!,
+			data.projects
+				.filter((project) => project.hasThumbnail)
+				.map((project) => ({ thumbnail: project.thumbnail, preview: project.thumbnailPreview }))
+		)
+	);
 
+	// Drop the hash on close so a refresh or Back doesn't pop the sheet open again.
 	function closeProject() {
-		activeProject = null;
-	}
-
-	function handleWindowKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && activeProject) {
-			event.preventDefault();
-			closeProject();
+		openProject = null;
+		if (window.location.hash) {
+			replaceState(resolve('/projects/[[tag]]', { tag: page.params.tag }), page.state);
 		}
 	}
-
-	function handleBackdropKeydown(event: KeyboardEvent) {
-		if (event.target !== event.currentTarget) return;
-		if (event.key === 'Enter' || event.key === ' ') {
-			event.preventDefault();
-			closeProject();
-		}
-	}
-
-	function handleCardKeydown(event: KeyboardEvent, project: ProjectData) {
-		if (event.key === 'Enter' || event.key === ' ') {
-			event.preventDefault();
-			openProject(project);
-		}
-	}
-
-	function handleImageLoad(url: string) {
-		loadedImages.add(url);
-	}
-
-	let pollInterval: ReturnType<typeof setInterval> | null = $state(null);
-	
-	function checkIfImageCached(url: string): boolean {
-		// Check if we've already loaded this image
-		if (loadedImages.has(url)) {
-			return true;
-		}
-		
-		// Check if image is cached by creating a temporary image
-		const img = new Image();
-		img.src = url;
-		return img.complete && img.naturalHeight !== 0;
-	}
-	
-	function startPolling() {
-		if (pollInterval) {
-			clearInterval(pollInterval);
-		}
-		
-		// Check if all visible images are already cached
-		const visibleImageUrls: string[] = [];
-		data.projects.forEach(project => {
-			if (project.thumbnail && isProjectVisible(project)) {
-				visibleImageUrls.push(project.thumbnail);
-			}
-		});
-		
-		const allVisibleCached = visibleImageUrls.every(url => checkIfImageCached(url));
-		
-		// If all visible images are cached, allow hidden images to load immediately
-		visibleImagesLoaded = allVisibleCached;
-		shouldLoadHiddenImages = allVisibleCached;
-		
-		pollInterval = setInterval(() => {
-			// Prioritize visible images first
-			const visibleImages = document.querySelectorAll('.project-card:not(.hidden) .project-thumbnail img, .project-modal-thumbnail img');
-			const hiddenImages = document.querySelectorAll('.project-card.hidden .project-thumbnail img');
-			
-			let hasUnloadedVisibleImages = false;
-			let hasUnloadedHiddenImages = false;
-			
-			// Check visible images first
-			visibleImages.forEach((img) => {
-				const htmlImg = img as HTMLImageElement;
-				const src = htmlImg.src;
-				
-				if (src && !loadedImages.has(src)) {
-					if (htmlImg.complete && htmlImg.naturalHeight !== 0) {
-						handleImageLoad(src);
-					} else {
-						hasUnloadedVisibleImages = true;
-					}
-				}
-			});
-			
-			// Mark visible images as loaded and trigger hidden image loading
-			if (!hasUnloadedVisibleImages && !visibleImagesLoaded) {
-				visibleImagesLoaded = true;
-				shouldLoadHiddenImages = true;
-			}
-			
-			// Only check hidden images if all visible ones are loaded
-			if (!hasUnloadedVisibleImages && shouldLoadHiddenImages) {
-				hiddenImages.forEach((img) => {
-					const htmlImg = img as HTMLImageElement;
-					const src = htmlImg.src;
-					
-					if (src && !loadedImages.has(src)) {
-						if (htmlImg.complete && htmlImg.naturalHeight !== 0) {
-							handleImageLoad(src);
-						} else {
-							hasUnloadedHiddenImages = true;
-						}
-					}
-				});
-			}
-			
-			if (!hasUnloadedVisibleImages && !hasUnloadedHiddenImages && pollInterval) {
-				clearInterval(pollInterval);
-				pollInterval = null;
-			}
-		}, 100);
-	}
-	
-	// Start polling when selected category changes
-	$effect(() => {
-		// Track selectedCategory to re-trigger on filter change
-		selectedCategory;
-		
-		if (data.projects.length > 0 && typeof document !== 'undefined') {
-			setTimeout(startPolling, 50);
-		}
-		
-		// Cleanup polling interval when component is destroyed
-		return () => {
-			if (pollInterval) {
-				clearInterval(pollInterval);
-				pollInterval = null;
-			}
-		};
-	});
 </script>
-
-<svelte:window onkeydown={handleWindowKeydown} />
 
 <svelte:head>
 	<title>Projects - Evan Gan</title>
 </svelte:head>
 
-	<main>
-		<div class="container">
-			<header class="page-header">
-				<h1>My Projects</h1>
-				<p>A collection of things I've built and worked on</p>
-			</header>
+<main bind:this={mainElement}>
+	<div class="container">
+		<header class="page-header">
+			<h1>Projects</h1>
+			<p>A collection of things I've built and worked on</p>
+		</header>
 
-			<!-- Category Filter Slider -->
-			<div class="filter-section">
-				<div class="filter-slider">
-					{#each filterItems as item}
-						<a
-							href="/projects/{item.name}"
-							class="filter-btn"
-							class:active={selectedCategory === item.name}
-							data-sveltekit-noscroll
-						>
-							{item.displayName}
-						</a>
-					{/each}
-				</div>
+		<FilterBar options={filterOptions} activeHref={resolve('/projects/[[tag]]', { tag: selectedFilter })} label="Filter projects" />
+
+		{#each yearGroups as group (group.label)}
+			<YearSection label={group.label} projects={group.projects} onOpen={(project) => (openProject = project)} />
+		{:else}
+			<div class="empty-state">
+				<h2>No projects here yet</h2>
+				<p>Try a different category.</p>
 			</div>
+		{/each}
+	</div>
 
-			<!-- Projects Grid -->
-			<div class="projects-grid">
-				{#each data.projects as project, index}
-					{@const visible = isProjectVisible(project)}
-					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-					<article
-						class="project-card"
-						class:hidden={!visible}
-						style="--card-index: {index}"
-						onclick={() => openProject(project)}
-						onkeydown={(event) => handleCardKeydown(event, project)}
-						tabindex={visible ? 0 : -1}
-						aria-label={`View details for ${project.name}`}
-						aria-hidden={!visible}
-					>
-						{#if project.thumbnail}
-							<div class="project-thumbnail" class:loading={!loadedImages.has(project.thumbnail)}>
-								{#if !loadedImages.has(project.thumbnail)}
-									<div class="thumbnail-skeleton"></div>
-								{/if}
-								<img 
-									src={visible || shouldLoadHiddenImages ? project.thumbnail : ''}
-									alt={project.name}
-									class:loaded={loadedImages.has(project.thumbnail)}
-									onload={() => handleImageLoad(project.thumbnail)}
-								/>
-							</div>
-						{/if}
-						<div class="project-content">
-							<div class="project-meta">
-								{#if project.dateDisplay}
-									<span class="project-date">{project.dateDisplay}</span>
-								{/if}
-								<div class="project-categories">
-									{#each project.categories as categoryName}
-										<span class="project-category">{categoryName}</span>
-									{/each}
-								</div>
-							</div>
-							<h3 class="project-name">{@html project.nameHtml}</h3>
-							{#if project.taglineHtml}
-								<p class="project-tagline">{@html project.taglineHtml}</p>
-							{/if}
-							{#if project.links.length}
-								<div class="project-links">
-									{#each project.links as link}
-									<a
-										href={link.url}
-										target="_blank"
-										rel="noopener"
-										class="project-link"
-										onclick={(e) => e.stopPropagation()}
-										onkeydown={(e) => e.stopPropagation()}
-									>
-										{link.label}
-										<span class="external-icon">↗</span>
-									</a>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					</article>
-				{/each}
-			</div>
-
-			{#if visibleProjectCount === 0}
-				<div class="empty-state">
-					<h3>No projects found</h3>
-					<p>Try selecting a different category or check back soon!</p>
-				</div>
-			{/if}
-		</div>
-
-		{#if activeProject}
-			<div
-				class="project-modal-backdrop"
-				role="button"
-				tabindex="0"
-				aria-label="Close project dialog"
-				onclick={(e) => { if (e.target === e.currentTarget) closeProject(); }}
-				onkeydown={handleBackdropKeydown}
-			>
-				<div class="project-modal" role="dialog" aria-modal="true" id="project-modal">
-					<button type="button" class="modal-close" onclick={closeProject} aria-label="Close project details">
-						✕
-					</button>
-					{#if activeProject.thumbnail}
-						<div class="project-modal-thumbnail" class:loading={!loadedImages.has(activeProject.thumbnail)}>
-							{#if !loadedImages.has(activeProject.thumbnail)}
-								<div class="thumbnail-skeleton"></div>
-							{/if}
-							<img 
-								src={activeProject.thumbnail} 
-								alt={activeProject.name}
-								class:loaded={loadedImages.has(activeProject.thumbnail)}
-								onload={() => activeProject && handleImageLoad(activeProject.thumbnail)}
-							/>
-						</div>
-					{/if}
-					<div class="project-modal-meta">
-						{#if activeProject.dateDisplay}
-							<span class="project-date">{activeProject.dateDisplay}</span>
-						{/if}
-						<div class="project-categories">
-							{#each activeProject.categories as categoryName}
-								<span class="project-category">{categoryName}</span>
-							{/each}
-						</div>
-					</div>
-					<h2 class="project-modal-name">{@html activeProject.nameHtml}</h2>
-					<div class="project-modal-description">{@html activeProject.descriptionHtml}</div>
-					{#if activeProject.links.length}
-						<div class="project-links modal">
-							{#each activeProject.links as link}
-								<a
-									href={link.url}
-									target="_blank"
-									rel="noopener"
-									class="project-link"
-								>
-									{link.label}
-									<span class="external-icon">↗</span>
-								</a>
-							{/each}
-						</div>
-					{/if}
-				</div>
-			</div>
-		{/if}
-	</main>
+	<ProjectSheet project={openProject} onClose={closeProject} />
+</main>
 
 <style>
 	main {
 		min-height: 100vh;
-		padding: 60px 0 100px 0;
-		background: #f8f9fa;
+		padding: calc(var(--nav-clearance) + 24px) 0 96px;
+		background: var(--color-bg);
+		color: var(--color-label);
+		font-family: var(--font-text);
+		-webkit-font-smoothing: antialiased;
 	}
 
 	.container {
-		max-width: 1300px;
+		max-width: var(--page-max-width);
 		margin: 0 auto;
-		padding: 0 24px;
+		padding: 0 var(--page-gutter);
 	}
 
 	.page-header {
-		text-align: center;
-		margin-bottom: 60px;
-		position: relative;
+		margin-bottom: 28px;
 	}
 
-	.page-header h1 {
-		font-size: 3rem;
+	h1 {
+		margin: 0;
+		font-family: var(--font-display);
+		font-size: 64px;
+		line-height: 1;
 		font-weight: 700;
-		margin: 0 0 16px 0;
-		color: #000000;
+		letter-spacing: -0.035em;
 	}
 
 	.page-header p {
-		font-size: 1.1rem;
-		color: #6b7280;
-		margin: 0;
-	}
-
-	.filter-section {
-		margin-bottom: 60px;
-		display: flex;
-		justify-content: center;
-	}
-
-	.filter-slider {
-		display: flex;
-		gap: 8px;
-		background: #ffffff;
-		padding: 6px;
-		border-radius: 24px;
-		border: 2px solid #000000;
-		overflow-x: auto;
-		box-shadow: 4px 4px 0px #000000;
-	}
-
-	.filter-btn {
-		text-decoration: none;
-		display: block;
-		padding: 10px 20px;
-		background: #ffffff;
-		color: #000000;
-		border: 2px solid #000000;
-		border-radius: 20px;
-		font-weight: 500;
-		font-size: 0.9rem;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		white-space: nowrap;
-		position: relative;
-	}
-
-	.filter-btn:hover {
-		background: #f3f4f6;
-		transform: translateY(-1px);
-		box-shadow: 2px 2px 0px #000000;
-	}
-
-	.filter-btn.active {
-		background: rgba(23, 241, 209, 1);
-		color: #000000;
-		font-weight: 600;
-		border-color: #000000;
-		box-shadow: 3px 3px 0px #000000;
-		transform: translate(-1px, -1px);
-	}
-
-	.projects-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-		gap: 32px;
-		margin-bottom: 80px;
-	}
-
-	.project-card {
-		background: #ffffff;
-		border-radius: 16px;
-		overflow: hidden;
-		border: 2px solid #000000;
-		transition: all 0.2s ease, opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
-		animation: fadeInUp 0.6s ease forwards;
-		opacity: 0;
-		transform: translateY(30px);
-		animation-delay: calc(var(--card-index) * 0.08s);
-		position: relative;
-		cursor: pointer;
-		box-shadow: 4px 4px 0px #000000;
-	}
-
-	.project-card.hidden {
-		opacity: 0 !important;
-		pointer-events: none;
-		max-height: 0;
-		margin: 0;
-		padding: 0;
-		border: none;
-		box-shadow: none;
-		overflow: hidden;
-		transform: scale(0.95);
-	}
-
-	.project-card:hover {
-		transform: translate(-2px, -2px);
-		box-shadow: 6px 6px 0px #000000;
-	}
-
-	.project-card:focus-visible {
-		outline: 3px solid rgba(23, 241, 209, 1);
-		outline-offset: 2px;
-	}
-
-	.project-thumbnail {
-		height: 220px;
-		overflow: hidden;
-		background: #f3f4f6;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		position: relative;
-	}
-
-	.project-thumbnail.loading {
-		background: #e5e7eb;
-	}
-
-	.thumbnail-skeleton {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(
-			90deg,
-			#f3f4f6 25%,
-			#e5e7eb 50%,
-			#f3f4f6 75%
-		);
-		background-size: 200% 100%;
-		animation: shimmer 1.5s infinite;
-	}
-
-	@keyframes shimmer {
-		0% {
-			background-position: 200% 0;
-		}
-		100% {
-			background-position: -200% 0;
-		}
-	}
-
-	.project-thumbnail img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 0.5s ease;
-		opacity: 0;
-	}
-
-	.project-thumbnail img.loaded {
-		opacity: 1;
-		transition: opacity 0.3s ease, transform 0.5s ease;
-	}
-
-	.project-card:hover .project-thumbnail img {
-		transform: scale(1.05);
-	}
-
-	.project-content {
-		padding: 28px;
-		position: relative;
-	}
-
-	.project-meta {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		flex-wrap: wrap;
-		gap: 12px;
-		margin-bottom: 16px;
-	}
-
-	.project-date {
-		color: #9ca3af;
-		font-size: 0.9rem;
-		font-weight: 500;
-		margin-right: auto;
-	}
-
-	.project-categories {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px;
-	}
-
-	.project-category {
-		background: #ffffff;
-		color: rgba(176, 135, 255, 1);
-		padding: 6px 14px;
-		border-radius: 12px;
-		font-size: 0.8rem;
-		font-weight: 500;
-		text-transform: none;
-		white-space: nowrap;
-		border: 1px solid rgba(176, 135, 255, 1);
-	}
-
-	.project-name {
-		font-size: 1.5rem;
-		font-weight: 600;
-		margin: 0 0 14px 0;
-		color: #000000;
-		line-height: 1.3;
-	}
-
-	.project-tagline {
-		margin: 0 0 16px 0;
-		color: #6b7280;
-		font-size: 1rem;
-		font-weight: 400;
-		line-height: 1.6;
-	}
-
-	.project-tagline :global(strong),
-	.project-tagline :global(em) {
-		color: inherit;
-	}
-
-	/* Markdown links inside project description and name */
-	.project-name :global(a) {
-		color: rgba(23, 241, 209, 1);
-		text-decoration: underline;
-		text-underline-offset: 2px;
-		transition: color 0.2s ease, text-decoration-color 0.2s ease;
-	}
-
-	.project-name :global(a:hover) {
-		color: rgba(176, 135, 255, 1);
-		text-decoration-thickness: 2px;
-	}
-
-	.project-name :global(a:focus-visible) {
-		outline: 2px solid rgba(23, 241, 209, 1);
-		outline-offset: 2px;
-		border-radius: 2px;
-	}
-
-	.project-links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 16px;
-		margin-top: 16px;
-	}
-
-	.project-link {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		color: #000000;
-		text-decoration: none;
-		font-weight: 600;
-		transition: all 0.2s ease;
-		padding: 6px 12px;
-		border: 2px solid #000000;
-		border-radius: 8px;
-		background: #ffffff;
-	}
-
-	.project-link:hover {
-		background: rgba(176, 135, 255, 1);
-		gap: 8px;
-		transform: translate(-1px, -1px);
-		box-shadow: 2px 2px 0px #000000;
-	}
-
-	.project-modal-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: rgba(0, 0, 0, 0.7);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		padding: 40px 24px;
-		backdrop-filter: blur(10px);
-		z-index: 1000;
-		animation: backdropFadeIn 0.3s ease;
-	}
-
-	@keyframes backdropFadeIn {
-		from { opacity: 0; }
-		to { opacity: 1; }
-	}
-
-	.project-modal {
-		position: relative;
-		max-width: 800px;
-		width: 100%;
-		max-height: 100%;
-		overflow-y: auto;
-		background: #ffffff;
-		border: 3px solid #000000;
-		border-radius: 20px;
-		padding: 48px;
-		box-shadow: 8px 8px 0px #000000;
-		animation: modalSlideIn 0.3s ease;
-	}
-
-	@keyframes modalSlideIn {
-		from { 
-			opacity: 0;
-			transform: translate(-4px, -4px);
-		}
-		to { 
-			opacity: 1;
-			transform: translate(0, 0);
-		}
-	}
-
-	.modal-close {
-		position: absolute;
-		top: 20px;
-		right: 20px;
-		background: rgba(255, 208, 116, 1);
-		border: 2px solid #000000;
-		color: #000000;
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		cursor: pointer;
-		font-size: 1.2rem;
-		line-height: 1;
-		font-weight: 700;
-		transition: all 0.2s ease;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-shadow: 2px 2px 0px #000000;
-		z-index: 1001;
-	}
-
-	.modal-close:hover,
-	.modal-close:focus-visible {
-		background: rgba(23, 241, 209, 1);
-		outline: none;
-		transform: translate(-1px, -1px);
-		box-shadow: 3px 3px 0px #000000;
-	}
-
-	.project-modal-thumbnail {
-		width: 100%;
-		height: clamp(320px, 60vh, 520px);
-		max-height: 65vh;
-		overflow: hidden;
-		border-radius: 12px;
-		background: #f3f4f6;
-		margin-bottom: 32px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border: 2px solid #000000;
-		position: relative;
-	}
-
-	.project-modal-thumbnail.loading {
-		background: #e5e7eb;
-	}
-
-	.project-modal-thumbnail img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		opacity: 0;
-	}
-
-	.project-modal-thumbnail img.loaded {
-		opacity: 1;
-		transition: opacity 0.3s ease;
-	}
-
-	.project-modal-meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 16px;
-		margin-bottom: 24px;
-	}
-
-	.project-modal-name {
-		font-size: 2.5rem;
-		font-weight: 700;
-		margin: 0 0 24px 0;
-		color: #000000;
-		line-height: 1.2;
-	}
-
-	.project-modal-description {
-		color: #4b5563;
-		line-height: 1.8;
-		margin-bottom: 32px;
-		font-size: 1.1rem;
-	}
-
-	.project-modal-description :global(p) {
-		margin: 0 0 16px 0;
-	}
-
-	.project-modal-description :global(ul),
-	.project-modal-description :global(ol) {
-		margin: 0 0 16px 1.25rem;
-		padding: 0;
-	}
-
-	.project-modal-description :global(li) {
-		margin-bottom: 6px;
-	}
-
-	.project-links.modal {
-		margin-top: 32px;
-	}
-
-	.external-icon {
-		transition: transform 0.2s ease;
-		font-size: 0.9rem;
-	}
-
-	.project-link:hover .external-icon {
-		transform: translate(2px, -2px);
+		margin: 10px 0 0;
+		font-size: 19px;
+		color: var(--color-label-secondary);
 	}
 
 	.empty-state {
+		margin-top: 40px;
+		padding: 64px 24px;
+		border-radius: var(--radius-sheet);
 		text-align: center;
-		padding: 80px 24px;
-		color: #6b7280;
+		background: var(--color-surface);
 	}
 
-	.empty-state h3 {
-		font-size: 1.8rem;
-		margin-bottom: 16px;
-		color: #000000;
+	.empty-state h2 {
+		margin: 0;
+		font-size: 21px;
+		font-weight: 600;
 	}
 
-	@keyframes fadeInUp {
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
+	.empty-state p {
+		margin: 6px 0 0;
+		font-size: 15px;
+		color: var(--color-label-secondary);
 	}
 
-	@media (max-width: 768px) {
-		main {
-			padding: 40px 0 80px 0;
+	@media (max-width: 560px) {
+		h1 {
+			font-size: 44px;
 		}
-		
-		.page-header {
-			margin-bottom: 40px;
-		}
-		
-		.page-header h1 {
-			font-size: 2.5rem;
-		}
-		
+
 		.page-header p {
-			font-size: 1.1rem;
-		}
-		
-		.projects-grid {
-			grid-template-columns: 1fr;
-			gap: 24px;
-		}
-		
-		.filter-slider {
-			width: 100%;
-			overflow-x: auto;
-			padding: 10px;
-		}
-		
-		.project-card {
-			margin: 0 4px;
-		}
-		
-		.project-modal-thumbnail {
-			height: clamp(240px, 50vh, 380px);
-			max-height: 55vh;
-		}
-		
-		.project-modal {
-			padding: 32px 24px;
-			margin: 20px;
-		}
-		
-		.project-modal-name {
-			font-size: 2rem;
-		}
-		
-		.container {
-			padding: 0 20px;
+			font-size: 17px;
 		}
 	}
 </style>
