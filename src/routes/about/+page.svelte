@@ -83,7 +83,7 @@
 				<div class="eyebrow">About</div>
 				<h1>Hey, I'm Evan.</h1>
 				<p>
-					I'm a student at WPI, and I like building things. Mostly software, but also circuit boards, a pen
+					I'm a Robotics Engineering &amp; Computer Science double major at WPI, and I like building things. Mostly software, but also circuit boards, a pen
 					plotter, and once an 8-foot guillotine for smashing pumpkins. There's plenty more on
 					<a href={allProjectsHref}>my projects page</a>.
 				</p>

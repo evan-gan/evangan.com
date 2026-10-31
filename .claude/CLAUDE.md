@@ -66,9 +66,9 @@ src/
       ProgressiveImage.svelte# Shows only queue-loaded images: preview layer, full layer on top revealed after decode() (or 800ms
                              #   at most, since decode() can hang); fit = cover | contain; previewOnly = never show the full file
                              #   while a preview is usable (home tiles: decoding 5000px+ fulls per tile stuttered on Low Power Mode)
-      FocusedProject.svelte  # Clicked gallery photo (ProgressiveImage; boosts the full file as 'clicked'): flies from its (still-moving) tile to top-centre with rotate + zoom, then the
-                             #   text panel reveals downward from under the photo. Close (Esc/×/backdrop): if the tile is still on
-                             #   screen, text collapses and the photo flies back onto the tile; if it drifted off, the card sweeps up
+      FocusedProject.svelte  # Clicked gallery photo (ProgressiveImage; boosts the full file as 'clicked'): flies from its (still-moving) tile to top-centre with rotate + zoom while the
+                             #   text panel (same transform, so it scales/tilts with the photo) unrolls in step. Close (Esc/×/backdrop):
+                             #   if the tile is still on screen, photo flies back onto the tile as the text rolls up; else the card sweeps up
       StripeWord.svelte      # Big link word with the three brand-colour stripe hover sweep
       AffiliationTile.svelte # About: tall photo tile (ProgressiveImage; role / name / detail over a scrim); no image → striped placeholder
       StatTile.svelte        # About: coloured number tile (label, big value, caption or `footer` snippet)
