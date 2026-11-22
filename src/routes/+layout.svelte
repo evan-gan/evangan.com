@@ -1,4 +1,6 @@
 <script lang="ts">
+	// Self-hosted variable font (one file per script subset, all weights), so no Google Fonts round trip.
+	import '@fontsource-variable/figtree';
 	import '../app.css';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
@@ -25,10 +27,6 @@
 
 <svelte:head>
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-	<!-- DM Sans: home + error pages. Inter: fallback for the system font on non-Apple devices. -->
-	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </svelte:head>
 
 {#if !page.url.pathname.startsWith('/editor')}
@@ -43,7 +41,7 @@
 		padding: 0;
 		background: #ffffff;
 		color: #000000;
-		font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		font-family: var(--font-text);
 		line-height: 1.6;
 		min-height: 100vh;
 	}

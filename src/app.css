@@ -6,8 +6,8 @@
  * Pages not yet migrated still use their own hardcoded brutalist styles.
  */
 :root {
-	--font-text: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-	--font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+	--font-text: 'Figtree Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+	--font-display: 'Figtree Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
 	--color-bg: #f5f5f7;
 	--color-surface: #ffffff;

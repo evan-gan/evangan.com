@@ -14,7 +14,7 @@ projects/
   exampleFormat.yaml     # Reference for the project entry schema
 src/
   app.html               # HTML shell + meta description
-  app.css                # Tailwind import + design tokens (colours, category colours, glass, radii, shadows, fonts). Change the look here.
+  app.css                # Tailwind import + design tokens (colours, category colours, glass, radii, shadows, fonts: --font-text/--font-display = Figtree). Change the look here.
   lib/
     projects.ts          # SERVER ONLY (reads fs). Load + normalize YAML → ProjectData: sorting, tag order, URLs, markdown → html/plain text,
                          #   year, thumbnail aspect ratio (via image-size, so cards reserve space before images load), thumbnailPreview path
@@ -97,7 +97,7 @@ src/
                                   #   hover/focus boosts the full photo
         EmptyFilterNote.svelte    # "Nothing in this category yet."
   routes/
-    +layout.svelte       # GlassNav (hidden on /editor), Google Fonts (DM Sans for home/error, Inter fallback), global body styles;
+    +layout.svelte       # GlassNav (hidden on /editor), Figtree (@fontsource-variable/figtree, self-hosted; no Google Fonts), global body styles;
                          #   beforeNavigate → holdImagesDuringNavigation so image downloads never block a page change
     +layout.ts           # Prerender config
     +page.server.ts      # Home data: projects with a measured photo, trimmed to GalleryProject
@@ -145,7 +145,7 @@ vercel.json              # pnpm build → build/, clean URLs; redirects old /con
 
 ## Visual style (mid-migration)
 
-Moving from neo-brutalist (black borders, hard offset shadows, DM Sans) to an Apple-style "glass" look: system font, `#f5f5f7` ground, frosted translucent chrome, soft shadows, category colour dots. Done: nav (all pages), Home, Projects, About (which also holds contact). Not yet: error — they still hardcode their own colours. New work should use the tokens in `src/app.css`, not literals. No dark-mode token set yet.
+Moving from neo-brutalist (black borders, hard offset shadows, DM Sans — font now removed) to an Apple-style "glass" look: Figtree (was the system font), `#f5f5f7` ground, frosted translucent chrome, soft shadows, category colour dots. Done: nav (all pages), Home, Projects, About (which also holds contact). Not yet: error — they still hardcode their own colours. New work should use the tokens in `src/app.css`, not literals. No dark-mode token set yet.
 
 Home is the "B3" design from the canvas: tilted rows drifting right. Each row holds a disjoint set of photos and planGalleryLayout picks fewer/taller rows until every row's loop is wider than the screen plus its widest tile, so no photo shows twice at once (tested at phone → 2560×1440). Home image loading: nothing is fetched until hydration; then only previews, ~4 at a time, soonest-on-screen first. A full
 file is fetched only when a photo is clicked open (starts immediately) and shown once the fly-in has finished. Judge loading speed on
