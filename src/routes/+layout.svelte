@@ -7,6 +7,8 @@
 	import { beforeNavigate } from '$app/navigation';
 	import GlassNav from '$lib/components/GlassNav.svelte';
 	import { holdImagesDuringNavigation } from '$lib/imageCache.svelte';
+	import { PERSON_NAME } from '$lib/content/profile';
+	import { SITE_DESCRIPTION } from '$lib/content/site';
 
 	let { children } = $props();
 
@@ -18,7 +20,7 @@
 		holdImagesDuringNavigation(complete);
 	});
 
-	const NAV_BRAND = { href: resolve('/'), label: 'Evan Gan' };
+	const NAV_BRAND = { href: resolve('/'), label: PERSON_NAME };
 	const NAV_LINKS = [
 		{ href: resolve('/about'), label: 'About' },
 		{ href: resolve('/projects'), label: 'Projects' }
@@ -27,6 +29,7 @@
 
 <svelte:head>
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+	<meta name="description" content={SITE_DESCRIPTION} />
 </svelte:head>
 
 {#if !page.url.pathname.startsWith('/editor')}

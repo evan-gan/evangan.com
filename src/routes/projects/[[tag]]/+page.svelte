@@ -70,6 +70,12 @@
 
 <svelte:head>
 	<title>Projects - Evan Gan</title>
+	<!-- Each filter page has a prerendered Markdown twin (/projects.md, /projects/<tag>.md). -->
+	<link
+		rel="alternate"
+		type="text/markdown"
+		href={page.params.tag ? `/projects/${page.params.tag}.md` : '/projects.md'}
+	/>
 </svelte:head>
 
 <!-- noscroll: switching filters (all links in here) keeps your place instead of jumping to the top. -->

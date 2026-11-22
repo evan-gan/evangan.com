@@ -7,6 +7,9 @@
 	import ContactBlock from '$lib/components/ContactBlock.svelte';
 	import ProgressiveImage from '$lib/components/ProgressiveImage.svelte';
 	import { photoElementAttributes, startPageImageLoading } from '$lib/pageImageLoader';
+	import { AFFILIATIONS } from '$lib/content/affiliations';
+	import { BIO_PARAGRAPHS, PERSON_NAME, PERSON_PHOTO } from '$lib/content/profile';
+	import { BIGGEST_EVENT, BUDGET_MANAGED, HACKATHONS_RUN } from '$lib/content/stats';
 
 	let { data } = $props();
 
@@ -16,45 +19,16 @@
 		return `${allProjectsHref}#${projectId}`;
 	}
 
-	// WPI's goat-statue photo is a placeholder until there's a real one; it's not a project photo, so it has no AVIF preview
-	// (it's small enough that the queue just loads the full file).
-	const AFFILIATIONS = [
-		{
-			name: 'The LigerBots',
-			role: 'FIRST Robotics',
-			detail: 'Team 2877 · 2022–2026',
-			image: '/thumbnails/1760310168343-webp.webp',
-			href: 'https://ligerbots.org',
-			fill: 'var(--affiliation-ligerbots)',
-			labelColor: 'var(--affiliation-ligerbots-label)'
-		},
-		{
-			name: 'Hack Club',
-			role: 'Event organizer',
-			detail: 'Hackathons for teens · 2024–2026',
-			image: '/thumbnails/ShipwreckedGroupPhoto-webp.webp',
-			href: 'https://hackclub.com',
-			fill: 'var(--affiliation-hackclub)',
-			labelColor: 'var(--affiliation-hackclub-label)'
-		},
-		{
-			name: 'Open Sauce',
-			role: 'Exhibitor',
-			detail: 'Showed my CoreXY pen plotter · 2026',
-			image: '/thumbnails/1788642542809-webp.webp',
-			href: projectHref('corexy-pen-plotter'),
-			fill: 'var(--affiliation-opensauce)',
-			labelColor: 'var(--affiliation-opensauce-label)'
-		},
-		{
-			name: 'WPI',
-			role: 'Student',
-			detail: 'Worcester Polytechnic Institute · 2026-2030',
-			image: '/wpiGoatPlaceholder.jpg',
-			fill: 'var(--affiliation-wpi)',
-			labelColor: 'var(--affiliation-wpi-label)'
-		}
-	];
+	// Affiliation tiles, stat numbers, bio and contact copy all live in src/lib/content/.
+	const affiliationTiles = AFFILIATIONS.map((affiliation) => ({
+		name: affiliation.name,
+		role: affiliation.role,
+		detail: affiliation.detail,
+		image: affiliation.image,
+		href: affiliation.url ?? (affiliation.projectId ? projectHref(affiliation.projectId) : undefined),
+		fill: affiliation.fill,
+		labelColor: affiliation.labelColor
+	}));
 
 	function previewOf(image: string): string | null {
 		return data.previewByThumbnail[image] ?? null;
@@ -64,7 +38,7 @@
 
 	onMount(() =>
 		startPageImageLoading(pageElement!, [
-			...AFFILIATIONS.flatMap((affiliation) =>
+			...affiliationTiles.flatMap((affiliation) =>
 				affiliation.image ? [{ thumbnail: affiliation.image, preview: previewOf(affiliation.image) }] : []
 			),
 			...data.recentProjects
@@ -74,54 +48,51 @@
 
 <svelte:head>
 	<title>About - Evan Gan</title>
+	<link rel="alternate" type="text/markdown" href="/about.md" />
 </svelte:head>
 
 <main bind:this={pageElement} class="about-page">
 	<div class="widget-grid">
 		<section class="intro span-full span-two-rows">
-			<img class="intro-photo" src="/photo-of-me.webp" width="888" height="1200" alt="Evan Gan" />
+			<img
+				class="intro-photo"
+				src={PERSON_PHOTO.src}
+				width={PERSON_PHOTO.width}
+				height={PERSON_PHOTO.height}
+				alt={PERSON_NAME}
+			/>
 			<div class="intro-text">
 				<div class="eyebrow">About</div>
 				<h1>Hey, I'm Evan.</h1>
 				<p>
-					I'm a Robotics Engineering &amp; Computer Science double major at WPI, and I like building things. Mostly software, but also circuit boards, a pen
-					plotter, and once an 8-foot guillotine for smashing pumpkins. There's plenty more on
-					<a href={allProjectsHref}>my projects page</a>.
+					{BIO_PARAGRAPHS[0]} There's plenty more on <a href={allProjectsHref}>my projects page</a>.
 				</p>
-				<p>
-					In high school I was on my FIRST Robotics team, where I did a bit of everything, from CAD and design to
-					manufacturing and programming.
-				</p>
-				<p>I also organize hackathons for teens, which is how I ended up running events from Boston to Berlin.</p>
+				{#each BIO_PARAGRAPHS.slice(1) as paragraph (paragraph)}
+					<p>{paragraph}</p>
+				{/each}
 			</div>
 		</section>
 
-		{#each AFFILIATIONS as affiliation (affiliation.name)}
+		{#each affiliationTiles as affiliation (affiliation.name)}
 			<div class="span-two-rows">
 				<AffiliationTile {...affiliation} preview={affiliation.image ? previewOf(affiliation.image) : null} />
 			</div>
 		{/each}
 
 		<StatTile
-			label="Hackathons run"
-			value="7"
-			caption="organized and run since 2024"
+			{...HACKATHONS_RUN}
 			background="var(--cat-hackathons)"
 			ink="var(--stat-hackathons-ink)"
 		/>
 		<StatTile
-			label="Managed"
-			value="$500K"
-			caption="in event budgets"
+			{...BUDGET_MANAGED}
 			background="var(--color-inverse)"
 			ink="var(--color-bg)"
 			labelColor="var(--stat-dark-label)"
 			captionColor="var(--stat-dark-secondary)"
 		/>
 		<StatTile
-			label="Biggest event"
-			value="130"
-			caption="people at Shipwrecked"
+			{...BIGGEST_EVENT}
 			background="var(--stat-purple-tint)"
 			ink="var(--stat-purple-ink)"
 		/>

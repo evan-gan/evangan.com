@@ -13,7 +13,7 @@ projects/
   projects.yaml          # All project data + tagOrder (filter order). Edit here or via /editor in dev.
   exampleFormat.yaml     # Reference for the project entry schema
 src/
-  app.html               # HTML shell + meta description
+  app.html               # HTML shell (meta description is set in +layout.svelte from content/site.ts)
   app.css                # Tailwind import + design tokens (colours, category colours, glass, radii, shadows, fonts: --font-text/--font-display = Figtree). Change the look here.
   lib/
     projects.ts          # SERVER ONLY (reads fs). Load + normalize YAML → ProjectData: sorting, tag order, URLs, markdown → html/plain text,
@@ -59,6 +59,17 @@ src/
     flight.ts            # Focus-transition geometry: BoxState pose, computeFocusTarget (top-centre resting size), lerpBoxState,
                          #   transformFromRest, isRectOnScreen, sweepUpDistance, easeInOutCubic
     motion.ts            # Browser helpers: runTween (rAF, abortable, re-reads live positions), prefersReducedMotion
+    content/             # ALL SITE COPY / PERSONAL INFO LIVES HERE (small files; each says where it's used). Edit these, not pages.
+      site.ts            #   SITE_URL (www canonical), SITE_DESCRIPTION (<meta description>, set in +layout), absoluteUrl()
+      profile.ts         #   name, one-line summary, bio paragraphs (About + home intro + Markdown), KNOWS_ABOUT, job title,
+                         #   school, photo (JSON-LD + About intro)
+      affiliations.ts    #   About affiliation tiles (photo, link or projectId, colour tokens) + about.md list
+      stats.ts           #   About number tiles (colours set on the page) + about.md "By the numbers"
+      contact.ts         #   "Say hi." heading/blurb + GitHub/LinkedIn links (ContactBlock, Markdown, JSON-LD sameAs)
+      pages.ts           #   Page one-liners for the Markdown/llms.txt link lists + projects .md intro line
+    structuredData.ts    # Home JSON-LD (values from content/): buildPersonJsonLd (schema.org Person) + jsonLdScriptTag ("<" escaped for {@html})
+    agentMarkdown.ts     # Pure Markdown builders (copy from content/): home / about / projects pages, llms.txt (llmstxt.org format)
+    markdownResponse.ts  # Response helpers with text/markdown or text/plain Content-Type for the .md / llms.txt endpoints
     index.ts             # $lib alias placeholder (boilerplate)
     components/
       GlassNav.svelte        # Floating frosted pill nav (brand + links, highlights current section); used by +layout
@@ -84,7 +95,9 @@ src/
       EventMapTile.svelte    # About: dotted world map (dots from mapDots.ts; dot size = .land stroke-width) with pins at real city
                              #   positions and arcs from Boston; cities list (name, lon/lat, colours) is at the top. viewBox framed
                              #   on the pins with meet + overflow:visible so the map fills any tile shape; taller on phones
-      ContactBlock.svelte    # "Say hi." dark block with GitHub / LinkedIn chips (used at the bottom of About, id say-hi)
+      HomeIntro.svelte       # Home: visually hidden (sr-only) H1 + summary + recent projects, so screen readers and no-JS agents
+                             #   get real text (the visible home is just photos + two link words)
+      ContactBlock.svelte    # "Say hi." dark block with GitHub / LinkedIn chips (copy + links from content/contact.ts; SVG per `icon`) (used at the bottom of About, id say-hi)
       bento/                 # Pieces of the Projects page
         BentoFlow.svelte          # Renders planBentoRows: measures its width, re-plans, widths as % (server render is
                                   #   planned for 1200px, so phones re-plan once after hydration); tile snippet per entry
@@ -101,11 +114,11 @@ src/
                          #   beforeNavigate → holdImagesDuringNavigation so image downloads never block a page change
     +layout.ts           # Prerender config
     +page.server.ts      # Home data: projects with a measured photo, trimmed to GalleryProject
-    +page.svelte         # Home: DriftingGallery behind a frosted panel of StripeWords; clicking a photo opens FocusedProject
+    +page.svelte         # Home: HomeIntro (hidden text), Person JSON-LD + rel=alternate text/markdown in <head>, DriftingGallery behind a frosted panel of StripeWords; clicking a photo opens FocusedProject
                          #   (source tile hidden meanwhile); "Check out more" goes to /projects/all#<project-id>
     +error.svelte        # 404 page (old style)
     about/+page.server.ts # Project count + 2 most recent projects with photos ("Working on lately") + previewByThumbnail map
-    about/+page.svelte   # Widget grid (canvas "R5 · About"): intro block (uncropped photo + text), AFFILIATIONS tiles
+    about/+page.svelte   # Widget grid (canvas "R5 · About"): intro block (uncropped photo + text), affiliation tiles (data in content/)
                          #   (LigerBots, Hack Club, Open Sauce, WPI: photo is static/wpiGoatPlaceholder.jpg until a real one), stat tiles
                          #   (7 hackathons, $500K, 130 people, project count), Working on lately, event map, ContactBlock.
                          #   Affiliation + recent photos load via startPageImageLoading (photo-of-me.webp is a plain <img>)
@@ -115,6 +128,8 @@ src/
                          #   tapping the selected category goes back to all), then ONE BentoFlow of year tiles + projects
                          #   at true photo ratios. /projects = everything. Filters are links (noscroll). A #<project-id>
                          #   hash opens that project's sheet; closing clears it. startPageImageLoading queues every photo
+    index.md/ about.md/ projects.md/ projects/[tag].md/  # Prerendered Markdown twins of each page (+server.ts each)
+    llms.txt/+server.ts  # Prerendered /llms.txt index of the Markdown pages
     editor/              # Dev-only YAML editor UI (+page.server.ts redirects to / in prod)
     api/
       projects/+server.ts         # Dev-only GET/POST of projects.yaml
@@ -130,7 +145,7 @@ static/
   favicon.svg, robots.txt
 tests/                   # vitest; mirrors src/lib (date/, projectGroups/, categoryColors/, gallery/, flight/, imageQueue/,
                          #   galleryLoading/, scrollLoading/, eventMap/, thumbnailPreview/, bentoLayout/, bentoFlow/, galleryProject/,
-                         #   projects/ smoke test)
+                         #   projects/ smoke test, agentMarkdown/, structuredData/)
 compress-thumbnails.js   # Converts thumbnails to WebP, moves originals to oldNonCompressedAssets/
 generate-map-dots.js     # ImageMagick connected-components on assets/world-dots.png → src/lib/mapDots.ts
 generate-previews.js     # Builds missing/stale AVIF previews with ImageMagick (execFile, -depth 8 for browser-safe AVIF)
@@ -139,7 +154,7 @@ svelte.config.js         # adapter-static, strict:false so dev-only routes drop 
 vite.config.ts           # Tailwind + SvelteKit plugins; vitest picks up tests/**/*.test.ts
 pnpm-workspace.yaml      # pnpm 10 build-script allowlist (esbuild)
 vercel.json              # pnpm build → build/, clean URLs; redirects old /contact → /about#say-hi (contact lives on About);
-                         #   /thumbnails/* cached 1 week + 30 days stale-while-revalidate
+                         #   /thumbnails/* cached 1 week + 30 days stale-while-revalidate; static Content-Type for .md / llms.txt
 .github/copilot-instructions.md  # Older agent notes (describe the previous brutalist design)
 ```
 
@@ -155,5 +170,9 @@ Projects and About use the same queue (previews first, nearest the screen first,
 `src/routes/daily/` contains only empty, untracked folders (not part of the site).
 
 Lint: the repo predates the current eslint rules and older routes fail `pnpm lint`; new files pass. Prettier's svelte plugin currently crashes on .svelte files.
+
+Agent readiness (all static, generated by `pnpm build`; no middleware or functions, so nothing counts against Vercel compute):
+every page has a prerendered Markdown twin (path + .md; home = /index.md, linked via rel=alternate), /llms.txt lists them, home
+has Person JSON-LD + visually hidden intro text. Add a new page → add its `<route>.md/+server.ts` twin and a line in buildLlmsTxt.
 
 `.scratch/` (gitignored) holds one-off files; see `.scratch/INDEX.md`.

@@ -6,6 +6,8 @@
 	import DriftingGallery from '$lib/components/DriftingGallery.svelte';
 	import FocusedProject from '$lib/components/FocusedProject.svelte';
 	import StripeWord from '$lib/components/StripeWord.svelte';
+	import HomeIntro from '$lib/components/HomeIntro.svelte';
+	import { buildPersonJsonLd, jsonLdScriptTag } from '$lib/structuredData';
 
 	interface Props {
 		data: { galleryProjects: GalleryProject[] };
@@ -27,6 +29,9 @@
 
 	let selection: Selection | null = $state(null);
 
+	const INTRO_PROJECT_COUNT = 6;
+	const personJsonLdTag = jsonLdScriptTag(buildPersonJsonLd());
+
 	// "All projects" so the project is guaranteed to be on the page; the hash tells it which sheet to open.
 	function projectPageHref(project: GalleryProject): string {
 		return `${resolve('/projects/[[tag]]', { tag: 'all' })}#${project.id}`;
@@ -35,9 +40,14 @@
 
 <svelte:head>
 	<title>Evan Gan</title>
+	<link rel="alternate" type="text/markdown" href="/index.md" />
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- built from constants; "<" is escaped -->
+	{@html personJsonLdTag}
 </svelte:head>
 
 <main>
+	<HomeIntro projects={data.galleryProjects.slice(0, INTRO_PROJECT_COUNT)} />
+
 	<DriftingGallery
 		items={data.galleryProjects}
 		hiddenTileKey={selection?.tileKey}
