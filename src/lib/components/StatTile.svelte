@@ -12,14 +12,23 @@
 		ink: string;
 		labelColor?: string;
 		captionColor?: string;
+		/** Makes the whole tile a link (e.g. a category filter); `pressed` marks it as the current one. */
+		href?: string;
+		pressed?: boolean;
 	}
 
-	let { label, value, caption, footer, background, ink, labelColor, captionColor }: Props = $props();
+	let { label, value, caption, footer, background, ink, labelColor, captionColor, href, pressed = false }: Props =
+		$props();
 </script>
 
-<section
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- callers pass resolve()d hrefs -->
+<svelte:element
+	this={href ? 'a' : 'section'}
+	{href}
+	aria-current={href && pressed ? 'page' : undefined}
 	class="stat-tile"
-	aria-label={label}
+	class:pressed
+	aria-label={href ? undefined : label}
 	style:--stat-bg={background}
 	style:--stat-ink={ink}
 	style:--stat-label={labelColor ?? ink}
@@ -34,11 +43,15 @@
 			<span class="caption">{caption}</span>
 		{/if}
 	</span>
-</section>
+</svelte:element>
 
 <style>
 	.stat-tile {
-		min-height: 190px;
+		width: 100%;
+		min-height: var(--stat-tile-min-height, 190px);
+		margin: 0;
+		border: 0;
+		text-decoration: none;
 		height: 100%;
 		border-radius: var(--radius-widget);
 		background: var(--stat-bg);
@@ -55,6 +68,22 @@
 	.stat-tile:hover {
 		transform: translateY(-3px);
 		box-shadow: var(--shadow-lift);
+	}
+
+	a.stat-tile:focus-visible {
+		outline: 3px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	/* A ring in the tile's own ink, so the selected filter reads in any colour. */
+	.stat-tile.pressed {
+		box-shadow: inset 0 0 0 3px var(--stat-ink);
+	}
+
+	.stat-tile.pressed:hover {
+		box-shadow:
+			inset 0 0 0 3px var(--stat-ink),
+			var(--shadow-lift);
 	}
 
 	.label {

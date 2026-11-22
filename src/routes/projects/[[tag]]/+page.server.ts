@@ -1,22 +1,10 @@
-import { getAllProjectsFlat, loadAllProjects, getTagOrder } from '$lib/projects.js';
+import { getAllProjectsFlat, loadAllProjects } from '$lib/projects.js';
 
-export const load = async () => {
-	const categories = loadAllProjects();
-	const projects = getAllProjectsFlat();
-	const tagOrder = getTagOrder();
-	
-	return {
-		categories,
-		projects,
-		tagOrder
-	};
-};
+// Categories come sorted by projects.yaml's tagOrder (their count tiles show in that order).
+export const load = async () => ({
+	categories: loadAllProjects(),
+	projects: getAllProjectsFlat()
+});
 
-export const entries = () => {
-	const categories = loadAllProjects();
-	const tags = categories.map(c => ({ tag: c.name }));
-	return [
-		{ tag: 'all' },
-		...tags
-	];
-};
+// One prerendered page per filter, so filters are plain links that work without JS.
+export const entries = () => [{ tag: 'all' }, ...loadAllProjects().map((category) => ({ tag: category.name }))];

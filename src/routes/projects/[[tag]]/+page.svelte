@@ -4,50 +4,60 @@
 	import { replaceState } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import type { ProjectCategory, ProjectData } from '$lib/projects';
-	import { buildFilterItems, groupProjectsByYear, matchesFilter } from '$lib/projectGroups';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import YearSection from '$lib/components/YearSection.svelte';
-	import ProjectSheet from '$lib/components/ProjectSheet.svelte';
+	import { ALL_PROJECTS_SLUG, groupFilteredProjects, projectPhotos, toggleFilter } from '$lib/projectGroups';
+	import { BENTO_VIEW_OPTIONS, FLOW_GAP, flowTargetHeight, projectFlowItem, yearFlowItem } from '$lib/bentoLayout';
 	import { startPageImageLoading } from '$lib/pageImageLoader';
+	import FilterBar from '$lib/components/FilterBar.svelte';
+	import ProjectSheet from '$lib/components/ProjectSheet.svelte';
+	import BentoGrid from '$lib/components/bento/BentoGrid.svelte';
+	import BentoIntroTile from '$lib/components/bento/BentoIntroTile.svelte';
+	import BentoFlow from '$lib/components/bento/BentoFlow.svelte';
+	import CategoryFilterTiles from '$lib/components/bento/CategoryFilterTiles.svelte';
+	import YearTile from '$lib/components/bento/YearTile.svelte';
+	import ProjectBentoTile from '$lib/components/bento/ProjectBentoTile.svelte';
+	import EmptyFilterNote from '$lib/components/bento/EmptyFilterNote.svelte';
 
 	interface Props {
-		data: { categories: ProjectCategory[]; projects: ProjectData[]; tagOrder: string[] };
+		// Categories already arrive in projects.yaml's tagOrder.
+		data: { categories: ProjectCategory[]; projects: ProjectData[] };
 	}
 
 	let { data }: Props = $props();
 
-	// /projects with no tag shows highlights, matching the first entry of tagOrder.
-	const DEFAULT_FILTER = 'highlights';
+	type FlowEntry = { kind: 'year'; label: string; count: number } | { kind: 'project'; project: ProjectData };
 
-	let selectedFilter = $derived(page.params.tag || DEFAULT_FILTER);
-	let filterOptions = $derived(
-		buildFilterItems(data.categories, data.tagOrder).map((item) => ({
-			href: resolve('/projects/[[tag]]', { tag: item.slug }),
-			label: item.label
-		}))
+	// /projects with no tag shows everything, the same as /projects/all.
+	let selectedFilter = $derived(page.params.tag || ALL_PROJECTS_SLUG);
+
+	function filterHref(slug: string): string {
+		return resolve('/projects/[[tag]]', { tag: slug });
+	}
+
+	let viewOptions = $derived(BENTO_VIEW_OPTIONS.map((option) => ({ ...option, href: filterHref(option.key) })));
+
+	// One continuous flow: each year tile leads into that year's projects, so rows never end early at a year break.
+	let flowEntries = $derived(
+		groupFilteredProjects(data.projects, selectedFilter).flatMap((group): FlowEntry[] => [
+			{ kind: 'year', label: group.label, count: group.projects.length },
+			...group.projects.map((project): FlowEntry => ({ kind: 'project', project }))
+		])
 	);
-	let yearGroups = $derived(
-		groupProjectsByYear(data.projects.filter((project) => matchesFilter(project, selectedFilter)))
-	);
+
+	function toFlowItem(entry: FlowEntry, containerWidth: number) {
+		return entry.kind === 'year' ? yearFlowItem(entry.label, containerWidth) : projectFlowItem(entry.project, containerWidth);
+	}
 
 	let openProject: ProjectData | null = $state(null);
 	let mainElement: HTMLElement | undefined = $state();
 
-	// Links like /projects/all#shipwrecked (from the home gallery) open that project's sheet.
+	// Links like /projects/all#shipwrecked (from the home gallery and About) open that project's sheet.
 	onMount(() => {
 		const projectId = decodeURIComponent(window.location.hash.slice(1));
 		if (projectId) openProject = data.projects.find((project) => project.id === projectId) ?? null;
 	});
 
 	// Every project's photo is queued, not just this filter's, so switching filters finds them ready.
-	onMount(() =>
-		startPageImageLoading(
-			mainElement!,
-			data.projects
-				.filter((project) => project.hasThumbnail)
-				.map((project) => ({ thumbnail: project.thumbnail, preview: project.thumbnailPreview }))
-		)
-	);
+	onMount(() => startPageImageLoading(mainElement!, projectPhotos(data.projects)));
 
 	// Drop the hash on close so a refresh or Back doesn't pop the sheet open again.
 	function closeProject() {
@@ -62,90 +72,65 @@
 	<title>Projects - Evan Gan</title>
 </svelte:head>
 
-<main bind:this={mainElement}>
-	<div class="container">
-		<header class="page-header">
-			<h1>Projects</h1>
-			<p>A collection of things I've built and worked on</p>
-		</header>
+<!-- noscroll: switching filters (all links in here) keeps your place instead of jumping to the top. -->
+<main bind:this={mainElement} class="projects-page" data-sveltekit-noscroll>
+	<div class="page-width">
+		<BentoGrid phoneColumns={2}>
+			<BentoIntroTile>
+				<FilterBar options={viewOptions} activeKey={selectedFilter} label="Show" />
+			</BentoIntroTile>
+			<!-- Tapping the selected category again goes back to everything. -->
+			<CategoryFilterTiles
+				categories={data.categories}
+				{selectedFilter}
+				hrefFor={(slug) => filterHref(toggleFilter(selectedFilter, slug))}
+			/>
+		</BentoGrid>
 
-		<FilterBar options={filterOptions} activeHref={resolve('/projects/[[tag]]', { tag: selectedFilter })} label="Filter projects" />
-
-		{#each yearGroups as group (group.label)}
-			<YearSection label={group.label} projects={group.projects} onOpen={(project) => (openProject = project)} />
+		{#if flowEntries.length}
+			<BentoFlow entries={flowEntries} {toFlowItem} targetHeight={flowTargetHeight} gap={FLOW_GAP}>
+				{#snippet tile(entry)}
+					{#if entry.kind === 'year'}
+						<YearTile label={entry.label} count={entry.count} />
+					{:else}
+						<ProjectBentoTile project={entry.project} onOpen={(clicked) => (openProject = clicked)} />
+					{/if}
+				{/snippet}
+			</BentoFlow>
 		{:else}
-			<div class="empty-state">
-				<h2>No projects here yet</h2>
-				<p>Try a different category.</p>
-			</div>
-		{/each}
+			<EmptyFilterNote />
+		{/if}
 	</div>
 
 	<ProjectSheet project={openProject} onClose={closeProject} />
 </main>
 
 <style>
-	main {
+	.projects-page {
 		min-height: 100vh;
-		padding: calc(var(--nav-clearance) + 24px) 0 96px;
+		padding: calc(var(--nav-clearance) + 8px) var(--page-gutter) 96px;
 		background: var(--color-bg);
 		color: var(--color-label);
 		font-family: var(--font-text);
 		-webkit-font-smoothing: antialiased;
 	}
 
-	.container {
+	.page-width {
 		max-width: var(--page-max-width);
 		margin: 0 auto;
-		padding: 0 var(--page-gutter);
-	}
-
-	.page-header {
-		margin-bottom: 28px;
-	}
-
-	h1 {
-		margin: 0;
-		font-family: var(--font-display);
-		font-size: 64px;
-		line-height: 1;
-		font-weight: 700;
-		letter-spacing: -0.035em;
-	}
-
-	.page-header p {
-		margin: 10px 0 0;
-		font-size: 19px;
-		color: var(--color-label-secondary);
-	}
-
-	.empty-state {
-		margin-top: 40px;
-		padding: 64px 24px;
-		border-radius: var(--radius-sheet);
-		text-align: center;
-		background: var(--color-surface);
-	}
-
-	.empty-state h2 {
-		margin: 0;
-		font-size: 21px;
-		font-weight: 600;
-	}
-
-	.empty-state p {
-		margin: 6px 0 0;
-		font-size: 15px;
-		color: var(--color-label-secondary);
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 	}
 
 	@media (max-width: 560px) {
-		h1 {
-			font-size: 44px;
+		.projects-page {
+			padding-left: 16px;
+			padding-right: 16px;
 		}
 
-		.page-header p {
-			font-size: 17px;
+		.page-width {
+			gap: 14px;
 		}
 	}
 </style>

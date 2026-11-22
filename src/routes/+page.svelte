@@ -99,13 +99,10 @@
 		align-items: center;
 		gap: 14px;
 		border-radius: var(--radius-panel);
-		background: rgba(255, 255, 255, 0.66);
+		background: var(--glass-fill-panel);
 		backdrop-filter: var(--glass-blur-heavy);
 		-webkit-backdrop-filter: var(--glass-blur-heavy);
-		box-shadow:
-			inset 0 1px 0 rgba(255, 255, 255, 0.9),
-			inset 0 0 0 1px rgba(255, 255, 255, 0.45),
-			var(--shadow-panel);
+		box-shadow: var(--glass-edge-panel), var(--shadow-panel);
 		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: clamp(56px, 16vw, 104px);

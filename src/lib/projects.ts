@@ -370,7 +370,3 @@ export function loadAllProjects(): ProjectCategory[] {
 export function getAllProjectsFlat(): ProjectData[] {
   return normalizeProjects().projects;
 }
-
-export function getTagOrder(): string[] {
-  return normalizeProjects().tagOrder;
-}

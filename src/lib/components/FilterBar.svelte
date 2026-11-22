@@ -1,16 +1,17 @@
 <script lang="ts">
 	interface FilterOption {
-		href: string;
+		key: string;
 		label: string;
+		href: string;
 	}
 
 	interface Props {
 		options: FilterOption[];
-		activeHref: string;
+		activeKey: string;
 		label: string;
 	}
 
-	let { options, activeHref, label }: Props = $props();
+	let { options, activeKey, label }: Props = $props();
 </script>
 
 <!-- Filters are real links (one prerendered page per tag), so they work without JS and can be shared. -->
@@ -18,13 +19,14 @@
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
 <nav class="filter-scroller" aria-label={label}>
 	<ul class="filter-bar">
-		{#each options as option (option.href)}
+		{#each options as option (option.key)}
+			{@const isActive = option.key === activeKey}
 			<li>
 				<a
 					href={option.href}
 					class="filter-option"
-					class:active={option.href === activeHref}
-					aria-current={option.href === activeHref ? 'page' : undefined}
+					class:active={isActive}
+					aria-current={isActive ? 'page' : undefined}
 					data-sveltekit-noscroll
 				>
 					{option.label}

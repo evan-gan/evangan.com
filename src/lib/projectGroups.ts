@@ -1,10 +1,9 @@
 // Pure helpers for arranging projects on the projects page. No fs access, so they run in the
 // browser and in tests (unlike $lib/projects, which reads the YAML file).
 
-const HIGHLIGHTS_SLUG = 'highlights';
+export const HIGHLIGHTS_SLUG = 'highlights';
 export const EARLIER_LABEL = 'Earlier';
 export const ALL_PROJECTS_SLUG = 'all';
-const ALL_PROJECTS_LABEL = 'All Projects';
 
 interface YearTagged {
 	year: number;
@@ -18,11 +17,6 @@ interface Categorized {
 export interface YearGroup<T> {
 	label: string;
 	projects: T[];
-}
-
-export interface FilterItem {
-	slug: string;
-	label: string;
 }
 
 /**
@@ -72,42 +66,36 @@ export function displayCategories(project: Categorized): { name: string; slug: s
 		.filter((category) => category.slug !== HIGHLIGHTS_SLUG);
 }
 
-/**
- * Build the filter bar entries in the order given by `tagOrder` in projects.yaml.
- *
- * Args:
- *   categories: every category found in the data
- *   tagOrder: display names in the desired order; "All Projects" may appear anywhere
- *
- * Returns:
- *   Ordered items; anything not named in tagOrder is appended in its original order.
- */
-export function buildFilterItems(
-	categories: { name: string; displayName: string }[],
-	tagOrder: string[]
-): FilterItem[] {
-	const allProjectsItem: FilterItem = { slug: ALL_PROJECTS_SLUG, label: ALL_PROJECTS_LABEL };
-	const categoryItems = categories.map((category) => ({
-		slug: category.name,
-		label: category.displayName
-	}));
-	if (tagOrder.length === 0) return [allProjectsItem, ...categoryItems];
-
-	const remaining = new Set([allProjectsItem, ...categoryItems]);
-	const ordered: FilterItem[] = [];
-	for (const tagName of tagOrder) {
-		const match =
-			tagName === ALL_PROJECTS_LABEL
-				? allProjectsItem
-				: categoryItems.find((item) => item.label === tagName);
-		if (match && remaining.has(match)) {
-			ordered.push(match);
-			remaining.delete(match);
-		}
-	}
-	return [...ordered, ...remaining];
-}
-
 export function matchesFilter(project: Categorized, filterSlug: string): boolean {
 	return filterSlug === ALL_PROJECTS_SLUG || project.categorySlugs.includes(filterSlug);
+}
+
+/** The year groups for one filter: the projects matching `filterSlug`, split by groupProjectsByYear. */
+export function groupFilteredProjects<T extends YearTagged & Categorized>(
+	projects: T[],
+	filterSlug: string
+): YearGroup<T>[] {
+	return groupProjectsByYear(projects.filter((project) => matchesFilter(project, filterSlug)));
+}
+
+/**
+ * Every real photo a projects page can show, in the shape the page image loader takes.
+ * Pages pass all projects (not just the current filter's) so switching filters finds photos ready.
+ */
+export function projectPhotos(
+	projects: { hasThumbnail: boolean; thumbnail: string; thumbnailPreview: string | null }[]
+): { thumbnail: string; preview: string | null }[] {
+	return projects
+		.filter((project) => project.hasThumbnail)
+		.map((project) => ({ thumbnail: project.thumbnail, preview: project.thumbnailPreview }));
+}
+
+/** "1 project" / "8 projects". */
+export function formatProjectCount(count: number): string {
+	return `${count} ${count === 1 ? 'project' : 'projects'}`;
+}
+
+/** Clicking the selected filter again goes back to everything, so filter tiles work as toggles. */
+export function toggleFilter(currentSlug: string, clickedSlug: string): string {
+	return currentSlug === clickedSlug ? ALL_PROJECTS_SLUG : clickedSlug;
 }

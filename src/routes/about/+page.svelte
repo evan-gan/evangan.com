@@ -16,7 +16,8 @@
 		return `${allProjectsHref}#${projectId}`;
 	}
 
-	// WPI has no image yet, so its tile renders the striped placeholder; fill in role/detail when known.
+	// WPI's goat-statue photo is a placeholder until there's a real one; it's not a project photo, so it has no AVIF preview
+	// (it's small enough that the queue just loads the full file).
 	const AFFILIATIONS = [
 		{
 			name: 'The LigerBots',
@@ -49,8 +50,8 @@
 			name: 'WPI',
 			role: 'Student',
 			detail: 'Worcester Polytechnic Institute · 2026-2030',
+			image: '/wpiGoatPlaceholder.jpg',
 			fill: 'var(--affiliation-wpi)',
-			stripe: 'var(--affiliation-wpi-stripe)',
 			labelColor: 'var(--affiliation-wpi-label)'
 		}
 	];
