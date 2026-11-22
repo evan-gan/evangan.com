@@ -68,13 +68,19 @@ export function holdImagesDuringNavigation(navigationDone: Promise<unknown>) {
 	navigationDone.then(finish, finish);
 }
 
-/** Queue a set of photos: every first image (preview, or full file without one), then every full file. */
-export function requestPhotoImages(photos: { thumbnail: string; preview: string | null }[]) {
-	// Without a usable preview the full file is a photo's first image, so it's queued as the preview.
+type QueuedPhoto = { thumbnail: string; preview: string | null };
+
+/** Queue only each photo's first image: its preview, or its full file when it has no usable preview. */
+export function requestPreviewImages(photos: QueuedPhoto[]) {
 	imageQueue.requestAll(
 		photos.map((photo) => usablePreview(photo.preview) ?? photo.thumbnail),
 		'preview'
 	);
+}
+
+/** Queue a set of photos: every first image (preview, or full file without one), then every full file. */
+export function requestPhotoImages(photos: QueuedPhoto[]) {
+	requestPreviewImages(photos);
 	imageQueue.requestAll(
 		photos.map((photo) => photo.thumbnail),
 		'full'

@@ -1,12 +1,11 @@
-// Feeds the home gallery's photos into the shared image queue and tells it how soon each photo
-// drifts on screen; the queue's PRIORITY decides the order (on-screen previews, then clicked /
-// hovered full files, then the rest). The maths lives in galleryLoading.ts.
-// Tiles only ever show previews, so there's no zoom upgrade here: full files are fetched for
-// when a photo is opened, not for the tiles themselves.
+// Feeds the home gallery's previews into the shared image queue and tells it how soon each photo
+// drifts on screen, so on-screen previews load first. The maths lives in galleryLoading.ts.
+// Tiles only ever show previews, so full files are never queued from here: FocusedProject asks
+// for one only when its photo is clicked open.
 
 import { visibleViewportRect } from './displayDensity';
 import { secondsUntilVisible } from './galleryLoading';
-import { detectAvifSupport, imageQueue, requestPhotoImages } from './imageCache.svelte';
+import { detectAvifSupport, imageQueue, requestPreviewImages } from './imageCache.svelte';
 import { prefersReducedMotion } from './motion';
 
 export interface GalleryPhoto {
@@ -70,7 +69,7 @@ function rankPhotosByUrl(root: HTMLElement, photos: GalleryPhoto[]) {
 }
 
 /**
- * Start loading the gallery's photos. Downloads carry on after stopping (they're cached for the
+ * Start loading the gallery's previews. Downloads carry on after stopping (they're cached for the
  * rest of the visit, e.g. for the projects page); stopping only drops the on-screen ordering.
  *
  * Returns:
@@ -84,7 +83,7 @@ export function startGalleryImageLoading(options: LoaderOptions): () => void {
 	detectAvifSupport().then(() => {
 		if (stopped) return;
 		imageQueue.setRanker(rankOf);
-		requestPhotoImages(options.photos);
+		requestPreviewImages(options.photos);
 	});
 
 	return () => {

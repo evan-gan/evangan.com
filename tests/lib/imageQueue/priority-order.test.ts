@@ -44,9 +44,10 @@ describe('ImageQueue download order', () => {
 		queue.boost('zoomed-full', 'zoomed');
 		queue.boost('hovered-full', 'hovered');
 		queue.boost('clicked-full', 'clicked');
-		expect(started).toEqual(['visible-preview']);
+		// A click starts at once, even over the caps and ahead of on-screen previews.
+		expect(started).toEqual(['visible-preview', 'clicked-full']);
 
-		// Once on-screen previews are in, clicked and hovered go straight away (over the caps).
+		// Once on-screen previews are in, hovered goes straight away (over the caps).
 		await finish('visible-preview');
 		expect(started).toEqual(['visible-preview', 'clicked-full', 'hovered-full']);
 
@@ -60,13 +61,27 @@ describe('ImageQueue download order', () => {
 		expect(started.slice(5)).toEqual(['remaining-full']);
 	});
 
-	it('makes clicked and hovered full files wait for on-screen previews', async () => {
+	it('makes hovered full files wait for on-screen previews', async () => {
 		const { queue, started, finish } = createControlledQueue();
 		queue.request('visible-preview', 'preview');
-		queue.boost('clicked-full', 'clicked');
+		queue.boost('hovered-full', 'hovered');
 		expect(started).toEqual(['visible-preview']);
 		await finish('visible-preview');
+		expect(started).toEqual(['visible-preview', 'hovered-full']);
+	});
+
+	it('starts a clicked full file at once, without waiting for on-screen previews', () => {
+		const { queue, started } = createControlledQueue();
+		queue.request('visible-preview', 'preview');
+		queue.boost('clicked-full', 'clicked');
 		expect(started).toEqual(['visible-preview', 'clicked-full']);
+	});
+
+	it('still holds a clicked full file to the hard cap on downloads in flight', () => {
+		const { queue, started } = createControlledQueue({ concurrency: 2, maxInFlight: 2 });
+		queue.requestAll(['a', 'b'], 'preview');
+		queue.boost('clicked-full', 'clicked');
+		expect(started).toEqual(['a', 'b']);
 	});
 
 	it('lets a click jump ahead even when every slot is busy with off-screen work', async () => {
@@ -88,7 +103,8 @@ describe('ImageQueue download order', () => {
 		queue.boost('photo-full', 'clicked');
 		queue.boost('photo-full', 'zoomed');
 		await finish('visible-preview');
-		expect(started[1]).toBe('photo-full');
+		// Still clicked, so it started straight away instead of queuing as zoomed.
+		expect(started).toEqual(['visible-preview', 'photo-full']);
 	});
 
 	it('restarts a failed download when the visitor asks for it', async () => {

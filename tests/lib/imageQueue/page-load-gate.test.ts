@@ -17,6 +17,13 @@ describe('ImageQueue before the page has loaded', () => {
 		expect(started).toEqual(['visible-preview']);
 	});
 
+	it('starts a clicked full file even before the page has loaded', () => {
+		const { queue, started } = setup();
+		queue.requestAll(['offscreen-preview', 'visible-preview'], 'preview');
+		queue.boost('opened-full', 'clicked');
+		expect(started).toEqual(['visible-preview', 'opened-full']);
+	});
+
 	it('starts everything else on wake() after the load event', async () => {
 		const { queue, started, finish, markLoaded } = setup();
 		queue.requestAll(['offscreen-preview', 'visible-preview'], 'preview');

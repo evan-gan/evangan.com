@@ -221,10 +221,13 @@ export class ImageQueue {
 	/**
 	 * The gates that keep downloads from sharing a slow link with something more important:
 	 * full files wait for on-screen previews to finish, and un-asked-for full files for every preview.
+	 * A clicked photo is the exception: it starts at once, limited only by the hard cap.
 	 */
 	private canStart({ priority }: Candidate, unfinished: Candidate[], pageLoaded: boolean): boolean {
-		if (!pageLoaded && priority !== PRIORITY.visiblePreview) return false;
 		const underHardCap = this.activeCount < (this.options.maxInFlight ?? Infinity);
+		// The visitor opened it and is waiting on it, so it doesn't queue behind previews or page load.
+		if (priority === PRIORITY.clicked) return underHardCap;
+		if (!pageLoaded && priority !== PRIORITY.visiblePreview) return false;
 		const slotFree = underHardCap && this.activeCount < this.options.concurrency;
 		const fullSlotFree =
 			this.activeFullCount < (this.options.fullConcurrency ?? this.options.concurrency);
@@ -239,8 +242,7 @@ export class ImageQueue {
 			case PRIORITY.visiblePreview:
 			case PRIORITY.offscreenPreview:
 				return slotFree;
-			// One photo the visitor picked: worth going over the caps, once what's on screen has loaded.
-			case PRIORITY.clicked:
+			// One photo the visitor pointed at: worth going over the caps, once what's on screen has loaded.
 			case PRIORITY.hovered:
 				return !visiblePreviewsPending && underHardCap;
 			case PRIORITY.zoomed:

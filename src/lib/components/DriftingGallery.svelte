@@ -5,8 +5,6 @@
 	import { onMount } from 'svelte';
 	import { planGalleryLayout, TILE_GAP, TILT_DEGREES } from '$lib/gallery';
 	import { startGalleryImageLoading, tileDataAttributes } from '$lib/galleryImageLoader';
-	import { imageQueue } from '$lib/imageCache.svelte';
-	import { cancelHoverIntent, trackHoverIntent } from '$lib/hoverIntent';
 	import ProgressiveImage from './ProgressiveImage.svelte';
 
 	interface Props {
@@ -30,14 +28,10 @@
 	let galleryElement: HTMLElement | undefined = $state();
 
 	onMount(() => {
-		const stopLoading = startGalleryImageLoading({
+		return startGalleryImageLoading({
 			root: galleryElement!,
 			photos: items
 		});
-		return () => {
-			stopLoading();
-			cancelHoverIntent();
-		};
 	});
 </script>
 
@@ -72,10 +66,6 @@
 								tabindex={pass === 1 ? -1 : 0}
 								style:visibility={tileKey === hiddenTileKey ? 'hidden' : undefined}
 								{...tileDataAttributes(tile.id, row.loopWidth, row.loopWidth / row.durationSeconds)}
-								onpointermove={(event) =>
-										trackHoverIntent(event, tile.id, () => imageQueue.boost(tile.thumbnail, 'hovered'))}
-								onpointerleave={cancelHoverIntent}
-								onfocus={() => imageQueue.boost(tile.thumbnail, 'hovered')}
 								onclick={(event) => onSelect(tile, event.currentTarget, tileKey)}
 							>
 								<!-- Previews are sharp enough at tile size; decoding the multi-megapixel full files

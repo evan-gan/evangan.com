@@ -20,22 +20,23 @@ src/
                          #   year, thumbnail aspect ratio (via image-size, so cards reserve space before images load), thumbnailPreview path
     thumbnailPreview.js  # Preview naming/size rules (720px tall, AVIF q45, previews/<name>.avif); plain JS so generate-previews.js shares it
     imageQueue.ts        # Framework-free download priority queue. PRIORITY: on-screen previews > clicked > hovered > zoomed full >
-                         #   off-screen previews > remaining full (ranker = seconds until on screen). Gates: before window load only
-                         #   on-screen previews start (so the page stops "loading" once they're in); full files wait for on-screen
-                         #   previews, un-asked-for full files for all previews; clicked/hovered go over the caps but not
+                         #   off-screen previews > remaining full (ranker = seconds until on screen). Gates: clicked starts at once
+                         #   (skips page-load + preview gates, only maxInFlight applies); otherwise before window load only on-screen
+                         #   previews start (so the page stops "loading" once they're in); other full files wait for on-screen
+                         #   previews, un-asked-for full files for all previews; hovered goes over the caps but not
                          #   maxInFlight (5, leaves an HTTP/1.1 connection for page requests). 4 slots / 2 full, retry backoff,
                          #   pauses while offline. hold() (stacking pause), cancelActive() (abort all but clicked, requeue free),
                          #   releaseRanker() (only if still current); requestAll re-tries given-up jobs
     imageCache.svelte.ts # Site-wide singleton queue + reactive set of loaded URLs (survives client nav, so /projects reuses them),
-                         #   AVIF support probe, usablePreview(), requestPhotoImages(); retries on 'online', wakes the queue on
+                         #   AVIF support probe, usablePreview(), requestPreviewImages() (first images only), requestPhotoImages(); retries on 'online', wakes the queue on
                          #   window 'load'. holdImagesDuringNavigation: no new downloads during a nav, cancels in-flight after 150ms
     galleryLoading.ts    # Pure maths: secondsUntilVisible (drifting tile → when on screen), previewLooksSoft (zoom/density check)
-    galleryImageLoader.ts# Home gallery glue: ranks drifting tiles by time-to-visible, queues their photos (fulls too, for opening;
-                         #   no zoom boost since tiles never show fulls)
+    galleryImageLoader.ts# Home gallery glue: ranks drifting tiles by time-to-visible, queues PREVIEWS ONLY (home never fetches a
+                         #   full file unless a photo is clicked open)
     scrollLoading.ts     # Pure maths: secondsUntilScrolledIntoView (distance from screen ÷ assumed scroll speed; 0 = visible)
     pageImageLoader.ts   # Projects/About glue: photoElementAttributes (data-photo-src), ranks by scroll distance, wakes queue on
                          #   scroll, zoom/density → 'zoomed' boost for visible photos; startPageImageLoading(root, photos)
-    hoverIntent.ts       # Shared hover intent (pointer must actually move, then 150ms on the same photo); gallery + projects tiles
+    hoverIntent.ts       # Shared hover intent (pointer must actually move, then 150ms on the same photo); projects tiles
     displayDensity.ts    # Zoom detection: devicePixelRatio (browser zoom) × visualViewport.scale (pinch); visible viewport rect
     projectGroups.ts     # Pure helpers: groupProjectsByYear (recent years + "Earlier"), matchesFilter,
                          #   isHighlight, displayCategories (drops "Highlights"), groupFilteredProjects, projectPhotos (loader input),
@@ -66,12 +67,13 @@ src/
                              #   ProgressiveImage (fit=contain, sized by thumbnailRatio), boosted as 'clicked' on open
       DriftingGallery.svelte # Full-screen tilted rows of photos drifting right (CSS animation, doubled track), re-plans on resize,
                              #   rows never pause or slow; tiles are previewOnly; can hide one tile (hiddenTileKey); reduced-motion stops it. Starts the
-                             #   gallery image loader; hover (pointer must actually move — rows drifting under a resting
-                             #   mouse don't count — then 150ms intent) / focus boosts that photo's full file as 'hovered'
+                             #   gallery image loader (no hover prefetch)
       ProgressiveImage.svelte# Shows only queue-loaded images: preview layer, full layer on top revealed after decode() (or 800ms
                              #   at most, since decode() can hang); fit = cover | contain; previewOnly = never show the full file
-                             #   while a preview is usable (home tiles: decoding 5000px+ fulls per tile stuttered on Low Power Mode)
-      FocusedProject.svelte  # Clicked gallery photo (ProgressiveImage; boosts the full file as 'clicked'): flies from its (still-moving) tile to top-centre with rotate + zoom while the
+                             #   while a preview is usable (home tiles: decoding 5000px+ fulls per tile stuttered on Low Power Mode);
+                             #   holdFull = same, but temporary (FocusedProject during its flight)
+      FocusedProject.svelte  # Clicked gallery photo (ProgressiveImage; boosts the full file as 'clicked' on open, swaps it in only once
+                             #   the fly-in has landed AND it has loaded; never swaps during the fly-back): flies from its (still-moving) tile to top-centre with rotate + zoom while the
                              #   text panel (same transform, so it scales/tilts with the photo) unrolls in step. Close (Esc/×/backdrop):
                              #   if the tile is still on screen, photo flies back onto the tile as the text rolls up; else the card sweeps up
       StripeWord.svelte      # Big link word with the three brand-colour stripe hover sweep
@@ -145,8 +147,8 @@ vercel.json              # pnpm build → build/, clean URLs; redirects old /con
 
 Moving from neo-brutalist (black borders, hard offset shadows, DM Sans) to an Apple-style "glass" look: system font, `#f5f5f7` ground, frosted translucent chrome, soft shadows, category colour dots. Done: nav (all pages), Home, Projects, About (which also holds contact). Not yet: error — they still hardcode their own colours. New work should use the tokens in `src/app.css`, not literals. No dark-mode token set yet.
 
-Home is the "B3" design from the canvas: tilted rows drifting right. Each row holds a disjoint set of photos and planGalleryLayout picks fewer/taller rows until every row's loop is wider than the screen plus its widest tile, so no photo shows twice at once (tested at phone → 2560×1440). Home image loading: nothing is fetched until hydration; then the order is imageQueue's PRIORITY (see above), previews
-~4 at a time, full files 2 at a time, each class soonest-on-screen first. Judge loading speed on
+Home is the "B3" design from the canvas: tilted rows drifting right. Each row holds a disjoint set of photos and planGalleryLayout picks fewer/taller rows until every row's loop is wider than the screen plus its widest tile, so no photo shows twice at once (tested at phone → 2560×1440). Home image loading: nothing is fetched until hydration; then only previews, ~4 at a time, soonest-on-screen first. A full
+file is fetched only when a photo is clicked open (starts immediately) and shown once the fly-in has finished. Judge loading speed on
 a production build (`pnpm build && pnpm preview`): the dev server's unbundled JS delays the first image by 10s+ on a throttled link.
 Projects and About use the same queue (previews first, nearest the screen first, then fulls), so photos fetched on one page show instantly on the others.
 

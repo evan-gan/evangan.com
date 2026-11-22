@@ -12,7 +12,7 @@
 		type BoxState
 	} from '$lib/flight';
 	import { prefersReducedMotion, runTween } from '$lib/motion';
-	import { imageQueue } from '$lib/imageCache.svelte';
+	import { imageQueue, isImageLoaded } from '$lib/imageCache.svelte';
 	import ProgressiveImage from './ProgressiveImage.svelte';
 
 	interface Props {
@@ -47,6 +47,9 @@
 	// Last pose and reveal drawn, so a close that interrupts the fly-in starts from where the card actually is.
 	let currentPose: BoxState | null = null;
 	let currentReveal = 0;
+	// The sharp photo only swaps in once the card has landed: changing the image mid-flight reads
+	// as a flicker. ProgressiveImage adds the second condition (the full file has downloaded).
+	let fullImageAllowed = $state(false);
 
 	let metaLine = $derived(
 		[project.dateDisplay, ...displayCategories(project).map((category) => category.name)]
@@ -114,6 +117,7 @@
 		backdropVisible = true;
 		if (prefersReducedMotion()) {
 			drawReveal(1);
+			fullImageAllowed = true;
 			closeButton?.focus();
 			return;
 		}
@@ -124,6 +128,7 @@
 		const landed = await flyBetween(readTilePose, () => rest, 0, 1, FLY_IN_MS);
 		if (!landed || isClosing) return;
 		currentPose = rest;
+		fullImageAllowed = true;
 		closeButton?.focus({ preventScroll: true });
 	}
 
@@ -142,6 +147,8 @@
 		if (isClosing) return;
 		isClosing = true;
 		backdropVisible = false;
+		// Already showing the sharp photo: keep it. Not yet: don't swap during the fly-back either.
+		if (!isImageLoaded(project.thumbnail)) fullImageAllowed = false;
 		const tileStillVisible = isRectOnScreen(sourceTile.getBoundingClientRect(), viewportWidth, viewportHeight);
 
 		if (prefersReducedMotion()) {
@@ -174,7 +181,7 @@
 	}
 
 	onMount(() => {
-		// Usually already fetched on hover; if not, the preview shows while it catches up.
+		// The only place the home page asks for a full file; it downloads during the fly-in.
 		imageQueue.boost(project.thumbnail, 'clicked');
 		open();
 		return () => flightController?.abort();
@@ -209,7 +216,12 @@
 	>
 		<div bind:this={flightElement} class="focus-flight" style:transform-origin="50% {rest.height / 2}px">
 			<div class="focus-media" style:height="{rest.height}px">
-				<ProgressiveImage src={project.thumbnail} preview={project.preview} alt={project.nameText} />
+				<ProgressiveImage
+					src={project.thumbnail}
+					preview={project.preview}
+					alt={project.nameText}
+					holdFull={!fullImageAllowed}
+				/>
 			</div>
 			<div bind:this={infoElement} class="focus-info">
 				<p class="focus-meta">{metaLine}</p>

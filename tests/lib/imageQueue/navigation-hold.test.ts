@@ -9,7 +9,8 @@ describe('ImageQueue hold (page navigations)', () => {
 		queue.boost('clicked-full', 'clicked');
 		expect(started).toEqual([]);
 		release();
-		expect(started).toEqual(['a', 'b']);
+		// A click skips the preview gate, so it starts alongside them once the hold lifts.
+		expect(started).toEqual(['a', 'b', 'clicked-full']);
 	});
 
 	it('stays held until every overlapping hold is released', () => {
