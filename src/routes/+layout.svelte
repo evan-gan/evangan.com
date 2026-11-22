@@ -8,7 +8,7 @@
 	import GlassNav from '$lib/components/GlassNav.svelte';
 	import { holdImagesDuringNavigation } from '$lib/imageCache.svelte';
 	import { PERSON_NAME } from '$lib/content/profile';
-	import { SITE_DESCRIPTION } from '$lib/content/site';
+	import { OG_IMAGE, SITE_DESCRIPTION, absoluteUrl, canonicalUrl } from '$lib/content/site';
 
 	let { children } = $props();
 
@@ -30,6 +30,18 @@
 <svelte:head>
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 	<meta name="description" content={SITE_DESCRIPTION} />
+	<!-- Canonical + Open Graph: link previews, and how search engines and agents attribute pages to the site. -->
+	{#if !page.error}
+		<link rel="canonical" href={canonicalUrl(page.url.pathname)} />
+		<meta property="og:url" content={canonicalUrl(page.url.pathname)} />
+	{/if}
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content={PERSON_NAME} />
+	<meta property="og:description" content={SITE_DESCRIPTION} />
+	<meta property="og:image" content={absoluteUrl(OG_IMAGE.src)} />
+	<meta property="og:image:width" content={String(OG_IMAGE.width)} />
+	<meta property="og:image:height" content={String(OG_IMAGE.height)} />
+	<meta property="og:image:alt" content={OG_IMAGE.alt} />
 </svelte:head>
 
 {#if !page.url.pathname.startsWith('/editor')}

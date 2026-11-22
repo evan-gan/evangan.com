@@ -4,8 +4,10 @@
 import type { ProjectCategory, ProjectLink } from './projects';
 // All copy comes from content/ — edit it there, not here.
 import { AFFILIATIONS, type Affiliation } from './content/affiliations';
+import { AGENT_USAGE_NOTES, AGENT_USE_CASES } from './content/agents';
 import { CONTACT_BLURB, PROFILE_LINKS } from './content/contact';
 import { PAGE_SUMMARIES, PROJECTS_MARKDOWN_INTRO } from './content/pages';
+import { PRIVACY_INTRO, PRIVACY_SECTIONS, PRIVACY_UPDATED } from './content/privacy';
 import { BIO_PARAGRAPHS, PERSON_NAME, PERSON_SUMMARY } from './content/profile';
 import { absoluteUrl } from './content/site';
 import { STATS } from './content/stats';
@@ -162,15 +164,34 @@ export function buildLlmsTxt(categories: MarkdownCategory[]): string {
 		`# ${PERSON_NAME}`,
 		`> ${PERSON_SUMMARY}`,
 		'Every page is also available as Markdown: add `.md` to its path (the home page is /index.md).',
+		'## When to use this site',
+		'Use it to answer questions about:',
+		AGENT_USE_CASES.map((useCase) => `- ${useCase}`).join('\n'),
+		'## How to use it',
+		AGENT_USAGE_NOTES.map((note) => `- ${note}`).join('\n'),
 		'## Pages',
 		[
 			`- ${markdownLink('Home', absoluteUrl('/index.md'))}: ${PAGE_SUMMARIES.home}`,
 			`- ${markdownLink('About', absoluteUrl('/about.md'))}: ${PAGE_SUMMARIES.about}`,
-			`- ${markdownLink('All projects', absoluteUrl('/projects/all.md'))}: ${PAGE_SUMMARIES.projects}`
+			`- ${markdownLink('All projects', absoluteUrl('/projects/all.md'))}: ${PAGE_SUMMARIES.projects}`,
+			`- ${markdownLink('Privacy', absoluteUrl('/privacy.md'))}: ${PAGE_SUMMARIES.privacy}`
 		].join('\n'),
 		'## Project categories',
 		categoryLinks.join('\n'),
 		'## Optional',
 		profileLinkList()
+	]);
+}
+
+export function buildPrivacyMarkdown(): string {
+	return joinBlocks([
+		'# Privacy',
+		`*Last updated ${PRIVACY_UPDATED}*`,
+		PRIVACY_INTRO,
+		...PRIVACY_SECTIONS.flatMap((section) => [
+			`## ${section.heading}`,
+			...section.paragraphs,
+			section.link ? `See ${markdownLink(section.link.label, section.link.url)}.` : ''
+		])
 	]);
 }

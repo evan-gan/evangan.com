@@ -26,4 +26,14 @@ describe('buildLlmsTxt', () => {
 	it('puts the off-site profiles under Optional', () => {
 		expect(llmsTxt.indexOf('## Optional')).toBeLessThan(llmsTxt.indexOf('github.com/evan-gan'));
 	});
+
+	it('tells agents when and how to use the site', () => {
+		expect(llmsTxt).toContain('## When to use this site');
+		expect(llmsTxt).toContain('## How to use it');
+		expect(llmsTxt).toContain('- How to reach him (GitHub, LinkedIn)');
+	});
+
+	it('links the privacy page', () => {
+		expect(llmsTxt).toContain('(https://www.evangan.com/privacy.md)');
+	});
 });

@@ -52,7 +52,7 @@ src/
                          #   flush; a row unit is a single tile or a 2-tile stack (how highlights get stacked
                          #   neighbours). Cost = distance from target height × emphasis², min width/height, oversize,
                          #   stacks, ragged last row, keepWithNext tile ending a row. Flexible (photo-less) tiles stretch
-    date.ts              # formatDate (display) + parseSortableDate / compareSortableDatesDescending (uses END of ranges)
+    date.ts              # formatIsoDateLong ("2026-11-21" → "November 21, 2026"), formatDate (display) + parseSortableDate / compareSortableDatesDescending (uses END of ranges)
     gallery.ts           # Home gallery maths: planGalleryLayout (row count/height, disjoint balanced rows, drift speed) so no photo
                          #   is ever on screen twice; seeded shuffle, partitionBalanced, coverSizeForTilt
     galleryProject.ts    # GalleryProject type + toGalleryProject (null without a measured photo); home
@@ -60,15 +60,19 @@ src/
                          #   transformFromRest, isRectOnScreen, sweepUpDistance, easeInOutCubic
     motion.ts            # Browser helpers: runTween (rAF, abortable, re-reads live positions), prefersReducedMotion
     content/             # ALL SITE COPY / PERSONAL INFO LIVES HERE (small files; each says where it's used). Edit these, not pages.
-      site.ts            #   SITE_URL (www canonical), SITE_DESCRIPTION (<meta description>, set in +layout), absoluteUrl()
+      site.ts            #   SITE_URL (www canonical), SITE_DESCRIPTION (<meta description>, set in +layout), OG_IMAGE
+                         #   (og:image = static/og-image.jpg, a JPG copy of photo-of-me), absoluteUrl(), canonicalUrl()
       profile.ts         #   name, one-line summary, bio paragraphs (About + home intro + Markdown), KNOWS_ABOUT, job title,
                          #   school, photo (JSON-LD + About intro)
       affiliations.ts    #   About affiliation tiles (photo, link or projectId, colour tokens) + about.md list
       stats.ts           #   About number tiles (colours set on the page) + about.md "By the numbers"
       contact.ts         #   "Say hi." heading/blurb + GitHub/LinkedIn links (ContactBlock, Markdown, JSON-LD sameAs)
       pages.ts           #   Page one-liners for the Markdown/llms.txt link lists + projects .md intro line
+      agents.ts          #   llms.txt "When to use this site" + "How to use it" lists
+      privacy.ts         #   /privacy page + privacy.md copy and PRIVACY_UPDATED (also the sitemap lastmod). Keep it TRUE
     structuredData.ts    # Home JSON-LD (values from content/): buildPersonJsonLd (schema.org Person) + jsonLdScriptTag ("<" escaped for {@html})
     agentMarkdown.ts     # Pure Markdown builders (copy from content/): home / about / projects pages, llms.txt (llmstxt.org format)
+    sitemap.ts           # buildSitemapXml (sitemaps.org 0.9, escaped absolute locs) + buildDate (YYYY-MM-DD = deploy date)
     markdownResponse.ts  # Response helpers with text/markdown or text/plain Content-Type for the .md / llms.txt endpoints
     index.ts             # $lib alias placeholder (boilerplate)
     components/
@@ -110,7 +114,8 @@ src/
                                   #   hover/focus boosts the full photo
         EmptyFilterNote.svelte    # "Nothing in this category yet."
   routes/
-    +layout.svelte       # GlassNav (hidden on /editor), Figtree (@fontsource-variable/figtree, self-hosted; no Google Fonts), global body styles;
+    +layout.svelte       # <head>: meta description, canonical, og:url/type/site_name/description/image (all from content/);
+                         #   GlassNav (hidden on /editor), Figtree (@fontsource-variable/figtree, self-hosted; no Google Fonts), global body styles;
                          #   beforeNavigate → holdImagesDuringNavigation so image downloads never block a page change
     +layout.ts           # Prerender config
     +page.server.ts      # Home data: projects with a measured photo, trimmed to GalleryProject
@@ -130,6 +135,9 @@ src/
                          #   hash opens that project's sheet; closing clears it. startPageImageLoading queues every photo
     index.md/ about.md/ projects.md/ projects/[tag].md/  # Prerendered Markdown twins of each page (+server.ts each)
     llms.txt/+server.ts  # Prerendered /llms.txt index of the Markdown pages
+    sitemap.xml/+server.ts # Prerendered /sitemap.xml of every HTML page (robots.txt points to it)
+    privacy/+page.svelte # Privacy page (About-intro card look; copy from content/privacy.ts); privacy.md/ is its Markdown twin.
+                         #   Not linked from the nav; found via sitemap / llms.txt
     editor/              # Dev-only YAML editor UI (+page.server.ts redirects to / in prod)
     api/
       projects/+server.ts         # Dev-only GET/POST of projects.yaml
@@ -142,10 +150,11 @@ static/
     previews/            # Generated 720px AVIF previews (commit them; Vercel has no ImageMagick). A test fails if one is missing
   wpiGoatPlaceholder.jpg # About WPI affiliation tile photo (791×1200 placeholder, no AVIF preview)
   photo-of-me.webp       # About page photo (888×1200, resized from the original kept in oldNonCompressedAssets/)
-  favicon.svg, robots.txt
+  og-image.jpg           # og:image link-preview photo (JPG copy of photo-of-me.webp; see content/site.ts)
+  favicon.svg, robots.txt (allows all + Sitemap: line)
 tests/                   # vitest; mirrors src/lib (date/, projectGroups/, categoryColors/, gallery/, flight/, imageQueue/,
                          #   galleryLoading/, scrollLoading/, eventMap/, thumbnailPreview/, bentoLayout/, bentoFlow/, galleryProject/,
-                         #   projects/ smoke test, agentMarkdown/, structuredData/)
+                         #   projects/ smoke test, agentMarkdown/, structuredData/, sitemap/, content/)
 compress-thumbnails.js   # Converts thumbnails to WebP, moves originals to oldNonCompressedAssets/
 generate-map-dots.js     # ImageMagick connected-components on assets/world-dots.png → src/lib/mapDots.ts
 generate-previews.js     # Builds missing/stale AVIF previews with ImageMagick (execFile, -depth 8 for browser-safe AVIF)
@@ -172,7 +181,8 @@ Projects and About use the same queue (previews first, nearest the screen first,
 Lint: the repo predates the current eslint rules and older routes fail `pnpm lint`; new files pass. Prettier's svelte plugin currently crashes on .svelte files.
 
 Agent readiness (all static, generated by `pnpm build`; no middleware or functions, so nothing counts against Vercel compute):
-every page has a prerendered Markdown twin (path + .md; home = /index.md, linked via rel=alternate), /llms.txt lists them, home
-has Person JSON-LD + visually hidden intro text. Add a new page → add its `<route>.md/+server.ts` twin and a line in buildLlmsTxt.
+every page has a prerendered Markdown twin (path + .md; home = /index.md, linked via rel=alternate), /llms.txt lists them with
+when-to-use guidance, /sitemap.xml, canonical + Open Graph tags on every page, /privacy, home has Person JSON-LD + visually hidden
+intro text. Not done on purpose: Accept-header Markdown negotiation and Markdown 404s (need a server). Add a new page → add its `<route>.md/+server.ts` twin, a line in buildLlmsTxt, and its path in sitemap.xml/+server.ts.
 
 `.scratch/` (gitignored) holds one-off files; see `.scratch/INDEX.md`.

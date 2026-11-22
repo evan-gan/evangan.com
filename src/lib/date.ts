@@ -176,3 +176,15 @@ export function compareSortableDatesDescending(first: SortableDate, second: Sort
 }
 
 export default formatDate;
+
+/**
+ * Format a YYYY-MM-DD date for display, e.g. "2026-11-21" → "November 21, 2026".
+ * Read as UTC so the day never shifts with the visitor's timezone.
+ */
+export function formatIsoDateLong(isoDate: string): string {
+  const parsed = new Date(`${isoDate}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`formatIsoDateLong expected a YYYY-MM-DD date, got "${isoDate}".`);
+  }
+  return parsed.toLocaleDateString('en-US', { timeZone: 'UTC', dateStyle: 'long' });
+}
