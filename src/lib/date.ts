@@ -120,4 +120,59 @@ export function formatDate(input: string | undefined | null): string {
   return raw;
 }
 
+export interface SortableDate {
+  year: number;
+  month: number;
+  day: number;
+}
+
+const MONTH_PREFIXES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Reduce a free-form project date to comparable numbers, using the END of any range so
+ * ongoing work ("Sep 2022 - June 2026") sorts and groups by when it finished.
+ *
+ * Args:
+ *   dateStr: the raw `date` string from projects.yaml
+ *
+ * Returns:
+ *   { year, month (0-11), day } — year is 0 when none is found. A month with no day gets
+ *   day 32 so whole months sort as more recent than specific dates in that month.
+ */
+export function parseSortableDate(dateStr: string): SortableDate {
+  const rangeWithDay = dateStr.match(/[-–]\s*([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s+(\d{4})/);
+  const rangeMonthOnly = dateStr.match(/[-–]\s*([A-Za-z]+),?\s+(\d{4})/);
+
+  let targetDateStr = dateStr;
+  if (rangeWithDay) {
+    targetDateStr = `${rangeWithDay[1]} ${rangeWithDay[2]}, ${rangeWithDay[3]}`;
+  } else if (rangeMonthOnly) {
+    targetDateStr = `${rangeMonthOnly[1]} ${rangeMonthOnly[2]}`;
+  }
+
+  const yearMatch = targetDateStr.match(/\b(20\d{2})\b/);
+  const year = yearMatch ? parseInt(yearMatch[1], 10) : 0;
+
+  const monthIndex = MONTH_PREFIXES.findIndex((prefix) => targetDateStr.includes(prefix));
+  const month = Math.max(monthIndex, 0);
+
+  // For day ranges like "8-11" take the last day. The 1-2 digit match can't grab the 4-digit year.
+  const dayMatch = targetDateStr.match(/\b(\d{1,2})(?:[-–](\d{1,2}))?\b/);
+  let day = 0;
+  if (dayMatch) {
+    day = parseInt(dayMatch[2] ?? dayMatch[1], 10);
+  } else if (monthIndex >= 0) {
+    day = 32;
+  }
+
+  return { year, month, day };
+}
+
+/** Newest-first comparator for SortableDate values. */
+export function compareSortableDatesDescending(first: SortableDate, second: SortableDate): number {
+  if (first.year !== second.year) return second.year - first.year;
+  if (first.month !== second.month) return second.month - first.month;
+  return second.day - first.day;
+}
+
 export default formatDate;

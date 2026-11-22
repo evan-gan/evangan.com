@@ -32,7 +32,7 @@
 	}
 
 	.error-code {
-		font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: 12rem;
 		margin: 0 0 2rem 0;
@@ -50,7 +50,7 @@
 	.home-link {
 		display: inline-block;
 		position: relative;
-		font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		font-family: var(--font-display);
 		font-weight: 700;
 		font-size: 1.5rem;
 		color: #000000;
